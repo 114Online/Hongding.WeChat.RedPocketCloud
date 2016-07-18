@@ -1,0 +1,164 @@
+﻿<script src="~/assets/js/chartist.min.js"></script>
+<div class="row">
+    <div class="col-md-5">
+        <div class="card" style="height: 477px;">
+            <div class="header">
+                <h4 class="title">账号信息</h4>
+                <p class="category">余额、活动、接口地址等</p>
+            </div>
+            <div class="content table-responsive table-full-width">
+                <table class="table table-hover table-striped">
+                    <tr>
+                        <td>商户名称</td>
+                        <td>@User.Current.Name</td>
+                    </tr>
+                    <tr>
+                        <td>接口地址</td>
+                        <td>@RedPacketCloud.Startup.Config["Host"]/WeChat/Index/@User.Current.UserName</td>
+                    </tr>
+                    <tr>
+                        <td>账户余额</td>
+                        <td>@Html.Money(User.Current.Balance)</td>
+                    </tr>
+                    <tr>
+                        <td>30天活动数</td>
+                        <td>@ViewBag.ActivityCount 次</td>
+                    </tr>
+                    <tr>
+                        <td>活动模板</td>
+                        <td>@ViewBag.TemplateCount 个</td>
+                    </tr>
+                    <tr>
+                        <td>中奖限制</td>
+                        <td>每日每用户 @User.Current.PocketPerDayLimit 次</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-7">
+        <div class="card">
+            <div class="header">
+                <h4 class="title">资金变动</h4>
+                <p class="category">12 小时变化图</p>
+            </div>
+            <div class="content">
+                <div id="chartMoney" class="ct-chart"></div>
+                <div class="footer">
+                    <div class="legend">
+                        <i class="fa fa-circle text-info"></i> 资金
+                    </div>
+                    <hr>
+                    <div class="stats">
+                        <i class="fa fa-history"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="header">
+                <h4 class="title">红包活动人气</h4>
+                <p class="category">12 小时内红包活动人气柱状图</p>
+            </div>
+            <div class="content">
+                <div id="chartAttend" class="ct-chart"></div>
+                <div class="footer">
+                    <div class="legend">
+                        <i class="fa fa-circle text-info"></i> 参与
+                        <i class="fa fa-circle text-danger"></i> 中奖
+                    </div>
+                    <hr>
+                    <div class="stats">
+                        <i class="fa fa-history"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="header">
+                <h4 class="title">红包发放比率</h4>
+                <p class="category">当日红包活动资金占比饼图</p>
+            </div>
+            <div class="content">
+                <div id="chartPreferences" class="ct-chart ct-perfect-fourth"></div>
+
+                <div class="footer">
+                    <hr>
+                    <div class="stats">
+                        <i class="fa fa-clock-o"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var dataMoney = @(new HtmlString(ViewBag.MoneyGraphicJson));
+
+    var optionsMoney = {
+        lineSmooth: false,
+        low: 0,
+        high: @ViewBag.MoneyHeight,
+        showArea: true,
+        height: "245px",
+        axisX: {
+            showGrid: false,
+        },
+        lineSmooth: Chartist.Interpolation.simple({
+            divisor: 1
+        }),
+        showLine: false,
+        showPoint: false,
+    };
+
+    var responsiveSales = [
+      ['screen and (max-width: 640px)', {
+          axisX: {
+              labelInterpolationFnc: function (value) {
+                  return value[0];
+              }
+          }
+      }]
+    ];
+
+    Chartist.Line('#chartMoney', dataMoney, optionsMoney, responsiveSales);
+
+    Chartist.Pie('#chartPreferences', @(new HtmlString(ViewBag.ActivityGraphicJson)));  
+    
+    var dataAttend = {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+        series: [
+          [542, 443, 320, 780, 553, 453, 326, 434, 568, 610, 756, 895],
+          [412, 243, 280, 580, 453, 353, 300, 364, 368, 410, 636, 695]
+        ]
+    };
+        
+    var options = {
+        seriesBarDistance: 10,
+        axisX: {
+            showGrid: false
+        },
+        height: "215px"
+    };
+        
+    var responsiveOptions = [
+      ['screen and (max-width: 640px)', {
+          seriesBarDistance: 5,
+          axisX: {
+              labelInterpolationFnc: function (value) {
+                  return value[0];
+              }
+          }
+      }]
+    ];
+        
+    Chartist.Bar('#chartActivity', dataAttend, options, responsiveOptions);
+</script>
