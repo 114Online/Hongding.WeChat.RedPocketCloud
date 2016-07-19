@@ -13,29 +13,29 @@
 
 
     <!-- Bootstrap core CSS     -->
-    <link href="assets/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/assets/css/bootstrap.min.css" rel="stylesheet" />
 
     <!-- Animation library for notifications   -->
-    <link href="assets/css/animate.min.css" rel="stylesheet" />
+    <link href="~/assets/css/animate.min.css" rel="stylesheet" />
 
     <!--  Light Bootstrap Table core CSS    -->
-    <link href="assets/css/light-bootstrap-dashboard.css" rel="stylesheet" />
+    <link href="~/assets/css/light-bootstrap-dashboard.css" rel="stylesheet" />
 
 
     <!--  CSS for Demo Purpose, don't include it in your project     -->
-    <link href="assets/css/demo.css" rel="stylesheet" />
+    <link href="~/assets/css/demo.css" rel="stylesheet" />
 
 
     <!--     Fonts and icons     -->
     <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
     <link href='http://fonts.googleapis.com/css?family=Roboto:400,700,300' rel='stylesheet' type='text/css'>
-    <link href="assets/css/pe-icon-7-stroke.css" rel="stylesheet" />
+    <link href="~/assets/css/pe-icon-7-stroke.css" rel="stylesheet" />
 
 </head>
 <body>
 
     <div class="wrapper">
-        <div class="sidebar" data-color="purple" data-image="assets/img/sidebar-5.jpg">
+        <div class="sidebar" data-color="purple" data-image="/assets/img/sidebar-5.jpg">
 
             <!--   you can change the color of the sidebar using: data-color="blue | azure | green | orange | red | purple" -->
 
@@ -54,18 +54,12 @@
                             <p>仪表盘</p>
                         </a>
                     </li>
-                    <li>
-                        <a asp-action="Profile" asp-controller="Account">
-                            <i class="pe-7s-user"></i>
-                            <p>我的账户</p>
-                        </a>
-                    </li>
-                    <li>
-                        <a asp-action="Charge" asp-controller="Account">
+                    @*<li>
+                        <a asp-action="Pay" asp-controller="Account">
                             <i class="pe-7s-cash"></i>
                             <p>账户充值</p>
                         </a>
-                    </li>
+                    </li>*@
                     <li>
                         <a asp-action="Index" asp-controller="RedPacket">
                             <i class="pe-7s-wallet"></i>
@@ -147,7 +141,7 @@
                         <ul class="nav navbar-nav navbar-right">
                             <li>
                                 <a href="#">
-                                    欢迎您, @User.Current.Name
+                                    余额：@Html.Money(User.Current.Balance)
                                 </a>
                             </li>
                         </ul>
@@ -155,13 +149,11 @@
                 </div>
             </nav>
 
-
             <div class="content">
                 <div class="container-fluid">
                     @RenderBody()
                 </div>
             </div>
-
 
             <footer class="footer">
                 <div class="container-fluid">
@@ -173,26 +165,23 @@
 
         </div>
     </div>    <!--   Core JS Files   -->
-    <script src="assets/js/jquery-1.10.2.js" type="text/javascript"></script>
-    <script src="assets/js/bootstrap.min.js" type="text/javascript"></script>
+    <script src="~/assets/js/jquery-1.10.2.js" type="text/javascript"></script>
+    <script src="~/assets/js/bootstrap.min.js" type="text/javascript"></script>
 
     <!--  Checkbox, Radio & Switch Plugins -->
-    <script src="assets/js/bootstrap-checkbox-radio-switch.js"></script>
+    <script src="~/assets/js/bootstrap-checkbox-radio-switch.js"></script>
 
     <!--  Charts Plugin -->
-    <script src="assets/js/chartist.min.js"></script>
+    <script src="~/assets/js/chartist.min.js"></script>
 
     <!--  Notifications Plugin    -->
-    <script src="assets/js/bootstrap-notify.js"></script>
-
-    <!--  Google Maps Plugin    -->
-    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
+    <script src="~/assets/js/bootstrap-notify.js"></script>
 
     <!-- Light Bootstrap Table Core javascript and methods for Demo purpose -->
-    <script src="assets/js/light-bootstrap-dashboard.js"></script>
+    <script src="~/assets/js/light-bootstrap-dashboard.js"></script>
 
     <!-- Light Bootstrap Table DEMO methods, don't include it in your project! -->
-    <script src="assets/js/demo.js"></script>
+    <script src="~/assets/js/demo.js"></script>
 
 
 </body>

@@ -157,5 +157,8 @@ namespace RedPacketCloud.Controllers
                 x.Details = $"{ user.UserName }的密码已经被重置成为了{ pwd }";
             });
         }
+
+        [HttpGet]
+        public IActionResult Pay() => View();
     }
 }

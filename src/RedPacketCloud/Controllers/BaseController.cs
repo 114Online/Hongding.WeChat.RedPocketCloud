@@ -14,26 +14,29 @@ namespace RedPacketCloud.Controllers
         {
             base.Prepare();
 
-            var notifications = new List<NotificationViewModel>();
-            if (User.IsInRole("Root"))
-                notifications.AddRange(DB.Activities
-                    .Where(x => !x.End.HasValue)
-                    .Select(x => new NotificationViewModel
-                    {
-                        Text = x.Title + " 正在进行",
-                        Url = Url.Action("Show", "Activity", new { id = x.Id })
-                    })
-                    .ToList());
-            else
-                notifications.AddRange(DB.Activities
-                    .Where(x => !x.End.HasValue && x.OwnerId == User.Current.Id)
-                    .Select(x => new NotificationViewModel
-                    {
-                        Text = x.Title + " 正在进行",
-                        Url = Url.Action("Show", "Activity", new { id = x.Id })
-                    })
-                    .ToList());
-            ViewBag.Notifications = notifications;
+            if (User.IsSignedIn())
+            {
+                var notifications = new List<NotificationViewModel>();
+                if (User.IsInRole("Root"))
+                    notifications.AddRange(DB.Activities
+                        .Where(x => !x.End.HasValue)
+                        .Select(x => new NotificationViewModel
+                        {
+                            Text = x.Title + " 正在进行",
+                            Url = Url.Action("Show", "Activity", new { id = x.Id })
+                        })
+                        .ToList());
+                else
+                    notifications.AddRange(DB.Activities
+                        .Where(x => !x.End.HasValue && x.OwnerId == User.Current.Id)
+                        .Select(x => new NotificationViewModel
+                        {
+                            Text = x.Title + " 正在进行",
+                            Url = Url.Action("Show", "Activity", new { id = x.Id })
+                        })
+                        .ToList());
+                ViewBag.Notifications = notifications;
+            }
         }
     }
 }

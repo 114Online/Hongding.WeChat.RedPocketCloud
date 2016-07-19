@@ -1,0 +1,22 @@
+﻿@{ 
+    ViewBag.Title = "账户充值";
+}
+
+<div class="row">
+    <div class="col-md-6 col-md-offset-3">
+        <div class="card">
+            <form asp-action="Charge" asp-controller="Account" method="post">
+                <div class="header">
+                    <h4 class="title">账号充值</h4>
+                    <p class="category">用于举办发红包活动</p>
+                </div>
+                <div class="content">
+                    <label>金额（元）：</label>
+                    <input type="text" class="form-control" placeholder="如: 1000.00" />
+                    <br />
+                    <input type="submit" class="btn btn-primary" value="充值" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

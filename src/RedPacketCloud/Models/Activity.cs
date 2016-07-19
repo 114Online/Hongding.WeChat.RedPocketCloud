@@ -25,6 +25,8 @@ namespace RedPacketCloud.Models
 
         public long Attend { get; set; }
 
+        public int Limit { get; set; }
+
         [ForeignKey("Owner")]
         public string OwnerId { get; set; }
 
