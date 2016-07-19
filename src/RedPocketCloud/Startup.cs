@@ -25,12 +25,13 @@ namespace RedPocketCloud
             services.AddSignalR();
             services.AddSmartUser<User, string>();
             services.AddSmartCookies();
+            services.AddBlobStorage()
+                .AddEntityFrameworkStorage<RpcContext>();
             services.AddSession(o =>
             {
                 o.IdleTimeout = new TimeSpan(0, 20, 0);
             });
             services.AddLogging();
-
             services.AddDbContext<RpcContext>(x => x.UseMySql(Config["Conn"]));
             services.AddIdentity<User, IdentityRole>(x =>
             {
@@ -51,7 +52,7 @@ namespace RedPocketCloud
             app.UseSession();
             app.UseSignalR();
             app.UseIdentity();
-            app.UseBlobStorage();
+            app.UseBlobStorage("/assets/js/jquery.pomelo.fileupload.js");
             app.UseStaticFiles();
             app.UseDeveloperExceptionPage();
             app.UseMvcWithDefaultRoute();

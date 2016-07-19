@@ -17,12 +17,12 @@
                 <div class="tab-content">
                     <div role="tabpanel" class="tab-pane active" id="shake">
                         <div class="template-edit">
-                            <img class="" src="~/assets/img/shake-bg.jpg" />
+                            <img class="shake-bg" src="~/assets/img/shake-bg.jpg" />
                             <img class="top" src="~/assets/img/shake-top.jpg" />
                             <img class="bottom" src="~/assets/img/shake-bottom.jpg" />
                         </div>
                         <hr />
-                        <p style="text-align: center; color: #888">将图片文件拖拽至上半部分、下半部分和中间背景以替换图片。</p>
+                        <p style="text-align: center; color: #888">将图片文件拖拽至上半部分、下半部分和中间背景或点击以替换图片。</p>
                         <p style="text-align: center">
                             <a href="javascript: demoShake();" class="btn btn-success">演示效果</a>
                             &nbsp;&nbsp;
@@ -31,14 +31,14 @@
                     </div>
                     <div role="tabpanel" class="tab-pane" id="shoop">
                         <div class="template-edit">
-                            <img class="" src="~/assets/img/shoop-bg.jpg" />
+                            <img class="shoop-bg" src="~/assets/img/shoop-bg.jpg" />
                             <img class="button" src="~/assets/img/shoop-btn.png" />
                             <div class="button-circle"></div>
                             <div class="button-circle second"></div>
                             <div class="button-circle third"></div>
                         </div>
                         <hr />
-                        <p style="text-align: center; color: #888">将图片文件拖拽至背景和按钮上以替换图片。</p>
+                        <p style="text-align: center; color: #888">将图片文件拖拽至背景及咻一咻按钮上或点击以替换图片。</p>
                         <p style="text-align: center">
                             <a href="javascript: demoShoop();" class="btn btn-success">演示效果</a>
                             &nbsp;&nbsp;
@@ -53,6 +53,7 @@
 <audio style="display:none;" id="shakeSound" preload="metadata" controls src="~/assets/sounds/shake_sound.mp3"></audio>
 <audio style="display:none;" id="shoopSound" preload="metadata" controls src="~/assets/sounds/shoop_sound.wav"></audio>
 <script>
+    var shake = {}, shoop = {};
     function demoShake()
     {
         $('.top').addClass('top-closed');
@@ -94,4 +95,25 @@
             }, 300);
         }, 300);
     }
+
+    $('.shake-bg').dragDropOrPaste(null, function (result) {
+        $('.shake-bg').attr('src', '/file/download/' + result.Id);
+        shake.bg = result.Id;
+    });
+    $('.top').dragDropOrPaste(null, function (result) {
+        $('.top').attr('src', '/file/download/' + result.Id);
+        shake.top = result.Id;
+    });
+    $('.bottom').dragDropOrPaste(null, function (result) {
+        $('.bottom').attr('src', '/file/download/' + result.Id);
+        shake.bottom = result.Id;
+    });
+    $('.shoop-bg').dragDropOrPaste(null, function (result) {
+        $('.shoop-bg').attr('src', '/file/download/' + result.Id);
+        shoop.bg = result.Id;
+    });
+    $('.button').dragDropOrPaste(null, function (result) {
+        $('.button').attr('src', '/file/download/' + result.Id);
+        shoop.btn = result.Id;
+    });
 </script>
