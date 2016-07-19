@@ -11,7 +11,5 @@ namespace RedPacketCloud.Models
         public double Balance { get; set; }
 
         public string Name { get; set; }
-
-        public int PocketPerDayLimit { get; set; }
     }
 }
