@@ -32,8 +32,8 @@
                         <td>@ViewBag.TemplateCount 个</td>
                     </tr>
                     <tr>
-                        <td>服务器</td>
-                        <td>@Platform.OS</td>
+                        <td>红包限制</td>
+                        <td>每日每用户最多 <span class="badge limit">@User.Current.Limit</span> 个 &nbsp;&nbsp; <a href="javascript:ModifyLimit();">修改</a></td>
                     </tr>
                     <tr>
                         <td>数据库</td>
@@ -111,6 +111,10 @@
     </div>
 </div>
 
+<form id="frmLimit" asp-action="Limit" asp-controller="Account" method="post">
+    <input type="hidden" name="limit" id="hidLimit" />
+</form>
+
 <script>
     var dataMoney = @(new HtmlString(ViewBag.MoneyGraphicJson));
 
@@ -166,4 +170,13 @@
     ];
         
     Chartist.Bar('#chartAttend', dataAttend, options, responsiveOptions);
+
+    function ModifyLimit()
+    {
+        var origin = $('.limit').text();
+        var limit = prompt("输入新的红包上限值", origin);
+        $('#hidLimit').val(limit);
+        $.post($('#frmLimit').attr('action'), $('#frmLimit').serialize(), function(){ });
+        $('.limit').text(limit);
+    }
 </script>

@@ -10,12 +10,15 @@ using RedPacketCloud.Models;
 
 namespace RedPacketCloud.Controllers
 {
+    [Authorize]
     public class AccountController : BaseController
     {
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult Login() => View();
 
         [HttpPost]
+        [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<string> Login(string username, string password)
         {
@@ -160,5 +163,14 @@ namespace RedPacketCloud.Controllers
 
         [HttpGet]
         public IActionResult Pay() => View();
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Limit(int limit)
+        {
+            User.Current.Limit = limit;
+            DB.SaveChanges();
+            return Content("ok");
+        }
     }
 }

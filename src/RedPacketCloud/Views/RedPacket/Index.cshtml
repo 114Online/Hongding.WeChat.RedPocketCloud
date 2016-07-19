@@ -6,7 +6,7 @@
 <div class="card">
     <div class="header">
         <h4 class="title">红包列表</h4>
-        <p class="category">正在进行的、已经结束的发红包活动列表。<a asp-action="Deliver" asp-controller="Activity">发放红包</a></p>
+        <p class="category">正在进行的、已经结束的发红包活动列表。<a asp-action="Deliver" asp-controller="RedPacket">发放红包</a></p>
     </div>
     <div class="content">
         <form>
@@ -86,8 +86,8 @@
                         <td>@x.BriberiesCount</td>
                         <td>@((x.Ratio * 100).ToString("0.00"))%</td>
                         <td>
-                            <a asp-action="Show" asp-controller="Activity" asp-route-id="@x.Id">查看详情</a>
-                            <a asp-action="Export" asp-controller="Activity" asp-route-id="@x.Id">导出报表</a>
+                            <a asp-action="Show" asp-controller="RedPacket" asp-route-id="@x.Id">查看详情</a>
+                            <a asp-action="Export" asp-controller="RedPacket" asp-route-id="@x.Id">导出报表</a>
                         </td>
                     </tr>
                 }

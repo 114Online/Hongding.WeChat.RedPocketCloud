@@ -24,5 +24,8 @@ namespace RedPacketCloud.Controllers
                 ret = ret.Where(x => x.OwnerId == User.Current.Id);
             return PagedView(ret, 20);
         }
+
+        [HttpGet]
+        public IActionResult Deliver() => View();
     }
 }

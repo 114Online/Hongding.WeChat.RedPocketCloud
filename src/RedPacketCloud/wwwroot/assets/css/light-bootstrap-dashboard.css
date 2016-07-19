@@ -3391,3 +3391,7 @@ body > .navbar-collapse[data-color="purple"]:after {
     -webkit-overflow-scrolling: touch;
   }
 }
+
+.row-title {
+    width: 90px!important;
+}
