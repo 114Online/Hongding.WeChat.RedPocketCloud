@@ -1,0 +1,103 @@
+﻿@{
+    ViewBag.Title = "发放红包";
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="header">
+                <h4 class="title">发放红包</h4>
+                <p class="category">请设置发放规则，系统将按下规则分发红包</p>
+            </div>
+            <div class="content table-responsive table-full-width">
+                <table class="table table-hover table-striped">
+                    <tr>
+                        <td class="row-title">活动名称</td>
+                        <td><input id="txtTitle" type="text" name="title" class="form-control" style="width: 50%;display:inline-block" /></td>
+                    </tr>
+                    <tr>
+                        <td class="row-title">中奖率</td>
+                        <td><input id="txtRatio" type="text" name="ratio" class="form-control" value="30.0" style="width: 50%;display:inline-block" /> %</td>
+                    </tr>
+                    <tr>
+                        <td class="row-title">红包设定</td>
+                        <td>
+                            <input type="hidden" name="Rules" />
+                            <table class="table" style="background: none">
+                                <colgroup>
+                                    <col style="width: 80px;" />
+                                    <col />
+                                    <col />
+                                    <col />
+                                </colgroup>
+                                <thead>
+                                    <tr>
+                                        <th>红包类型</th>
+                                        <th>金额</th>
+                                        <th>个数</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="rule-list"></tbody>
+                            </table>
+                            <p>
+                                <a class="btn btn-xs btn-info" href="javascript:AddFixedBribery();">添加固定金额红包</a>
+                                &nbsp;&nbsp;&nbsp;
+                                <a class="btn btn-xs btn-info" href="javascript:AddRangeBribery();">添加区间金额红包</a>
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+                <p style="text-align: center"><input type="submit" id="btnDeliver" class="btn btn-danger" value="开始发放" /></p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="header">
+                <h4 class="title">红包页面模板</h4>
+                <p class="category">选择红包活动页面展现形式</p>
+            </div>
+            <div class="content">
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function removeRule(dom)
+    {
+        $(dom).parent('td').parent('tr').remove();
+    }
+
+    function AddFixedBribery()
+    {
+        $('#rule-list').append('<tr><td>固定金额</td><td><input type="textbox" class="form-control price" value="0.00" /></td><td><input type="textbox" class="form-control count" value="0" /></td><td><a href="javascript:;" onclick="removeRule(this)">删除</a></td></tr>');
+    }
+
+    function AddRangeBribery()
+    {
+        $('#rule-list').append('<tr><td>区间金额</td><td><input style="width: 40%; display:inline-block" type="textbox" class="form-control price-from" value="0.00" /> ~ <input style="width: 40%; display:inline-block" type="textbox" class="form-control price-to" value="0.00" /></td><td><input type="textbox" class="form-control count" value="0" /></td><td><a href="javascript:;" onclick="removeRule(this)">删除</a></td></tr>');
+    }
+
+    $('form').submit(function () {
+        var rules = [];
+        var rulesDom = $('#rule-list tr');
+        if (rulesDom.length == 0)
+            alert("非法操作");
+        for (var i = 0; i < rulesDom.length; i++) {
+            if ($(rulesDom[i]).find('.price').length > 0)
+                rules.push({
+                    From: parseInt(parseFloat($(rulesDom[i]).find('.price').val()) * 100),
+                    To: parseInt(parseFloat($(rulesDom[i]).find('.price').val()) * 100),
+                    Count: $(rulesDom[i]).find('.count').val()
+                });
+            else
+                rules.push({
+                    From: parseInt(parseFloat($(rulesDom[i]).find('.price-from').val()) * 100),
+                    To: parseInt(parseFloat($(rulesDom[i]).find('.price-to').val()) * 100),
+                    Count: $(rulesDom[i]).find('.count').val()
+                });
+        }
+        $('input[name="Rules"]').val(JSON.stringify(rules));
+    });
+</script>

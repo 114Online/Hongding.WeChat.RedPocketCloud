@@ -1,0 +1,97 @@
+﻿@{ 
+    ViewBag.Title = "创建红包模板";
+}
+
+<div class="row">
+    <div class="col-md-8 col-md-offset-2">
+        <div class="card">
+            <div class="header">
+                <h4 class="title">红包模板</h4>
+                <p class="category">设置红包模式、宣传图片等内容</p>
+            </div>
+            <div class="content table-responsive table-full-width">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" class="active"><a href="#shake" aria-controls="shake" role="tab" data-toggle="tab">摇一摇</a></li>
+                    <li role="presentation"><a href="#shoop" aria-controls="shoop" role="tab" data-toggle="tab">咻一咻</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div role="tabpanel" class="tab-pane active" id="shake">
+                        <div class="template-edit">
+                            <img class="" src="~/assets/img/shake-bg.jpg" />
+                            <img class="top" src="~/assets/img/shake-top.jpg" />
+                            <img class="bottom" src="~/assets/img/shake-bottom.jpg" />
+                        </div>
+                        <hr />
+                        <p style="text-align: center; color: #888">将图片文件拖拽至上半部分、下半部分和中间背景以替换图片。</p>
+                        <p style="text-align: center">
+                            <a href="javascript: demoShake();" class="btn btn-success">演示效果</a>
+                            &nbsp;&nbsp;
+                            <a href="javascript: demoShake();" class="btn btn-danger">创建模板</a>
+                        </p>
+                    </div>
+                    <div role="tabpanel" class="tab-pane" id="shoop">
+                        <div class="template-edit">
+                            <img class="" src="~/assets/img/shoop-bg.jpg" />
+                            <img class="button" src="~/assets/img/shoop-btn.png" />
+                            <div class="button-circle"></div>
+                            <div class="button-circle second"></div>
+                            <div class="button-circle third"></div>
+                        </div>
+                        <hr />
+                        <p style="text-align: center; color: #888">将图片文件拖拽至背景和按钮上以替换图片。</p>
+                        <p style="text-align: center">
+                            <a href="javascript: demoShoop();" class="btn btn-success">演示效果</a>
+                            &nbsp;&nbsp;
+                            <a href="javascript: demoShake();" class="btn btn-danger">创建模板</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<audio style="display:none;" id="shakeSound" preload="metadata" controls src="~/assets/sounds/shake_sound.mp3"></audio>
+<audio style="display:none;" id="shoopSound" preload="metadata" controls src="~/assets/sounds/shoop_sound.wav"></audio>
+<script>
+    function demoShake()
+    {
+        $('.top').addClass('top-closed');
+        $('.bottom').addClass('bottom-closed');
+        setTimeout(function () {
+            $('.top').addClass('transition-all');
+            $('.bottom').addClass('transition-all');
+            setTimeout(function () {
+                $('#shakeSound')[0].play();
+                $('.top').removeClass('top-closed');
+                $('.bottom').removeClass('bottom-closed');
+                setTimeout(function () {
+                    $('.top').addClass('top-closed');
+                    $('.bottom').addClass('bottom-closed');
+                    setTimeout(function () {
+                        $('.top').removeClass('top-closed');
+                        $('.bottom').removeClass('bottom-closed');
+                        $('.top').removeClass('transition-all');
+                        $('.bottom').removeClass('transition-all');
+                    }, 1200);
+                }, 610);
+            }, 500);
+        }, 100);
+    }
+
+    function demoShoop()
+    {
+        $('.button-circle').addClass('transition-all');
+        $('#shoopSound')[0].play();
+        $($('.button-circle')[0]).addClass('scale');
+        setTimeout(function () {
+            $('.button-circle.second').addClass('scale');
+            setTimeout(function () {
+                $('.button-circle.third').addClass('scale');
+                setTimeout(function () {
+                    $('.button-circle').removeClass('transition-all');
+                    $('.button-circle').removeClass('scale');
+                }, 700);
+            }, 300);
+        }, 300);
+    }
+</script>

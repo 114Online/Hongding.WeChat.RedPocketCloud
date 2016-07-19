@@ -1,0 +1,31 @@
+﻿@model IEnumerable<Template>
+@{ 
+    ViewBag.Title = "红包模板";
+}
+
+@foreach(var x in Model)
+{
+    <div class="pocket-template">
+        <div>
+            <img class="top-part" src="/file/download/@x.TopPartId" />
+            <img class="bottom-part" src="/file/download/@x.BottomPartId" />
+        </div>
+        <div class="button-group">
+            <a class="btn btn-sm btn-success" asp-action="EditTemplate" asp-controller="RedPocket" asp-route-id="@x.Id">修改</a>
+            <a class="btn btn-sm btn-danger" href="javascript:Delete('@x.Id');">删除</a>
+        </div>
+    </div>
+}
+
+<div class="pocket-template">
+    <div class="add-outer">
+        <div class="add">+</div>
+    </div>
+    <div class="button-group">
+        <a class="btn btn-sm btn-info" asp-action="AddTemplate" asp-controller="RedPocket">添加</a>
+    </div>
+</div>
+
+<script>
+    // TODO: Remove template
+</script>
