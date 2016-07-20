@@ -33,7 +33,7 @@ namespace RedPocketCloud.Controllers
                     .Where(x => x.Time <= i)
                     .LastOrDefault();
                 if (pl == null)
-                    money.Add(User.Current.Balance);
+                    money.Add(User.Current.Balance - DB.PayLogs.Where(x => x.UserId == User.Current.Id).Sum(x => x.Price));
                 else
                     money.Add(pl.Current);
             }
