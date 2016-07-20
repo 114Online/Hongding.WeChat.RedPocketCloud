@@ -20,13 +20,13 @@ namespace RedPocketCloud.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<string> Login(string username, string password)
+        public async Task<IActionResult> Login(string username, string password)
         {
             var result = await SignInManager.PasswordSignInAsync(username, password, false, false);
             if (result.Succeeded)
-                return "success";
+                return RedirectToAction("Index", "Home");
             else
-                return "error";
+                return RedirectToAction("Login", "Account");
         }
 
         [HttpPost]
