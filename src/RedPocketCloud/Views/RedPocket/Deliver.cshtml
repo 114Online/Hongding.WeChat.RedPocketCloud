@@ -1,8 +1,9 @@
-﻿@{
+﻿@model IEnumerable<Template>
+@{
     ViewBag.Title = "发放红包";
 }
 
-<div class="row">
+<form asp-action="Deliver" asp-controller="RedPocket" id="frmDeliver" class="row">
     <div class="col-md-8">
         <div class="card">
             <div class="header">
@@ -18,6 +19,10 @@
                     <tr>
                         <td class="row-title">中奖率</td>
                         <td><input id="txtRatio" type="text" name="ratio" class="form-control" value="30.0" style="width: 50%;display:inline-block" /> %</td>
+                    </tr>
+                    <tr>
+                        <td class="row-title">限制</td>
+                        <td>本轮每用户最多 <input id="txtLimit" type="text" name="limit" class="form-control" value="3" style="width: 10%;display:inline-block" /> 个</td>
                     </tr>
                     <tr>
                         <td class="row-title">红包设定</td>
@@ -58,11 +63,31 @@
                 <h4 class="title">红包页面模板</h4>
                 <p class="category">选择红包活动页面展现形式</p>
             </div>
-            <div class="content">
+            <div class="content" style="zoom: 0.5">
+                @foreach (var x in Model)
+                {
+                    @if (x.Type == TemplateType.Shake)
+                    {
+                        <div class="pocket-template" data-id="@x.Id">
+                            <div>
+                                <img class="top-part" src="/file/download/@x.TopPartId" />
+                                <img class="bottom-part" src="/file/download/@x.BottomPartId" />
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="pocket-template" data-id="@x.Id">
+                            <div>
+                                <img class="full" src="/file/download/@x.BackgroundId" />
+                            </div>
+                        </div>
+                    }
+                }
             </div>
         </div>
     </div>
-</div>
+</form>
 <script>
     function removeRule(dom)
     {
@@ -79,11 +104,18 @@
         $('#rule-list').append('<tr><td>区间金额</td><td><input style="width: 40%; display:inline-block" type="textbox" class="form-control price-from" value="0.00" /> ~ <input style="width: 40%; display:inline-block" type="textbox" class="form-control price-to" value="0.00" /></td><td><input type="textbox" class="form-control count" value="0" /></td><td><a href="javascript:;" onclick="removeRule(this)">删除</a></td></tr>');
     }
 
-    $('form').submit(function () {
+    $('#frmDeliver').submit(function () {
+        if ($('.template-active').length == 0)
+        {
+            alert('请选择一个红包页面模板');
+            return false;
+        }
         var rules = [];
         var rulesDom = $('#rule-list tr');
-        if (rulesDom.length == 0)
-            alert("非法操作");
+        if (rulesDom.length == 0) {
+            alert("请设置红包规则");
+            return false;
+        }
         for (var i = 0; i < rulesDom.length; i++) {
             if ($(rulesDom[i]).find('.price').length > 0)
                 rules.push({
@@ -99,5 +131,10 @@
                 });
         }
         $('input[name="Rules"]').val(JSON.stringify(rules));
+    });
+
+    $('.pocket-template').click(function () {
+        $('.pocket-template').removeClass('template-active');
+        $(this).addClass('template-active');
     });
 </script>

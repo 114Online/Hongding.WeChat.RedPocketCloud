@@ -31,7 +31,7 @@ namespace RedPocketCloud.Controllers
         }
 
         [HttpGet]
-        public IActionResult Deliver() => View();
+        public IActionResult Deliver() => View(DB.Templates.Where(x => x.UserId == User.Current.Id).ToList());
         
         public IActionResult Template() => View(DB.Templates
             .Where(x => x.UserId == User.Current.Id)

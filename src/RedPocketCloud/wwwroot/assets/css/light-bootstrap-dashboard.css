@@ -3518,3 +3518,7 @@ body > .navbar-collapse[data-color="purple"]:after {
     width: 480px!important;
     height: 800px!important;
 }
+
+.template-active {
+    box-shadow: 0 0 30px #1e6fb6;
+}
