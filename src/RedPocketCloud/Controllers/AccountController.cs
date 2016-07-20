@@ -104,6 +104,7 @@ namespace RedPocketCloud.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Root")]
         public IActionResult Index()
         {
             var ret = UserManager.Users.ToList();
