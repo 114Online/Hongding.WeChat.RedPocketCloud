@@ -50,6 +50,7 @@ namespace RedPocketCloud.Controllers
                 Type = type
             };
             DB.Templates.Add(template);
+            DB.SaveChanges();
             return RedirectToAction("Template", "RedPocket");
         }
     }

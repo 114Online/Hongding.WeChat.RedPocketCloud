@@ -3406,6 +3406,11 @@ body > .navbar-collapse[data-color="purple"]:after {
     display: inline-block;
 }
 
+.pocket-template .full {
+    width: 192px;
+    height: 320px;
+}
+
 .pocket-template .top-part {
     width: 192px;
     height: 160px;

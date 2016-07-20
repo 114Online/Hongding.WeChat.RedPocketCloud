@@ -5,16 +5,31 @@
 
 @foreach(var x in Model)
 {
-    <div class="pocket-template">
-        <div>
-            <img class="top-part" src="/file/download/@x.TopPartId" />
-            <img class="bottom-part" src="/file/download/@x.BottomPartId" />
+    @if (x.Type == TemplateType.Shake)
+    {
+        <div class="pocket-template">
+            <div>
+                <img class="top-part" src="/file/download/@x.TopPartId" />
+                <img class="bottom-part" src="/file/download/@x.BottomPartId" />
+            </div>
+            <div class="button-group">
+                <a class="btn btn-sm btn-success" asp-action="EditTemplate" asp-controller="RedPocket" asp-route-id="@x.Id">修改</a>
+                <a class="btn btn-sm btn-danger" href="javascript:Delete('@x.Id');">删除</a>
+            </div>
         </div>
-        <div class="button-group">
-            <a class="btn btn-sm btn-success" asp-action="EditTemplate" asp-controller="RedPocket" asp-route-id="@x.Id">修改</a>
-            <a class="btn btn-sm btn-danger" href="javascript:Delete('@x.Id');">删除</a>
+    }
+    else
+    {
+        <div class="pocket-template">
+            <div>
+                <img class="full" src="/file/download/@x.BackgroundId" />
+            </div>
+            <div class="button-group">
+                <a class="btn btn-sm btn-success" asp-action="EditTemplate" asp-controller="RedPocket" asp-route-id="@x.Id">修改</a>
+                <a class="btn btn-sm btn-danger" href="javascript:Delete('@x.Id');">删除</a>
+            </div>
         </div>
-    </div>
+    }
 }
 
 <div class="pocket-template">
