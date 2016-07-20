@@ -26,7 +26,7 @@
                         <p style="text-align: center">
                             <a href="javascript: demoShake();" class="btn btn-success">演示效果</a>
                             &nbsp;&nbsp;
-                            <a href="javascript: demoShake();" class="btn btn-danger">创建模板</a>
+                            <a href="javascript: Submit(true);" class="btn btn-danger">创建模板</a>
                         </p>
                     </div>
                     <div role="tabpanel" class="tab-pane" id="shoop">
@@ -42,7 +42,7 @@
                         <p style="text-align: center">
                             <a href="javascript: demoShoop();" class="btn btn-success">演示效果</a>
                             &nbsp;&nbsp;
-                            <a href="javascript: demoShake();" class="btn btn-danger">创建模板</a>
+                            <a href="javascript: Submit(false);" class="btn btn-danger">创建模板</a>
                         </p>
                     </div>
                 </div>
@@ -52,6 +52,12 @@
 </div>
 <audio style="display:none;" id="shakeSound" preload="metadata" controls src="~/assets/sounds/shake_sound.mp3"></audio>
 <audio style="display:none;" id="shoopSound" preload="metadata" controls src="~/assets/sounds/shoop_sound.wav"></audio>
+<form id="frmSubmit" asp-action="AddTemplate" asp-controller="RedPocket">
+    <input type="hidden" name="type" id="hidType" />
+    <input type="hidden" name="bg" id="hidBg" />
+    <input type="hidden" name="top" id="hidTop" />
+    <input type="hidden" name="bottom" id="hidBottom" />
+</form>
 <script>
     var shake = {}, shoop = {};
     function demoShake()
@@ -116,4 +122,22 @@
         $('.button').attr('src', '/file/download/' + result.Id);
         shoop.btn = result.Id;
     });
+
+    function Submit(IsShake)
+    {
+        if (IsShake)
+        {
+            $('#hidBg').val(shake.bg);
+            $('#hidTop').val(shake.top);
+            $('#hidBottom').val(shake.bottom);
+            $('#hidType').val('Shake');
+        }
+        else
+        {
+            $('#hidBg').val(shoop.bg);
+            $('#hidTop').val(shoop.btn);
+            $('#hidType').val('Shoop');
+        }
+        $('#frmSubmit').submit();
+    }
 </script>

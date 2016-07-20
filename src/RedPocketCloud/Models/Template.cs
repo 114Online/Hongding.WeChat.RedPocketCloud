@@ -8,9 +8,17 @@ using Pomelo.AspNetCore.Extensions.BlobStorage.Models;
 
 namespace RedPocketCloud.Models
 {
+    public enum TemplateType
+    {
+        Shake,
+        Shoop
+    }
+
     public class Template
     {
         public Guid Id { get; set; }
+
+        public TemplateType Type { get; set; }
 
         [MaxLength(64)]
         public string RuleUrl { get; set; }

@@ -5,12 +5,6 @@ using RedPocketCloud.ViewModels;
 
 namespace RedPocketCloud.Models
 {
-    public enum ActivityType
-    {
-        Shake,
-        Click
-    }
-
     public class Activity
     {
         public Guid Id { get; set; }
@@ -32,8 +26,6 @@ namespace RedPocketCloud.Models
         public long Attend { get; set; }
 
         public int Limit { get; set; }
-
-        public ActivityType Type { get; set; }
 
         [ForeignKey("Owner")]
         public string OwnerId { get; set; }

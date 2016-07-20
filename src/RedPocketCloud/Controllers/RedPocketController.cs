@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using RedPocketCloud.Models;
 
 namespace RedPocketCloud.Controllers
 {
+    [Authorize]
     public class RedPocketController : BaseController
     {
         public IActionResult Index(string title, DateTime? begin, DateTime? end, string merchant)
@@ -34,5 +36,21 @@ namespace RedPocketCloud.Controllers
 
         [HttpGet]
         public IActionResult AddTemplate() => View();
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult AddTemplate(Guid? bg, Guid? top, Guid? bottom, TemplateType type)
+        {
+            var template = new Template
+            {
+                BackgroundId = bg,
+                TopPartId = top,
+                BottomPartId = bottom,
+                UserId = User.Current.Id,
+                Type = type
+            };
+            DB.Templates.Add(template);
+            return RedirectToAction("Template", "RedPocket");
+        }
     }
 }
