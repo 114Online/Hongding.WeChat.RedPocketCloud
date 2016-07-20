@@ -1,0 +1,144 @@
+﻿@model Template
+@{ 
+    ViewBag.Title = "编辑红包模板";
+}
+
+<div class="row">
+    <div class="col-md-8 col-md-offset-2">
+        <div class="card">
+            <div class="header">
+                <h4 class="title">红包模板</h4>
+                <p class="category">编辑红包页面图片素材</p>
+            </div>
+            <div class="content table-responsive table-full-width">
+                @if (Model.Type == TemplateType.Shake)
+                {                    
+                    <div role="tabpanel" class="tab-pane active" id="shake">
+                        <div class="template-edit">
+                            <img class="shake-bg" src="/file/download/@Model.BackgroundId" />
+                            <img class="top" src="/file/download/@Model.TopPartId" />
+                            <img class="bottom" src="/file/download/@Model.BottomPartId" />
+                        </div>
+                        <hr />
+                        <p style="text-align: center; color: #888">将图片文件拖拽至上半部分、下半部分和中间背景或点击以替换图片。</p>
+                        <p style="text-align: center">
+                            <a href="javascript: demoShake();" class="btn btn-success">演示效果</a>
+                            &nbsp;&nbsp;
+                            <a href="javascript: Submit(true);" class="btn btn-danger">保存修改</a>
+                        </p>
+                    </div>
+                }
+                else
+                {
+                    <div role="tabpanel" class="tab-pane" id="shoop">
+                        <div class="template-edit">
+                            <img class="shoop-bg" src="/file/download/@Model.BackgroundId" />
+                            <img class="button" src="/file/download/@Model.TopPartId" />
+                            <div class="button-circle"></div>
+                            <div class="button-circle second"></div>
+                            <div class="button-circle third"></div>
+                        </div>
+                        <hr />
+                        <p style="text-align: center; color: #888">将图片文件拖拽至背景及咻一咻按钮上或点击以替换图片。</p>
+                        <p style="text-align: center">
+                            <a href="javascript: demoShoop();" class="btn btn-success">演示效果</a>
+                            &nbsp;&nbsp;
+                            <a href="javascript: Submit(false);" class="btn btn-danger">保存修改</a>
+                        </p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<audio style="display:none;" id="shakeSound" preload="metadata" controls src="~/assets/sounds/shake_sound.mp3"></audio>
+<audio style="display:none;" id="shoopSound" preload="metadata" controls src="~/assets/sounds/shoop_sound.wav"></audio>
+<form id="frmSubmit" asp-action="EditTemplate" asp-controller="RedPocket" asp-route-id="@Model.Id">
+    <input type="hidden" name="type" id="hidType" />
+    <input type="hidden" name="bg" id="hidBg" />
+    <input type="hidden" name="top" id="hidTop" />
+    <input type="hidden" name="bottom" id="hidBottom" />
+</form>
+<script>
+    var shake = {}, shoop = {};
+    function demoShake()
+    {
+        $('.top').addClass('top-closed');
+        $('.bottom').addClass('bottom-closed');
+        setTimeout(function () {
+            $('.top').addClass('transition-all');
+            $('.bottom').addClass('transition-all');
+            setTimeout(function () {
+                $('#shakeSound')[0].play();
+                $('.top').removeClass('top-closed');
+                $('.bottom').removeClass('bottom-closed');
+                setTimeout(function () {
+                    $('.top').addClass('top-closed');
+                    $('.bottom').addClass('bottom-closed');
+                    setTimeout(function () {
+                        $('.top').removeClass('top-closed');
+                        $('.bottom').removeClass('bottom-closed');
+                        $('.top').removeClass('transition-all');
+                        $('.bottom').removeClass('transition-all');
+                    }, 1200);
+                }, 610);
+            }, 500);
+        }, 100);
+    }
+
+    function demoShoop()
+    {
+        $('.button-circle').addClass('transition-all');
+        $('#shoopSound')[0].play();
+        $($('.button-circle')[0]).addClass('scale');
+        setTimeout(function () {
+            $('.button-circle.second').addClass('scale');
+            setTimeout(function () {
+                $('.button-circle.third').addClass('scale');
+                setTimeout(function () {
+                    $('.button-circle').removeClass('transition-all');
+                    $('.button-circle').removeClass('scale');
+                }, 700);
+            }, 300);
+        }, 300);
+    }
+
+    $('.shake-bg').dragDropOrPaste(null, function (result) {
+        $('.shake-bg').attr('src', '/file/download/' + result.Id);
+        shake.bg = result.Id;
+    });
+    $('.top').dragDropOrPaste(null, function (result) {
+        $('.top').attr('src', '/file/download/' + result.Id);
+        shake.top = result.Id;
+    });
+    $('.bottom').dragDropOrPaste(null, function (result) {
+        $('.bottom').attr('src', '/file/download/' + result.Id);
+        shake.bottom = result.Id;
+    });
+    $('.shoop-bg').dragDropOrPaste(null, function (result) {
+        $('.shoop-bg').attr('src', '/file/download/' + result.Id);
+        shoop.bg = result.Id;
+    });
+    $('.button').dragDropOrPaste(null, function (result) {
+        $('.button').attr('src', '/file/download/' + result.Id);
+        shoop.btn = result.Id;
+    });
+
+    function Submit(IsShake)
+    {
+        if (IsShake)
+        {
+            $('#hidBg').val(shake.bg);
+            $('#hidTop').val(shake.top);
+            $('#hidBottom').val(shake.bottom);
+            $('#hidType').val('Shake');
+        }
+        else
+        {
+            $('#hidBg').val(shoop.bg);
+            $('#hidTop').val(shoop.btn);
+            $('#hidType').val('Shoop');
+        }
+        $('#frmSubmit').submit();
+    }
+</script>
