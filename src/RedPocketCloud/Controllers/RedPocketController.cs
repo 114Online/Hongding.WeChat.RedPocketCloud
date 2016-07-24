@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Pomelo.AspNetCore.Extensions.BlobStorage.Models;
 using RedPocketCloud.Models;
 
 namespace RedPocketCloud.Controllers
@@ -42,16 +41,14 @@ namespace RedPocketCloud.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult AddTemplate(Guid? bg, Guid? top, Guid? bottom, TemplateType type, [FromServices] IHostingEnvironment env)
+        public IActionResult AddTemplate(long? bg, long? top, long? bottom, long? drawn, long? undrawn, long? pending, TemplateType type, [FromServices] IHostingEnvironment env)
         {
             if (type == TemplateType.Shake)
             {
                 if (!bg.HasValue)
                 {
-                    bg = Guid.NewGuid();
                     var blob = new Blob
                     {
-                        Id = bg.Value,
                         Bytes = System.IO.File.ReadAllBytes(Path.Combine("wwwroot", "assets", "img", "shake-bg.jpg")),
                         ContentType = "image/jpeg",
                         FileName = "shake-bg.jpg",
@@ -60,14 +57,13 @@ namespace RedPocketCloud.Controllers
                     blob.ContentLength = blob.Bytes.Length;
                     DB.Blobs.Add(blob);
                     DB.SaveChanges();
+                    bg = blob.Id;
                 }
 
                 if (!top.HasValue)
                 {
-                    top = Guid.NewGuid();
                     var blob = new Blob
                     {
-                        Id = top.Value,
                         Bytes = System.IO.File.ReadAllBytes(Path.Combine("wwwroot", "assets", "img", "shake-top.jpg")),
                         ContentType = "image/jpg",
                         FileName = "shake-top.jpeg",
@@ -76,14 +72,13 @@ namespace RedPocketCloud.Controllers
                     blob.ContentLength = blob.Bytes.Length;
                     DB.Blobs.Add(blob);
                     DB.SaveChanges();
+                    top = blob.Id;
                 }
 
                 if (!bottom.HasValue)
                 {
-                    bottom = Guid.NewGuid();
                     var blob = new Blob
                     {
-                        Id = bottom.Value,
                         Bytes = System.IO.File.ReadAllBytes(Path.Combine("wwwroot", "assets", "img", "shake-bottom.jpg")),
                         ContentType = "image/jpg",
                         FileName = "shake-bottom.jpeg",
@@ -92,16 +87,15 @@ namespace RedPocketCloud.Controllers
                     blob.ContentLength = blob.Bytes.Length;
                     DB.Blobs.Add(blob);
                     DB.SaveChanges();
+                    bottom = blob.Id;
                 }
             }
             else
             {
                 if (!bg.HasValue)
                 {
-                    bg = Guid.NewGuid();
                     var blob = new Blob
                     {
-                        Id = bg.Value,
                         Bytes = System.IO.File.ReadAllBytes(Path.Combine("wwwroot", "assets", "img", "shoop-bg.jpg")),
                         ContentType = "image/jpeg",
                         FileName = "shoop-bg.jpg",
@@ -110,14 +104,13 @@ namespace RedPocketCloud.Controllers
                     blob.ContentLength = blob.Bytes.Length;
                     DB.Blobs.Add(blob);
                     DB.SaveChanges();
+                    bg = blob.Id;
                 }
 
                 if (!top.HasValue)
                 {
-                    top = Guid.NewGuid();
                     var blob = new Blob
                     {
-                        Id = top.Value,
                         Bytes = System.IO.File.ReadAllBytes(Path.Combine("wwwroot", "assets", "img", "shoop-btn.png")),
                         ContentType = "image/png",
                         FileName = "shoop-btn.png",
@@ -126,7 +119,53 @@ namespace RedPocketCloud.Controllers
                     blob.ContentLength = blob.Bytes.Length;
                     DB.Blobs.Add(blob);
                     DB.SaveChanges();
+                    top = blob.Id;
                 }
+            }
+
+            if (!drawn.HasValue)
+            {
+                var blob = new Blob
+                {
+                    Bytes = System.IO.File.ReadAllBytes(Path.Combine("wwwroot", "assets", "img", "drawn.png")),
+                    ContentType = "image/png",
+                    FileName = "drawn.png",
+                    Time = DateTime.Now
+                };
+                blob.ContentLength = blob.Bytes.Length;
+                DB.Blobs.Add(blob);
+                DB.SaveChanges();
+                drawn = blob.Id;
+            }
+
+            if (!undrawn.HasValue)
+            {
+                var blob = new Blob
+                {
+                    Bytes = System.IO.File.ReadAllBytes(Path.Combine("wwwroot", "assets", "img", "undrawn.png")),
+                    ContentType = "image/png",
+                    FileName = "undrawn.png",
+                    Time = DateTime.Now
+                };
+                blob.ContentLength = blob.Bytes.Length;
+                DB.Blobs.Add(blob);
+                DB.SaveChanges();
+                undrawn = blob.Id;
+            }
+
+            if (!pending.HasValue)
+            {
+                var blob = new Blob
+                {
+                    Bytes = System.IO.File.ReadAllBytes(Path.Combine("wwwroot", "assets", "img", "pending.png")),
+                    ContentType = "image/png",
+                    FileName = "pending.png",
+                    Time = DateTime.Now
+                };
+                blob.ContentLength = blob.Bytes.Length;
+                DB.Blobs.Add(blob);
+                DB.SaveChanges();
+                pending = blob.Id;
             }
 
             var template = new Template
@@ -134,6 +173,9 @@ namespace RedPocketCloud.Controllers
                 BackgroundId = bg,
                 TopPartId = top,
                 BottomPartId = bottom,
+                DrawnId = drawn,
+                UndrawnId = undrawn,
+                PendingId = pending,
                 UserId = User.Current.Id,
                 Type = type
             };
@@ -143,11 +185,11 @@ namespace RedPocketCloud.Controllers
         }
 
         [HttpGet]
-        public IActionResult EditTemplate(Guid id) => View(DB.Templates.Single(x => x.Id == id));
+        public IActionResult EditTemplate(long id) => View(DB.Templates.Single(x => x.Id == id));
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult EditTemplate(Guid id, Guid? bg, Guid? top, Guid? bottom)
+        public IActionResult EditTemplate(long id, long? bg, long? top, long? bottom, long? drawn, long? undrawn, long? pending)
         {
             var template = DB.Templates.Single(x => x.Id == id);
             if (bg.HasValue)
@@ -170,6 +212,27 @@ namespace RedPocketCloud.Controllers
                 if (origin != null)
                     DB.Blobs.Remove(origin);
                 template.BottomPartId = bottom.Value;
+            }
+            if (drawn.HasValue)
+            {
+                var origin = DB.Blobs.SingleOrDefault(x => x.Id == template.DrawnId);
+                if (origin != null)
+                    DB.Blobs.Remove(origin);
+                template.DrawnId = drawn.Value;
+            }
+            if (undrawn.HasValue)
+            {
+                var origin = DB.Blobs.SingleOrDefault(x => x.Id == template.UndrawnId);
+                if (origin != null)
+                    DB.Blobs.Remove(origin);
+                template.UndrawnId = undrawn.Value;
+            }
+            if (pending.HasValue)
+            {
+                var origin = DB.Blobs.SingleOrDefault(x => x.Id == template.PendingId);
+                if (origin != null)
+                    DB.Blobs.Remove(origin);
+                template.PendingId = pending.Value;
             }
             DB.SaveChanges();
             return RedirectToAction("Template", "RedPocket");

@@ -26,7 +26,7 @@ namespace RedPocketCloud
             services.AddSmartUser<User, string>();
             services.AddSmartCookies();
             services.AddBlobStorage()
-                .AddEntityFrameworkStorage<RpcContext>();
+                .AddEntityFrameworkStorage<RpcContext, Blob, long>();
             services.AddSession(o =>
             {
                 o.IdleTimeout = new TimeSpan(0, 20, 0);
@@ -52,7 +52,7 @@ namespace RedPocketCloud
             app.UseSession();
             app.UseSignalR();
             app.UseIdentity();
-            app.UseBlobStorage("/assets/js/jquery.pomelo.fileupload.js");
+            app.UseBlobStorage<Blob, long>("/assets/js/jquery.pomelo.fileupload.js");
             app.UseStaticFiles();
             app.UseDeveloperExceptionPage();
             app.UseMvcWithDefaultRoute();

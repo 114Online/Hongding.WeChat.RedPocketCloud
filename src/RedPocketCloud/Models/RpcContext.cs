@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace RedPocketCloud.Models
 {
-    public class RpcContext : IdentityDbContext<User, IdentityRole, string>, IBlobStorageDbContext
+    public class RpcContext : IdentityDbContext<User, IdentityRole, string>, IBlobStorageDbContext<Blob, long>
     {
         public RpcContext(DbContextOptions opt) 
             : base(opt)

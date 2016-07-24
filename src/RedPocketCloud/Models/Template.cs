@@ -16,27 +16,24 @@ namespace RedPocketCloud.Models
 
     public class Template
     {
-        public Guid Id { get; set; }
+        public long Id { get; set; }
 
         public TemplateType Type { get; set; }
 
         [MaxLength(64)]
         public string RuleUrl { get; set; }
+        
+        public long? TopPartId { get; set; }
 
-        [ForeignKey("TopPart")]
-        public Guid? TopPartId { get; set; }
+        public long? BottomPartId { get; set; }
+        
+        public long? BackgroundId { get; set; }
+        
+        public long? DrawnId { get; set; }
+        
+        public long? UndrawnId { get; set; }
 
-        public virtual Blob TopPart { get; set; }
-
-        [ForeignKey("BottomPart")]
-        public Guid? BottomPartId { get; set; }
-
-        public virtual Blob BottomPart { get; set; }
-
-        [ForeignKey("Background")]
-        public Guid? BackgroundId { get; set; }
-
-        public virtual Blob Background { get; set; }
+        public long? PendingId { get; set; }
 
         [ForeignKey("User")]
         public string UserId { get; set; }

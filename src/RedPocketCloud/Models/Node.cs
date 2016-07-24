@@ -8,7 +8,7 @@ namespace RedPocketCloud.Models
 {
     public class Node
     {
-        public long Id { get; set; }
+        public Guid Id { get; set; }
 
         [MaxLength(32)]
         public string Alias { get; set; }
