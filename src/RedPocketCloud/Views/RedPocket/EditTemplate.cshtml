@@ -20,7 +20,13 @@
                             <img class="bottom" src="/file/download/@Model.BottomPartId" />
                         </div>
                         <hr />
-                        <p style="text-align: center; color: #888">将图片文件拖拽至上半部分、下半部分和中间背景或点击以替换图片。</p>
+                        <div class="template-edit">
+                            <img class="shake-drawn" src="~/assets/img/drawn.png" />
+                            <img class="shake-undrawn" src="~/assets/img/undrawn.png" />
+                            <img class="shake-pending" src="~/assets/img/pending.png" />
+                        </div>
+                        <hr />
+                        <p style="text-align: center; color: #888">将图片文件拖拽至上半部分、下半部分、中间背景、中奖图片上以替换图片。</p>
                         <p style="text-align: center">
                             <a href="javascript: demoShake();" class="btn btn-success">演示效果</a>
                             &nbsp;&nbsp;
@@ -39,7 +45,13 @@
                             <div class="button-circle third"></div>
                         </div>
                         <hr />
-                        <p style="text-align: center; color: #888">将图片文件拖拽至背景及咻一咻按钮上或点击以替换图片。</p>
+                        <div class="template-edit">
+                            <img class="shoop-drawn" src="~/assets/img/drawn.png" />
+                            <img class="shoop-undrawn" src="~/assets/img/undrawn.png" />
+                            <img class="shoop-pending" src="~/assets/img/pending.png" />
+                        </div>
+                        <hr />
+                        <p style="text-align: center; color: #888">将图片文件拖拽至背景、咻一咻按钮、中奖图片上以替换图片。</p>
                         <p style="text-align: center">
                             <a href="javascript: demoShoop();" class="btn btn-success">演示效果</a>
                             &nbsp;&nbsp;
@@ -123,21 +135,48 @@
         $('.button').attr('src', '/file/download/' + result.Id);
         shoop.btn = result.Id;
     });
+    $('.shake-drawn').dragDropOrPaste(null, function (result) {
+        $('.button').attr('src', '/file/download/' + result.Id);
+        shake.drawn = result.Id;
+    });
+    $('.shake-undrawn').dragDropOrPaste(null, function (result) {
+        $('.button').attr('src', '/file/download/' + result.Id);
+        shake.undrawn = result.Id;
+    });
+    $('.shake-pending').dragDropOrPaste(null, function (result) {
+        $('.button').attr('src', '/file/download/' + result.Id);
+        shake.pending = result.Id;
+    });
+    $('.shoop-drawn').dragDropOrPaste(null, function (result) {
+        $('.button').attr('src', '/file/download/' + result.Id);
+        shoop.drawn = result.Id;
+    });
+    $('.shoop-undrawn').dragDropOrPaste(null, function (result) {
+        $('.button').attr('src', '/file/download/' + result.Id);
+        shoop.undrawn = result.Id;
+    });
+    $('.shoop-pending').dragDropOrPaste(null, function (result) {
+        $('.button').attr('src', '/file/download/' + result.Id);
+        shoop.pending = result.Id;
+    });
 
-    function Submit(IsShake)
-    {
-        if (IsShake)
-        {
+    function Submit(IsShake) {
+        if (IsShake) {
             $('#hidBg').val(shake.bg);
             $('#hidTop').val(shake.top);
             $('#hidBottom').val(shake.bottom);
+            $('#hidDrawn').val(shake.drawn);
+            $('#hidUndrawn').val(shake.undrawn);
+            $('#hidPending').val(shake.pending);
             $('#hidType').val('Shake');
         }
-        else
-        {
+        else {
             $('#hidBg').val(shoop.bg);
             $('#hidTop').val(shoop.btn);
             $('#hidType').val('Shoop');
+            $('#hidDrawn').val(shoop.drawn);
+            $('#hidUndrawn').val(shoop.undrawn);
+            $('#hidPending').val(shoop.pending);
         }
         $('#frmSubmit').submit();
     }
