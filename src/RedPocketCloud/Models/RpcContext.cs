@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace RedPocketCloud.Models
 {
-    public class RpcContext : IdentityDbContext<User, IdentityRole, string>, IBlobStorageDbContext<Blob, long>
+    public class RpcContext : IdentityDbContext<User, IdentityRole<long>, long>, IBlobStorageDbContext<Blob, long>
     {
         public RpcContext(DbContextOptions opt) 
             : base(opt)
@@ -20,8 +20,6 @@ namespace RedPocketCloud.Models
         public DbSet<Activity> Activities { get; set; }
 
         public DbSet<Bribery> Briberies { get; set; }
-
-        public DbSet<Node> Nodes { get; set; }
 
         public DbSet<PayLog> PayLogs { get; set; }
 
@@ -55,11 +53,6 @@ namespace RedPocketCloud.Models
             builder.Entity<Bribery>(e =>
             {
                 e.HasIndex(x => x.ReceivedTime);
-            });
-
-            builder.Entity<Node>(e =>
-            {
-                e.HasIndex(x => x.IsOnline);
             });
         }
     }

@@ -28,12 +28,12 @@ namespace RedPocketCloud.Models
         public int Limit { get; set; }
 
         [ForeignKey("Owner")]
-        public string OwnerId { get; set; }
+        public long OwnerId { get; set; }
 
         public virtual User Owner { get; set; }
 
         [ForeignKey("Template")]
-        public Guid? TemplateId { get; set; }
+        public long? TemplateId { get; set; }
 
         public virtual Template Template { get; set; }
     }

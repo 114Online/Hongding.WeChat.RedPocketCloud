@@ -5,10 +5,10 @@ namespace RedPocketCloud.Models
 {
     public class PayLog
     {
-        public Guid Id { get; set; }
+        public long Id { get; set; }
 
         [ForeignKey("User")]
-        public string UserId { get; set; }
+        public long UserId { get; set; }
 
         public virtual User User { get; set; }
 

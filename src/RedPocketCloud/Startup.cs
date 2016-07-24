@@ -23,7 +23,7 @@ namespace RedPocketCloud
             services.AddConfiguration(out Config);
             services.AddMvc();
             services.AddSignalR();
-            services.AddSmartUser<User, string>();
+            services.AddSmartUser<User, long>();
             services.AddSmartCookies();
             services.AddBlobStorage()
                 .AddEntityFrameworkStorage<RpcContext, Blob, long>();
@@ -43,7 +43,7 @@ namespace RedPocketCloud
                 x.User.AllowedUserNameCharacters = null;
             })
                 .AddDefaultTokenProviders()
-                .AddEntityFrameworkStores<RpcContext>();
+                .AddEntityFrameworkStores<RpcContext, long>();
         }
 
         public async void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)

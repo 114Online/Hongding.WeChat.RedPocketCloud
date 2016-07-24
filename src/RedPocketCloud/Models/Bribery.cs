@@ -7,11 +7,8 @@ namespace RedPocketCloud.Models
     public class Bribery
     {
         public Guid Id { get; set; }
-
-        [ForeignKey("Activity")]
-        public Guid ActivityId { get; set; }
-
-        public virtual Activity Activity { get; set; }
+        
+        public long ActivityId { get; set; }
 
         /// <summary>
         /// 领取时间

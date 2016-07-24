@@ -8,7 +8,7 @@ using RedPocketCloud.ViewModels;
 
 namespace RedPocketCloud.Controllers
 {
-    public class BaseController : BaseController<RpcContext, User, string>
+    public class BaseController : BaseController<RpcContext, User, long>
     {
         public override void Prepare()
         {

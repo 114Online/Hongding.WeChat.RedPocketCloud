@@ -42,15 +42,20 @@ namespace RedPocketCloud.Controllers
 
             // Activity statistics
             var beg2 = DateTime.Now.Date;
+            var ownedActivities = DB.Activities
+                .Where(x => x.OwnerId == User.Current.Id && x.Begin >= beg2)
+                .ToDictionary(x => x.Id, x => x.Title);
+            var ownedActivityIds = ownedActivities
+                .Select(x => x.Key)
+                .ToList();
             var _activities = DB.Briberies
-                .Include(x => x.Activity)
-                .Where(x => x.Activity.OwnerId == User.Current.Id && x.Activity.Begin >= beg2)
-                .GroupBy(x => x.Activity.Title)
-                .Select(x => new { Title = x.Key, Money = x.Sum(y => y.Price) })
+                .Where(x => ownedActivityIds.Contains(x.ActivityId))
+                .GroupBy(x => x.ActivityId)
+                .Select(x => new { Id = x.Key, Money = x.Sum(y => y.Price) })
                 .ToList();
             object activities;
             if (_activities.Count > 0)
-                activities = new { labels = _activities.Select(x => x.Title).ToList(), series = _activities.Select(x => x.Money) };
+                activities = new { labels = _activities.Select(x => ownedActivities[x.Id]).ToList(), series = _activities.Select(x => x.Money) };
             else
                 activities = new { labels = new string[] { "无活动" }, series = new int[] { 1 } };
             ViewBag.ActivityGraphicJson = Newtonsoft.Json.JsonConvert.SerializeObject(activities);
