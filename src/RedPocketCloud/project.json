@@ -13,7 +13,7 @@
     "Microsoft.AspNetCore.Session": "1.0.0",
     "Microsoft.Extensions.Logging.Console": "1.0.0",
     "Microsoft.AspNetCore.SignalR.Server": "0.1.0",
-    "Pomelo.AspNetCore.Extensions": "1.0.0-prerelease-20160725",
+    "Pomelo.AspNetCore.Extensions": "1.0.0-prerelease-20160726",
     "Pomelo.EntityFrameworkCore.MySql": "1.0.0-prerelease-20160725",
     "Pomelo.EntityFrameworkCore.MyCat": "1.0.0-prerelease-20160725"
   },
