@@ -65,7 +65,7 @@ namespace RedPocketCloud.Controllers
                     var blob = new Blob
                     {
                         Bytes = System.IO.File.ReadAllBytes(Path.Combine("wwwroot", "assets", "img", "shake-top.jpg")),
-                        ContentType = "image/jpg",
+                        ContentType = "image/jpeg",
                         FileName = "shake-top.jpeg",
                         Time = DateTime.Now
                     };
@@ -80,7 +80,7 @@ namespace RedPocketCloud.Controllers
                     var blob = new Blob
                     {
                         Bytes = System.IO.File.ReadAllBytes(Path.Combine("wwwroot", "assets", "img", "shake-bottom.jpg")),
-                        ContentType = "image/jpg",
+                        ContentType = "image/jpeg",
                         FileName = "shake-bottom.jpeg",
                         Time = DateTime.Now
                     };
