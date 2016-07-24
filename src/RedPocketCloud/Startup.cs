@@ -33,7 +33,7 @@ namespace RedPocketCloud
             });
             services.AddLogging();
             services.AddDbContext<RpcContext>(x => x.UseMySql(Config["Conn"]));
-            services.AddIdentity<User, IdentityRole>(x =>
+            services.AddIdentity<User, IdentityRole<long>>(x =>
             {
                 x.Password.RequireDigit = false;
                 x.Password.RequiredLength = 0;

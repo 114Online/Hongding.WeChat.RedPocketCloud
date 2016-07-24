@@ -3446,7 +3446,7 @@ body > .navbar-collapse[data-color="purple"]:after {
 .template-edit {
     width: 480px;
     margin: 15px auto;
-    zoom: 0.6;
+    zoom: 0.5;
     height: 800px;
     overflow: hidden;
 }
@@ -3521,4 +3521,19 @@ body > .navbar-collapse[data-color="purple"]:after {
 
 .template-active {
     box-shadow: 0 0 30px #1e6fb6;
+}
+
+.template-pop {
+    width: 1517px;
+    margin: 15px auto;
+    zoom: 0.35;
+    height: 800px;
+    overflow: hidden;
+}
+
+.template-pop img {
+    width: 480px;
+    height: 800px;
+    display: inline-block;
+    margin: 0 10px;
 }
