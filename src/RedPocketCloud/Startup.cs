@@ -23,10 +23,21 @@ namespace RedPocketCloud
             services.AddConfiguration(out Config);
             services.AddMvc();
             services.AddSignalR();
+            services.AddRedis(x =>
+            {
+                x.ConnectionString = "localhost";
+                x.Database = 10;
+                x.EventKey = "RedPocketSignalRInstance";
+            });
             services.AddSmartUser<User, long>();
             services.AddSmartCookies();
             services.AddBlobStorage()
                 .AddEntityFrameworkStorage<RpcContext, Blob, long>();
+            services.AddDistributedRedisCache(x => 
+            {
+                x.InstanceName = "RedPocketInstance";
+                x.Configuration = "localhost";
+            });
             services.AddSession(o =>
             {
                 o.IdleTimeout = new TimeSpan(0, 20, 0);
