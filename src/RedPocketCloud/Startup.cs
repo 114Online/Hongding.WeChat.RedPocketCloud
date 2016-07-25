@@ -24,7 +24,7 @@ namespace RedPocketCloud
             services.AddMvc();
             services.AddRedis(x =>
             {
-                x.ConnectionString = "localhost";
+                x.ConnectionString = Config["Host:Redis"];
                 x.Database = 10;
                 x.EventKey = "RedPocketSignalRInstance";
             })
@@ -36,7 +36,7 @@ namespace RedPocketCloud
             services.AddDistributedRedisCache(x => 
             {
                 x.InstanceName = "RedPocketInstance";
-                x.Configuration = "localhost";
+                x.Configuration = Config["Host:Redis"];
             });
             services.AddSession(o =>
             {
