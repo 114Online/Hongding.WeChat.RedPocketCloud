@@ -31,10 +31,7 @@ namespace RedPocketCloud.Models
         public long OwnerId { get; set; }
 
         public virtual User Owner { get; set; }
-
-        [ForeignKey("Template")]
+        
         public long? TemplateId { get; set; }
-
-        public virtual Template Template { get; set; }
     }
 }
