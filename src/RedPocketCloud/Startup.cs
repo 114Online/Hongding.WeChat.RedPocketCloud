@@ -22,13 +22,13 @@ namespace RedPocketCloud
         {
             services.AddConfiguration(out Config);
             services.AddMvc();
-            services.AddSignalR();
             services.AddRedis(x =>
             {
                 x.ConnectionString = "localhost";
                 x.Database = 10;
                 x.EventKey = "RedPocketSignalRInstance";
-            });
+            })
+                .AddSignalR();
             services.AddSmartUser<User, long>();
             services.AddSmartCookies();
             services.AddBlobStorage()
