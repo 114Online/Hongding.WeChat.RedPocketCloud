@@ -43,7 +43,10 @@ namespace RedPocketCloud
                 o.IdleTimeout = new TimeSpan(0, 20, 0);
             });
             services.AddLogging();
-            services.AddDbContext<RpcContext>(x => x.UseMySql(Config["Conn"]));
+            if (Config["Host:Mode"] == "MySQL")
+                services.AddDbContext<RpcContext>(x => x.UseMySql(Config["Host:ConnectionString"]));
+            else
+                services.AddDbContext<RpcContext>(x => x.UseMyCat(Config["Host:ConnectionString"]));
             services.AddIdentity<User, IdentityRole<long>>(x =>
             {
                 x.Password.RequireDigit = false;

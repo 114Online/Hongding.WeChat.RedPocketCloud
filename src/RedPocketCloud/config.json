@@ -4,10 +4,15 @@
     "Secret": "3fcfb1dc114ef7e16ab9cca656d94e90",
     "MchId": "1240205902",
     "SignKey": "hg378rth9wefhisdfhaiqerh123uirhs",
-    "TransferDescription": "红包"
+    "RedPocket": {
+      "TransferDescription": "红包",
+      "MaxPerDay": 3
+    }
   },
-  "Ip": "139.129.202.247",
-  "MaxPerDay": 20,
-  "Conn": "Server=localhost;database=wechat;uid=root;pwd=19931101",
-  "Host": "http://h5.114-online.com"
+  "Host": {
+    "Ip": "139.129.202.247",
+    "Method": "MySQL",
+    "ConnectionString": "Server=localhost;database=wechat;uid=root;pwd=19931101",
+    "Domain": "http://h5.114-online.com"
+  }
 }
