@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Caching.Distributed;
 using RedPocketCloud.Models;
 
 namespace RedPocketCloud.Controllers
@@ -239,7 +240,7 @@ namespace RedPocketCloud.Controllers
         }
 
         [HttpPost]
-        public IActionResult Deliver(string Title, string Rules, double Ratio, [FromServices] IHostingEnvironment env)
+        public IActionResult Deliver(string Title, string Rules, double Ratio, [FromServices] IDistributedCache Cache)
         {
             if (DB.Activities.Count(x => x.OwnerId == User.Current.Id && !x.End.HasValue) > 0)
                 return Prompt(x =>
@@ -298,6 +299,9 @@ namespace RedPocketCloud.Controllers
             }
             DB.SaveChanges();
 
+            // 设置缓存
+            Cache.SetString("ATTEND-" + act.Id, 0.ToString());
+
             // 计算红包统计
             act.Price = DB.Briberies.Where(x => x.ActivityId == act.Id).Sum(x => x.Price);
             act.BriberiesCount = DB.Briberies.Count(x => x.ActivityId == act.Id);
@@ -323,6 +327,35 @@ namespace RedPocketCloud.Controllers
                 .OrderByDescending(x => x.ReceivedTime)
                 .ToList();
             return View(act);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Stop(long id, [FromServices] IDistributedCache Cache)
+        {
+            Activity act;
+            if (User.IsInRole("Root"))
+            {
+                act = DB.Activities
+                    .Single(x => x.Id == id);
+            }
+            else
+            {
+                act = DB.Activities
+                    .Single(x => x.Id == id && x.OwnerId == User.Current.Id);
+            }
+            act.End = DateTime.Now;
+            DB.SaveChanges();
+
+            // TODO: Clean up cache
+            Cache.Remove("ATTEND-" + id);
+
+            return RedirectToAction("Activity", "Home", new { id = id });
+        }
+
+        public string AttendCount(long id, [FromServices] IDistributedCache Cache)
+        {
+            return Cache.GetString("ATTEND-" + id);
         }
     }
 }
