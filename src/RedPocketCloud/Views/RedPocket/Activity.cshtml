@@ -1,0 +1,182 @@
+﻿@model Activity
+@{ 
+    ViewBag.Title = Model.Title;
+}
+<style>
+    #status {
+        float: right;
+    }
+</style>
+<div class="row">
+    <div class="col-md-5">
+        <div class="card">
+            <div class="header">
+                <h4 class="title">
+                    活动概况
+                    @if (Model.End.HasValue)
+                    {
+                        <span id="status" class="label label-default">已经结束</span>
+                    }
+                    else
+                    {
+                        <span id="status" class="label label-danger">正在进行</span>
+                    }
+                </h4>
+                <p class="category">进行时间、领取概况等。</p>
+            </div>
+            <div class="content table-responsive table-full-width">
+                <table class="table table-hover table-striped">
+                    <tr>
+                        <td>活动用时</td>
+                        <td class="time"></td>
+                    </tr>
+                    <tr>
+                        <td>当前领取钱数</td>
+                        <td><span class="price">@((ViewBag.Price / 100.0).ToString("0.00"))</span> 元</td>
+                    </tr>
+                    <tr>
+                        <td>本轮总钱数</td>
+                        <td><span class="">@((Model.Price / 100.0).ToString("0.00"))</span> 元</td>
+                    </tr>
+                    <tr>
+                        <td>当前领取红包数</td>
+                        <td><span class="amount">@ViewBag.Amount</span> 个</td>
+                    </tr>
+                    <tr>
+                        <td>本轮总红包数</td>
+                        <td><span class="">@Model.BriberiesCount</span> 个</td>
+                    </tr>
+                    <tr>
+                        <td>中奖率</td>
+                        <td>@((Model.Ratio * 100).ToString("0.00"))%</td>
+                    </tr>
+                    <tr>
+                        <td>参与人数</td>
+                        <td><span class="attend">@Model.Attend</span> 人</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-7">
+        <div class="card">
+            <div class="header">
+                <h4 class="title">发放规则</h4>
+                <p class="category">本轮活动红包金额与个数等。</p>
+            </div>
+            <div class="content table-responsive table-full-width">
+                <table class="table table-hover table-striped">
+                    <thead>
+                        <tr>
+                            <th>类型</th>
+                            <th>金额（元）</th>
+                            <th>数量（个）</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var x in Model.Rules.Object)
+                        {
+                            <tr>
+                                @if (x.From == x.To)
+                                {
+                                    <td>固定金额</td>
+                                    <td>￥@((x.From / 100.0).ToString("0.00"))</td>
+                                }
+                                else
+                                {
+                                    <td>区间金额</td>
+                                    <td>￥@((x.From / 100.0).ToString("0.00")) ~ ￥@((x.To / 100.0).ToString("0.00"))</td>
+                                }
+                                <td>@x.Count</td>
+                            </tr>
+
+                        }
+                    </tbody>
+                </table>
+                @if (!Model.End.HasValue)
+                {
+                    <div class="end-button-area">
+                        <form asp-action="Stop" asp-controller="Home" asp-route-id="@Model.Id" id="frmStop" style="text-align: center">
+                            <input type="button" id="btnStop" value="强制结束" class="btn btn-danger" />
+                        </form>
+                        <script>
+                        $('#btnStop').click(function(){
+                            if (confirm('确认要强制停止本轮活动吗？'))
+                            {
+                                $('#frmStop').submit();
+                            }
+                        });
+                        </script>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row redpocket-outer">
+    @foreach (Bribery x in ViewBag.Briberies)
+    {
+        <div class="redpocket">
+            <img class="redpocket-avatar" src="@x.AvatarUrl" />
+            <div class="redpocket-price">@Html.Money(x.Price)</div>
+            <div class="redpocket-name">@x.NickName</div>
+            <div class="redpocket-time">@x.ReceivedTime.Value.ToString("HH:mm:ss")</div>
+        </div>
+    }
+</div>
+<script>
+    var lw = $('.col-md-7 .card').outerHeight();
+    var rw = $('.col-md-5 .card').outerHeight();
+    if (lw < rw)
+        $('.col-md-7 .card').outerHeight(rw);
+    else
+        $('.col-md-5 .card').outerHeight(lw);
+
+    var end = false;
+    var timer;
+    var endTime = @(new HtmlString((Model.End.HasValue ? "new Date('" + Model.End.Value.ToString("yyyy-MM-dd HH:mm:ss") + "')" : "null")));
+    var time1 = (new Date('@Model.Begin.ToString("yyyy-MM-dd HH:mm:ss")')).getTime();
+
+    timer = setInterval(function () {
+        var time2 = (new Date()).getTime();
+        if (endTime)
+            time2 = endTime;
+        var span = (time2 - time1) / 1000;
+        var secs = parseInt(span % 60);
+        var minutes = parseInt(span / 60 % 60);
+        var hours = parseInt(span / 60 / 60);
+        $('.time').html(hours + "小时" + minutes + "分" + secs + "秒");
+    }, 1000);
+
+    var timer2 = setInterval(function(){
+        if (!end)
+        {
+            $.get('/Home/AttendCount/@Model.Id', {}, function(data){
+                $('.attend').html(data);
+            });
+        }
+    }, 3000);
+
+    var hub = $.connection.briberyHub;
+
+    hub.client.onDelivered = function (data) {
+        $('.price').html((parseFloat($('.price').html()) + parseFloat(data.price / 100.0)).toFixed(2));
+        $('.amount').html(parseInt($('.amount').html()) + 1);
+        $('#realtime-list').prepend('<div class="redpocket"><img class="redpocket-avatar" src="' + data.avatar + '" /><div class="redpocket-price">￥' + (data.price / 100.0).toFixed(2) + '</div><div class="redpocket-name">' + data.name + '</div><div class="redpocket-time">' + moment(data.time).format('hh:mm:ss') + '</div></div>');
+    }
+
+    hub.client.onShaked = function (data) {
+        $('.attend').html(data);
+    };
+
+    hub.client.onActivityEnd = function () {
+        $('#status').html("已经结束");
+        $('#status').removeClass('label-danger');
+        $('#status').addClass('label-default');
+        end = true;
+    }
+
+    $.connection.hub.start(null, function () {
+        hub.server.join('@Model.Id');
+    });
+</script>

@@ -23,7 +23,7 @@ namespace RedPocketCloud.Controllers
                         .Select(x => new NotificationViewModel
                         {
                             Text = x.Title + " 正在进行",
-                            Url = Url.Action("Show", "Activity", new { id = x.Id })
+                            Url = Url.Action("Activity", "RedPocket", new { id = x.Id })
                         })
                         .ToList());
                 else
@@ -32,7 +32,7 @@ namespace RedPocketCloud.Controllers
                         .Select(x => new NotificationViewModel
                         {
                             Text = x.Title + " 正在进行",
-                            Url = Url.Action("Show", "Activity", new { id = x.Id })
+                            Url = Url.Action("Activity", "RedPocket", new { id = x.Id })
                         })
                         .ToList());
                 ViewBag.Notifications = notifications;

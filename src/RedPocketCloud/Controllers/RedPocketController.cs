@@ -237,5 +237,92 @@ namespace RedPocketCloud.Controllers
             DB.SaveChanges();
             return RedirectToAction("Template", "RedPocket");
         }
+
+        [HttpPost]
+        public IActionResult Deliver(string Title, string Rules, double Ratio, [FromServices] IHostingEnvironment env)
+        {
+            if (DB.Activities.Count(x => x.OwnerId == User.Current.Id && !x.End.HasValue) > 0)
+                return Prompt(x =>
+                {
+                    x.Title = "创建失败";
+                    x.Details = "还有活动正在进行，请等待活动结束后再创建新活动！";
+                    x.StatusCode = 400;
+                });
+            JsonObject<List<ViewModels.Rule>> rules = Rules;
+            // 检查余额
+            if (rules.Object.Count == 0 || rules.Object.Sum(x => x.Count) == 0)
+                return Prompt(x =>
+                {
+                    x.Title = "创建失败";
+                    x.Details = "您没有设定红包发放规则";
+                });
+            if (rules.Object.Any(x => x.From < 100))
+                return Prompt(x =>
+                {
+                    x.Title = "创建失败";
+                    x.Details = "每个红包金额最少为1元";
+                });
+            var total = rules.Object.Sum(x => x.To * x.Count);
+            if (total / 100.0 > User.Current.Balance)
+                return Prompt(x =>
+                {
+                    x.Title = "余额不足";
+                    x.Details = $"您的余额不足以支付本轮活动的￥{ total.ToString("0.00") }";
+                    x.StatusCode = 400;
+                });
+
+            // 存储活动信息
+            var act = new Activity
+            {
+                Begin = DateTime.Now,
+                Rules = Rules,
+                Title = Title,
+                Ratio = Ratio / 100.0,
+                OwnerId = User.Current.Id
+            };
+
+            DB.Activities.Add(act);
+
+            // 创建红包
+            var random = new Random();
+            foreach (var x in rules.Object)
+            {
+                for (var i = 0; i < x.Count; i++)
+                {
+                    DB.Briberies.Add(new Bribery
+                    {
+                        ActivityId = act.Id,
+                        Price = random.Next(x.From, x.To)
+                    });
+                }
+            }
+            DB.SaveChanges();
+
+            // 计算红包统计
+            act.Price = DB.Briberies.Where(x => x.ActivityId == act.Id).Sum(x => x.Price);
+            act.BriberiesCount = DB.Briberies.Count(x => x.ActivityId == act.Id);
+            DB.SaveChanges();
+
+            return RedirectToAction("Activity", "RedPocket", new { id = act.Id });
+        }
+
+        public IActionResult Activity(long id)
+        {
+            var act = DB.Activities.Single(x => x.Id == id);
+            if (!User.IsInRole("Root") && User.Current.Id != act.OwnerId)
+                return Prompt(x =>
+                {
+                    x.StatusCode = 403;
+                    x.Title = "权限不足";
+                    x.Details = "您没有权限查看这个活动";
+                });
+            ViewBag.Price = DB.Briberies.Where(x => x.ActivityId == id && x.ReceivedTime.HasValue).Sum(x => x.Price);
+            ViewBag.Amount = DB.Briberies.Count(x => x.ActivityId == id && x.ReceivedTime.HasValue);
+            ViewBag.Briberies = DB.Briberies
+                .Where(x => x.ActivityId == id && x.ReceivedTime.HasValue)
+                .OrderByDescending(x => x.ReceivedTime)
+                .ToList();
+            return View(act);
+        }
     }
 }
