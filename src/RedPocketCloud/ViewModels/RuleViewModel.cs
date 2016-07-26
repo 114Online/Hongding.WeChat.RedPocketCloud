@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
+using RedPocketCloud.Models;
 
 namespace RedPocketCloud.ViewModels
 {
-    public class Rule
+    public class RuleViewModel
     {
+        public RedPocketType Type { get; set; }
+
         /// <summary>
         /// 以分为单位
         /// </summary>
@@ -18,6 +18,11 @@ namespace RedPocketCloud.ViewModels
         public int To { get; set; }
 
         public double Ratio { get; set; }
+
+        [MaxLength(256)]
+        public string Url { get; set; }
+
+        public long CouponId { get; set; }
 
         public long Count { get; set; }
     }

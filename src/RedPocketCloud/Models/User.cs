@@ -1,8 +1,7 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Pomelo.AspNetCore.Extensions.BlobStorage.Models;
+using RedPocketCloud.ViewModels;
 
 namespace RedPocketCloud.Models
 {
@@ -13,5 +12,7 @@ namespace RedPocketCloud.Models
         public string Name { get; set; }
 
         public int Limit { get; set; } = 10;
+
+        public JsonObject<List<CouponViewModel>> Coupons { get; set; } = "[]";
     }
 }

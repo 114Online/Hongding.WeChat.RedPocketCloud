@@ -250,7 +250,7 @@ namespace RedPocketCloud.Controllers
                     x.Details = "还有活动正在进行，请等待活动结束后再创建新活动！";
                     x.StatusCode = 400;
                 });
-            JsonObject<List<ViewModels.Rule>> rules = Rules;
+            JsonObject<List<ViewModels.RuleViewModel>> rules = Rules;
             // 检查余额
             if (rules.Object.Count == 0 || rules.Object.Sum(x => x.Count) == 0)
                 return Prompt(x =>

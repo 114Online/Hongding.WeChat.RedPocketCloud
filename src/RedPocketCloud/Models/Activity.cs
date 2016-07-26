@@ -11,7 +11,7 @@ namespace RedPocketCloud.Models
 
         public string Title { get; set; }
 
-        public JsonObject<List<Rule>> Rules { get; set; }
+        public JsonObject<List<RuleViewModel>> Rules { get; set; }
 
         public DateTime Begin { get; set; }
 

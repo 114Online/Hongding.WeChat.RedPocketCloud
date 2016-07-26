@@ -4,6 +4,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RedPocketCloud.Models
 {
+    public enum RedPocketType
+    {
+        Cash,
+        Url,
+        Coupon
+    }
+
     public class Bribery
     {
         public Guid Id { get; set; }
@@ -19,6 +26,8 @@ namespace RedPocketCloud.Models
         /// 以分为单位
         /// </summary>
         public long Price { get; set; }
+
+        public RedPocketType Type { get; set; }
 
         [MaxLength(32)]
         public string OpenId { get; set; }
