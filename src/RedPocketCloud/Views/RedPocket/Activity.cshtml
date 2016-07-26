@@ -69,7 +69,7 @@
                     <thead>
                         <tr>
                             <th>类型</th>
-                            <th>金额（元）</th>
+                            <th>奖项</th>
                             <th>数量（个）</th>
                         </tr>
                     </thead>
@@ -77,19 +77,31 @@
                         @foreach (var x in Model.Rules.Object)
                         {
                             <tr>
-                                @if (x.From == x.To)
+                                @if (x.Type == RedPocketType.Cash)
                                 {
-                                    <td>固定金额</td>
-                                    <td>￥@((x.From / 100.0).ToString("0.00"))</td>
+                                    @if (x.From == x.To)
+                                    {
+                                        <td>固定金额</td>
+                                        <td>￥@((x.From / 100.0).ToString("0.00"))</td>
+                                    }
+                                    else
+                                    {
+                                        <td>区间金额</td>
+                                        <td>￥@((x.From / 100.0).ToString("0.00")) ~ ￥@((x.To / 100.0).ToString("0.00"))</td>
+                                    }
+                                }
+                                else if (x.Type == RedPocketType.Coupon)
+                                {
+                                    <td>券</td>
+                                    <td>@x.Coupon</td>
                                 }
                                 else
                                 {
-                                    <td>区间金额</td>
-                                    <td>￥@((x.From / 100.0).ToString("0.00")) ~ ￥@((x.To / 100.0).ToString("0.00"))</td>
+                                    <td>链接</td>
+                                    <td>@x.Url</td>
                                 }
                                 <td>@x.Count</td>
                             </tr>
-
                         }
                     </tbody>
                 </table>

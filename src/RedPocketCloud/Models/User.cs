@@ -12,7 +12,5 @@ namespace RedPocketCloud.Models
         public string Name { get; set; }
 
         public int Limit { get; set; } = 10;
-
-        public JsonObject<List<CouponViewModel>> Coupons { get; set; } = "[]";
     }
 }

@@ -24,6 +24,9 @@ namespace RedPocketCloud.ViewModels
 
         public long CouponId { get; set; }
 
+        [MaxLength(256)]
+        public string Coupon { get; set; }
+
         public long Count { get; set; }
     }
 }
