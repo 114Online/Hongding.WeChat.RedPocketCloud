@@ -38,7 +38,7 @@
                                 <thead>
                                     <tr>
                                         <th>红包类型</th>
-                                        <th>金额</th>
+                                        <th>奖项</th>
                                         <th>个数</th>
                                         <th>操作</th>
                                     </tr>
@@ -49,6 +49,10 @@
                                 <a class="btn btn-xs btn-info" href="javascript:AddFixedBribery();">添加固定金额红包</a>
                                 &nbsp;&nbsp;&nbsp;
                                 <a class="btn btn-xs btn-info" href="javascript:AddRangeBribery();">添加区间金额红包</a>
+                                &nbsp;&nbsp;&nbsp;
+                                <a class="btn btn-xs btn-info" href="javascript:AddUrlBribery();">添加链接地址红包</a>
+                                &nbsp;&nbsp;&nbsp;
+                                <a class="btn btn-xs btn-info" href="javascript:AddCouponBribery();">添加优惠券红包</a>
                             </p>
                         </td>
                     </tr>
@@ -96,12 +100,20 @@
 
     function AddFixedBribery()
     {
-        $('#rule-list').append('<tr><td>固定金额</td><td><input type="textbox" class="form-control price" value="0.00" /></td><td><input type="textbox" class="form-control count" value="0" /></td><td><a href="javascript:;" onclick="removeRule(this)">删除</a></td></tr>');
+        $('#rule-list').append('<tr data-type="cash"><td>固定金额</td><td><input type="textbox" class="form-control price" value="0.00" /></td><td><input type="textbox" class="form-control count" value="0" /></td><td><a href="javascript:;" onclick="removeRule(this)">删除</a></td></tr>');
     }
 
     function AddRangeBribery()
     {
-        $('#rule-list').append('<tr><td>区间金额</td><td><input style="width: 40%; display:inline-block" type="textbox" class="form-control price-from" value="0.00" /> ~ <input style="width: 40%; display:inline-block" type="textbox" class="form-control price-to" value="0.00" /></td><td><input type="textbox" class="form-control count" value="0" /></td><td><a href="javascript:;" onclick="removeRule(this)">删除</a></td></tr>');
+        $('#rule-list').append('<tr data-type="cash"><td>区间金额</td><td><input style="width: 40%; display:inline-block" type="textbox" class="form-control price-from" value="0.00" /> ~ <input style="width: 40%; display:inline-block" type="textbox" class="form-control price-to" value="0.00" /></td><td><input type="textbox" class="form-control count" value="0" /></td><td><a href="javascript:;" onclick="removeRule(this)">删除</a></td></tr>');
+    }
+
+    function AddUrlBribery() {
+        $('#rule-list').append('<tr data-type="url"><td>外部链接</td><td><input type="textbox" class="form-control price" value="http://" /></td><td><input type="textbox" class="form-control count" value="0" /></td><td><a href="javascript:;" onclick="removeRule(this)">删除</a></td></tr>');
+    }
+
+    function AddCouponBribery() {
+        $('#rule-list').append('<tr data-type="coupon"><td>优惠券</td><td><input type="textbox" class="form-control price" value="" placeholder="优惠券编码" /></td><td><input type="textbox" class="form-control count" value="0" /></td><td><a href="javascript:;" onclick="removeRule(this)">删除</a></td></tr>');
     }
 
     $('#frmDeliver').submit(function () {

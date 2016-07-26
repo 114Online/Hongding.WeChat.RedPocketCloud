@@ -35,12 +35,14 @@ namespace RedPocketCloud.Models
             {
                 e.HasIndex(x => x.ReceivedTime);
                 e.HasIndex(x => x.Price);
+                e.HasIndex(x => x.ActivityId);
             });
 
             builder.Entity<PayLog>(e =>
             {
                 e.HasIndex(x => x.Price);
                 e.HasIndex(x => x.Time);
+                e.HasIndex(x => x.UserId);
             });
 
             builder.Entity<Activity>(e =>
@@ -48,11 +50,21 @@ namespace RedPocketCloud.Models
                 e.HasIndex(x => x.Price);
                 e.HasIndex(x => x.Begin);
                 e.HasIndex(x => x.End);
+                e.HasIndex(x => x.OwnerId);
             });
 
             builder.Entity<Bribery>(e =>
             {
                 e.HasIndex(x => x.ReceivedTime);
+                e.HasIndex(x => x.ActivityId);
+                e.HasIndex(x => x.Price);
+                e.HasIndex(x => x.Type);
+            });
+
+            builder.Entity<WeChatUser>(e => 
+            {
+                e.HasIndex(x => x.OpenId).IsUnique();
+                e.HasIndex(x => x.MerchantId);
             });
         }
     }
