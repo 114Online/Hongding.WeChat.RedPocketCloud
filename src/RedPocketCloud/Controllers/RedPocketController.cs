@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.EntityFrameworkCore;
 using RedPocketCloud.Models;
 
 namespace RedPocketCloud.Controllers
@@ -16,7 +17,7 @@ namespace RedPocketCloud.Controllers
     {
         public IActionResult Index(string title, DateTime? begin, DateTime? end, string merchant)
         {
-            IEnumerable<Activity> ret = DB.Activities;
+            IEnumerable<Activity> ret = DB.Activities.Include(x => x.Owner);
             if (!string.IsNullOrEmpty(title))
                 ret = ret.Where(x => x.Title.Contains(title) || title.Contains(x.Title));
             if (begin.HasValue)

@@ -96,7 +96,7 @@
                 @if (!Model.End.HasValue)
                 {
                     <div class="end-button-area">
-                        <form asp-action="Stop" asp-controller="Home" asp-route-id="@Model.Id" id="frmStop" style="text-align: center">
+                        <form asp-action="Stop" asp-controller="RedPocket" asp-route-id="@Model.Id" id="frmStop" style="text-align: center">
                             <input type="button" id="btnStop" value="强制结束" class="btn btn-danger" />
                         </form>
                         <script>
@@ -151,7 +151,7 @@
     var timer2 = setInterval(function(){
         if (!end)
         {
-            $.get('/Home/AttendCount/@Model.Id', {}, function(data){
+            $.get('/RedPocket/AttendCount/@Model.Id', {}, function(data){
                 $('.attend').html(data);
             });
         }
