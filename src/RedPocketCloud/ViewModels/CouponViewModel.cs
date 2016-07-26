@@ -9,5 +9,7 @@ namespace RedPocketCloud.ViewModels
         public DateTime Expire { get; set; }
 
         public DateTime Time { get; set; }
+
+        public long ImageId { get; set; }
     }
 }
