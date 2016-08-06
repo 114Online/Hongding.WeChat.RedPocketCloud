@@ -20,5 +20,7 @@ namespace RedPocketCloud.Models
         public long ImageId { get; set; }
 
         public long ProviderImageId { get; set; }
+
+        public long UserId { get; set; }
     }
 }

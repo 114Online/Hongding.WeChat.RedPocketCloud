@@ -28,6 +28,7 @@ namespace RedPocketCloud.Controllers
                 ret = ret.Where(x => x.Owner.Name.Contains(merchant) || merchant.Contains(x.Owner.Name));
             if (!User.IsInRole("Root"))
                 ret = ret.Where(x => x.OwnerId == User.Current.Id);
+            ret = ret.OrderByDescending(x => x.Begin);
             return PagedView(ret, 20);
         }
 

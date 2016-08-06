@@ -25,6 +25,8 @@ namespace RedPocketCloud.Models
 
         public DbSet<Template> Templates { get; set; }
 
+        public DbSet<Coupon> Coupons { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -65,6 +67,11 @@ namespace RedPocketCloud.Models
             {
                 e.HasIndex(x => x.OpenId).IsUnique();
                 e.HasIndex(x => x.MerchantId);
+            });
+
+            builder.Entity<Coupon>(e =>
+            {
+                e.HasIndex(x => x.UserId);
             });
         }
     }
