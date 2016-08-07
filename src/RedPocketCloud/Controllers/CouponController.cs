@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authorization;
 using RedPocketCloud.Models;
 
@@ -25,7 +27,7 @@ namespace RedPocketCloud.Controllers
                     Provider = x.Provider,
                     Time = x.Time
                 });
-                return PagedView(ret.OrderBy(x => x.UserId).ThenByDescending(x => x.Id));
+                return PagedView<dynamic>(ret.OrderBy(x => x.UserId).ThenByDescending(x => x.Id));
             }
             else
             {
@@ -34,6 +36,45 @@ namespace RedPocketCloud.Controllers
                     .OrderBy(x => x.Id);
                 return PagedView(query.OrderByDescending(x => x.Id));
             }
+        }
+
+        [HttpGet]
+        public IActionResult Add() => View();
+
+        [HttpPost]
+        public IActionResult Add(Coupon Model, IFormFile coupon, IFormFile icon)
+        {
+            var _coupon = new Blob
+            {
+                Bytes = coupon.ReadAllBytes(),
+                ContentLength = coupon.Length,
+                ContentType = coupon.ContentType,
+                FileName = coupon.FileName,
+                Time = DateTime.Now
+            };
+            DB.Blobs.Add(_coupon);
+
+            var _icon = new Blob
+            {
+                Bytes = icon.ReadAllBytes(),
+                ContentLength = coupon.Length,
+                ContentType = coupon.ContentType,
+                FileName = coupon.FileName,
+                Time = DateTime.Now
+            };
+            DB.Blobs.Add(_icon);
+            DB.SaveChanges();
+
+            Model.ImageId = _coupon.Id;
+            Model.ProviderImageId = _icon.Id;
+            Model.UserId = User.Current.Id;
+            DB.Coupons.Add(Model);
+            DB.SaveChanges();
+            return Prompt(x =>
+            {
+                x.Title = "创建成功";
+                x.Details = $"优惠券{ Model.Title }已经成功创建！";
+            });
         }
     }
 }

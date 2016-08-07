@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace RedPocketCloud.Models
+﻿namespace RedPocketCloud.Models
 {
     public class Coupon
     {
@@ -18,7 +13,7 @@ namespace RedPocketCloud.Models
         public string Provider { get; set; }
 
         public long ImageId { get; set; }
-
+        
         public long ProviderImageId { get; set; }
 
         public long UserId { get; set; }
