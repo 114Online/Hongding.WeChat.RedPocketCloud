@@ -47,6 +47,12 @@ namespace RedPocketCloud.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Add(Coupon Model, IFormFile coupon, IFormFile icon)
         {
+            if (coupon == null || icon == null)
+                return Prompt(x =>
+                {
+                    x.Title = "添加失败";
+                    x.Details = "必须上传商家Logo与优惠券图片！";
+                });
             var _coupon = new Blob
             {
                 Bytes = coupon.ReadAllBytes(),
@@ -109,37 +115,21 @@ namespace RedPocketCloud.Controllers
             coupon.Provider = Model.Provider;
             if (coup != null)
             {
-                DB.Blobs
-                    .Where(x => x.Id == coupon.ImageId)
-                    .Delete();
-                var _coupon = new Blob
-                {
-                    Bytes = coup.ReadAllBytes(),
-                    ContentLength = coup.Length,
-                    ContentType = coup.ContentType,
-                    FileName = coup.FileName,
-                    Time = DateTime.Now
-                };
-                DB.Blobs.Add(_coupon);
-                DB.SaveChanges();
-                coupon.ImageId = _coupon.Id;
+                var _coupon = DB.Blobs.Single(x => x.Id == coupon.ImageId);
+                _coupon.Bytes = coup.ReadAllBytes();
+                _coupon.ContentLength = coup.Length;
+                _coupon.ContentType = coup.ContentType;
+                _coupon.FileName = coup.FileName;
+                _coupon.Time = DateTime.Now;
             }
             if (icon != null)
             {
-                DB.Blobs
-                    .Where(x => x.Id == coupon.ProviderImageId)
-                    .Delete();
-                var _icon = new Blob
-                {
-                    Bytes = icon.ReadAllBytes(),
-                    ContentLength = icon.Length,
-                    ContentType = icon.ContentType,
-                    FileName = icon.FileName,
-                    Time = DateTime.Now
-                };
-                DB.Blobs.Add(_icon);
-                DB.SaveChanges();
-                coupon.ProviderImageId = _icon.Id;
+                var _icon = DB.Blobs.Single(x => x.Id == coupon.ProviderImageId);
+                _icon.Bytes = icon.ReadAllBytes();
+                _icon.ContentLength = icon.Length;
+                _icon.ContentType = icon.ContentType;
+                _icon.FileName = icon.FileName;
+                _icon.Time = DateTime.Now;
             }
             DB.SaveChanges();
             return Prompt(x =>
