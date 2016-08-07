@@ -138,5 +138,28 @@ namespace RedPocketCloud.Controllers
                 x.Details = "优惠券信息已更新成功！";
             });
         }
+
+        [HttpGet]
+        public IActionResult CouponSelect() => View(DB.Coupons.Where(x => x.UserId == User.Current.Id).ToList());
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Delete(int id)
+        {
+            var query = DB.Coupons.Where(x => x.Id == id);
+            if (!User.IsInRole("Root"))
+                query = query.Where(x => x.UserId == User.Current.Id);
+            if (query.Delete() == 0)
+                return Prompt(x => 
+                {
+                    x.Title = "删除失败";
+                    x.Details = "没有找到相关优惠券！";
+                });
+            return Prompt(x =>
+            {
+                x.Title = "删除成功";
+                x.Details = "优惠券已经成功删除！";
+            });
+        }
     }
 }

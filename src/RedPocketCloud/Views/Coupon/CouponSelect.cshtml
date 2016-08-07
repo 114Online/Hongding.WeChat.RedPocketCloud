@@ -1,0 +1,9 @@
+﻿@model IEnumerable<Coupon>
+@{ 
+    Layout = null;
+}
+
+@foreach(var x in Model)
+{
+    <option value="@x.Id">@x.Title</option>
+}

@@ -37,6 +37,7 @@
                     }
                     <td>
                         <a asp-action="Edit" asp-controller="Coupon" asp-route-id="@x.Id">编辑</a>
+                        <a href="javascript:Delete(@x.Id)">删除</a>
                     </td>
                 </tr>
             }
@@ -47,3 +48,15 @@
 <div style="margin-top:-30px;">
     @Html.Paging("", "active", "pagination")
 </div>
+<form asp-action="Delete" asp-controller="Coupon" id="frmDeleteCoupon">
+    <input type="hidden" name="id" id="couponId" />
+</form>
+<script>
+    function Delete(id)
+    {
+        if (confirm("您确认要删除这个优惠券吗")) {
+            $('#couponId').val(id);
+            $('#frmDeleteCoupon').submit();
+        }
+    }
+</script>
