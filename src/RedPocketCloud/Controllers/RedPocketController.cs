@@ -332,7 +332,9 @@ namespace RedPocketCloud.Controllers
             DB.SaveChanges();
 
             // 设置缓存
-            Cache.SetString("ATTEND-" + act.Id, 0.ToString());
+            Cache.SetString("MERCHANT_CURRENT_ACTIVITY_RATIO_" + User.Current.UserName, act.Ratio.ToString());
+            Cache.SetString("MERCHANT_CURRENT_ACTIVITY_ATTEND_" + User.Current.UserName, 0.ToString());
+            Cache.SetString("MERCHANT_CURRENT_ACTIVITY_" + User.Current.UserName, act.Id.ToString());
 
             // 计算红包统计
             act.Price = DB.Briberies.Where(x => x.ActivityId == act.Id).Sum(x => x.Price);
