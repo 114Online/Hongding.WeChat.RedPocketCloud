@@ -130,7 +130,18 @@
     {
         <div class="redpocket">
             <img class="redpocket-avatar" src="@x.AvatarUrl" />
-            <div class="redpocket-price">@Html.Money(x.Price)</div>
+            @if (x.Type == RedPocketType.Cash)
+            {
+                <div class="redpocket-price">@Html.Money(x.Price)</div>
+            }
+            else if (x.Type == RedPocketType.Coupon)
+            {
+                <div class="redpocket-price">@ViewBag.Coupons[x.CouponId]</div>
+            }
+            else
+            {
+                <div class="redpocket-price">外部链接</div>
+            }
             <div class="redpocket-name">@x.NickName</div>
             <div class="redpocket-time">@x.ReceivedTime.Value.ToString("HH:mm:ss")</div>
         </div>
@@ -174,7 +185,12 @@
     hub.client.onDelivered = function (data) {
         $('.price').html((parseFloat($('.price').html()) + parseFloat(data.price / 100.0)).toFixed(2));
         $('.amount').html(parseInt($('.amount').html()) + 1);
-        $('#realtime-list').prepend('<div class="redpocket"><img class="redpocket-avatar" src="' + data.avatar + '" /><div class="redpocket-price">￥' + (data.price / 100.0).toFixed(2) + '</div><div class="redpocket-name">' + data.name + '</div><div class="redpocket-time">' + moment(data.time).format('hh:mm:ss') + '</div></div>');
+        if (data.type == 0)
+            $('#realtime-list').prepend('<div class="redpocket"><img class="redpocket-avatar" src="' + data.avatar + '" /><div class="redpocket-price">￥' + (data.price / 100.0).toFixed(2) + '</div><div class="redpocket-name">' + data.name + '</div><div class="redpocket-time">' + moment(data.time).format('hh:mm:ss') + '</div></div>');
+        else if (data.type == 1)
+            $('#realtime-list').prepend('<div class="redpocket"><img class="redpocket-avatar" src="' + data.avatar + '" /><div class="redpocket-price">外部链接</div><div class="redpocket-name">' + data.name + '</div><div class="redpocket-time">' + moment(data.time).format('hh:mm:ss') + '</div></div>');
+        else            
+            $('#realtime-list').prepend('<div class="redpocket"><img class="redpocket-avatar" src="' + data.avatar + '" /><div class="redpocket-price">' + data.coupon + '</div><div class="redpocket-name">' + data.name + '</div><div class="redpocket-time">' + moment(data.time).format('hh:mm:ss') + '</div></div>');
     }
 
     hub.client.onShaked = function (data) {
