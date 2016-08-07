@@ -1,4 +1,4 @@
-﻿@model IEnumerable<dynamic>
+﻿@model IEnumerable<object>
 @{
     ViewBag.Title = "优惠券管理";
 }
@@ -24,22 +24,22 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var x in Model)
-                {
-                    <tr>
-                        <td>@x.Title</td>
-                        <td>@x.Provider</td>
-                        <td>@(new TimeSpan(x.Time, 0, 0, 0)) 天</td>
-                        <td>@x.Description</td>
-                        @if (User.IsInRole("Root"))
-                        {
-                            <td>@(x.Merchant == null ? x.UserName : x.Merchant)</td>
-                        }
-                        <td>
-                            <a asp-action="Edit" asp-controller="Coupon" asp-route-id="@x.Id">编辑</a>
-                        </td>
-                    </tr>
-                }
+            @foreach (dynamic x in Model)
+            {
+                <tr>
+                    <td>@x.Title</td>
+                    <td>@x.Provider</td>
+                    <td>@(new TimeSpan(x.Time, 0, 0, 0)) 天</td>
+                    <td>@x.Description</td>
+                    @if (User.IsInRole("Root"))
+                    {
+                        <td>@(x.Merchant == null ? x.UserName : x.Merchant)</td>
+                    }
+                    <td>
+                        <a asp-action="Edit" asp-controller="Coupon" asp-route-id="@x.Id">编辑</a>
+                    </td>
+                </tr>
+            }
             </tbody>
         </table>
     </div>

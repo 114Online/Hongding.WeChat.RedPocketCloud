@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authorization;
 using RedPocketCloud.Models;
+using RedPocketCloud.ViewModels;
 
 namespace RedPocketCloud.Controllers
 {
@@ -16,7 +17,7 @@ namespace RedPocketCloud.Controllers
             IQueryable<Coupon> query = DB.Coupons;
             if (User.IsInRole("Root"))
             {
-                var ret = query.Join(DB.Users, x => x.UserId, x => x.Id, (x, y) => new
+                var ret = query.Join(DB.Users, x => x.UserId, x => x.Id, (x, y) => new CouponViewModel
                 {
                     Title = x.Title,
                     Description = x.Description,
@@ -27,7 +28,7 @@ namespace RedPocketCloud.Controllers
                     Provider = x.Provider,
                     Time = x.Time
                 });
-                return PagedView<dynamic>(ret.OrderBy(x => x.UserId).ThenByDescending(x => x.Id));
+                return PagedView(ret.OrderBy(x => x.UserId).ThenByDescending(x => x.Id));
             }
             else
             {

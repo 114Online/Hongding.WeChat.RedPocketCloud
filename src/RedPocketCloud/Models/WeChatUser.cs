@@ -12,6 +12,6 @@ namespace RedPocketCloud.Models
 
         public long MerchantId { get; set; }
 
-        public JsonObject<List<CouponViewModel>> Coupons { get; set; } = "[]";
+        public JsonObject<List<CouponWalletViewModel>> Coupons { get; set; } = "[]";
     }
 }
