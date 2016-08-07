@@ -16,6 +16,7 @@ namespace RedPocketCloud.Controllers
 
     public class WeChatController : BaseController
     {
+        #region Infrastructures
         private string OperationToRoute(string Merchant, Operation Operation)
         {
             var prefix = HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + "/WeChat/";
@@ -33,11 +34,21 @@ namespace RedPocketCloud.Controllers
             }
         }
 
+        private bool NeedAuthorize => string.IsNullOrWhiteSpace(HttpContext.Session.GetString("OpenId")) || Convert.ToDateTime(HttpContext.Session.GetString("Expire")) <= DateTime.Now;
+
+        [NonAction]
+        private IActionResult RedirectToEntry() => RedirectToAction("Entry", "WeChat", new { Merchant = RouteData.Values["Merchant"].ToString(), Operation = Enum.Parse(typeof(Operation), HttpContext.Request.Query["Operation"].ToString()) });
+
+        [NonAction]
+        private IActionResult RedirectToEntry(Operation operation) => RedirectToAction("Entry", "WeChat", new { Merchant = RouteData.Values["Merchant"].ToString(), Operation = operation });
+
+        #endregion
+
         [HttpGet]
         [Route("[controller]/Entry/{Merchant}/{Operation}")]
         public IActionResult Entry(string Merchant, Operation Operation)
         {
-            if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("OpenId")) || Convert.ToDateTime(HttpContext.Session.GetString("Expire")) <= DateTime.Now)
+            if (NeedAuthorize)
                 return Redirect("https://open.weixin.qq.com/connect/oauth2/authorize?appid=" + Startup.Config["WeChat:AppId"] + "&redirect_uri=" + UrlEncoder.Default.Encode(OperationToRoute(Merchant, Operation.CallBack) + "?next=" + OperationToRoute(Merchant, Operation)) + "&response_type=code&scope=snsapi_userinfo");
             else
                 return Redirect(OperationToRoute(Merchant, Operation));
@@ -59,15 +70,15 @@ namespace RedPocketCloud.Controllers
             }
             catch
             {
-                return RedirectToAction("Entry", "WeChat", new { id = Merchant, Operation = Operation.RedPocket });
+                return RedirectToEntry(Operation.RedPocket);
             }
         }
 
         [HttpGet]
         public IActionResult RedPocket(string Merchant)
         {
-            if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("OpenId")) || Convert.ToDateTime(HttpContext.Session.GetString("Expire")) <= DateTime.Now)
-                return RedirectToAction("Entry", "WeChat", new { Merchant = Merchant, Operation = Operation.RedPocket });
+            if (NeedAuthorize)
+                return RedirectToEntry(Operation.RedPocket);
             return View(GetActivityByUserId(Merchant));
         }
     }
