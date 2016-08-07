@@ -1,4 +1,4 @@
-﻿@model IEnumerable<object>
+﻿@model IEnumerable<dynamic>
 @{
     ViewBag.Title = "优惠券管理";
 }
@@ -24,7 +24,7 @@
                 </tr>
             </thead>
             <tbody>
-            @foreach (dynamic x in Model)
+            @foreach (var x in Model)
             {
                 <tr>
                     <td>@x.Title</td>

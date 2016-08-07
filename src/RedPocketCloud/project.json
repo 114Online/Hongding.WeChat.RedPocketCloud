@@ -18,7 +18,8 @@
     "Pomelo.AspNetCore.TimedJob": "1.0.0-prerelease-20160803",
     "Pomelo.Extensions.Caching.Redis": "1.0.0",
     "Pomelo.EntityFrameworkCore.MySql": "1.0.0",
-    "Pomelo.EntityFrameworkCore.MyCat": "1.0.0-prerelease-20160805"
+    "Pomelo.EntityFrameworkCore.MyCat": "1.0.0-prerelease-20160805",
+    "Pomelo.EntityFrameworkCore.Lolita.MySql": "1.0.0"
   },
 
   "tools": {
