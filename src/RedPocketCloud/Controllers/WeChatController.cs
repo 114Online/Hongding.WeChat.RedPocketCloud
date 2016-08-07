@@ -193,7 +193,8 @@ namespace RedPocketCloud.Controllers
                     .OrderBy(x => Guid.NewGuid())
                     .FirstOrDefault();
 
-                if (prize == null && await CheckActivityEnd(activity_id, Merchant, Cache, Hub)) // 没有红包了
+                // 检查剩余红包数量
+                if (prize == null && await CheckActivityEnd(activity_id, Merchant, Cache, Hub)) 
                     return Content("RETRY");
 
                 // 中奖发放红包
@@ -221,7 +222,18 @@ namespace RedPocketCloud.Controllers
                     .UpdateAsync();
 
                 // 返回中奖信息
-                return Content((prize.Price / 100.0).ToString("0.00"));
+                if (prize.Type == Models.RedPocketType.Cash)
+                    return Json(new { Type = prize.Type, Display = (prize.Price / 100).ToString("0.00") + "元" });
+                else if (prize.Type == Models.RedPocketType.Coupon)
+                {
+                    // TODO: Cache the coupons
+                    var coupon = DB.Coupons.Where(x => x.Id == prize.CouponId).Select(x => x.Title).Single(); 
+                    return Json(new { Type = prize.Type, Display = coupon });
+                }
+                else
+                {
+                    return Json(new { Type = prize.Type, Display = prize.Url });
+                }
             }
 
             return Content("RETRY");
