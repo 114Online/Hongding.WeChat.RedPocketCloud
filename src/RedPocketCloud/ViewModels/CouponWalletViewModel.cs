@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace RedPocketCloud.ViewModels
 {
@@ -11,5 +12,8 @@ namespace RedPocketCloud.ViewModels
         public DateTime Time { get; set; }
 
         public long ImageId { get; set; }
+
+        [MaxLength(32)]
+        public string OpenId { get; set; }
     }
 }

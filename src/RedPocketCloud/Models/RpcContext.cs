@@ -27,6 +27,8 @@ namespace RedPocketCloud.Models
 
         public DbSet<Coupon> Coupons { get; set; }
 
+        public DbSet<Wallet> Wallets { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -63,7 +65,7 @@ namespace RedPocketCloud.Models
                 e.HasIndex(x => x.Type);
             });
 
-            builder.Entity<WeChatUser>(e => 
+            builder.Entity<Wallet>(e => 
             {
                 e.HasIndex(x => x.OpenId).IsUnique();
                 e.HasIndex(x => x.MerchantId);
