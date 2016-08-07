@@ -29,7 +29,7 @@
                 <tr>
                     <td>@x.Title</td>
                     <td>@x.Provider</td>
-                    <td>@(new TimeSpan(x.Time, 0, 0, 0)) 天</td>
+                    <td>@x.Time 天</td>
                     <td>@x.Description</td>
                     @if (User.IsInRole("Root"))
                     {
