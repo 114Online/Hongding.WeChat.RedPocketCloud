@@ -175,6 +175,7 @@ namespace RedPocketCloud.Controllers
             var activity_id = Convert.ToInt64(activity_id_str);
 
             // 参与人数缓存
+            // TODO: 每隔100个参与人数写入一次DB
             DB.Activities
                 .Where(x => x.Id == activity_id)
                 .SetField(x => x.Attend).Plus(1)
