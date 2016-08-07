@@ -253,19 +253,19 @@ namespace RedPocketCloud.Controllers
                 });
             JsonObject<List<ViewModels.RuleViewModel>> rules = Rules;
             // 检查余额
-            if (rules.Object.Count == 0 || rules.Object.Sum(x => x.Count) == 0)
+            if (rules.Object.Count == 0 || rules.Object.Where(x => x.Type == RedPocketType.Cash).Sum(x => x.Count) == 0)
                 return Prompt(x =>
                 {
                     x.Title = "创建失败";
                     x.Details = "您没有设定红包发放规则";
                 });
-            if (rules.Object.Any(x => x.From < 100))
+            if (rules.Object.Any(x => x.Type == RedPocketType.Cash && x.From < 100))
                 return Prompt(x =>
                 {
                     x.Title = "创建失败";
                     x.Details = "每个红包金额最少为1元";
                 });
-            var total = rules.Object.Sum(x => x.To * x.Count);
+            var total = rules.Object.Where(x => x.Type == RedPocketType.Cash).Sum(x => x.To * x.Count);
             if (total / 100.0 > User.Current.Balance)
                 return Prompt(x =>
                 {
@@ -286,16 +286,43 @@ namespace RedPocketCloud.Controllers
 
             DB.Activities.Add(act);
 
-            // 创建红包
+            // 创建现金红包
             var random = new Random();
-            foreach (var x in rules.Object)
+            foreach (var x in rules.Object.Where(x => x.Type == RedPocketType.Cash))
             {
                 for (var i = 0; i < x.Count; i++)
                 {
                     DB.Briberies.Add(new Bribery
                     {
+                        Type = RedPocketType.Cash,
                         ActivityId = act.Id,
                         Price = random.Next(x.From, x.To)
+                    });
+                }
+            }
+            // 创建Url红包
+            foreach(var x in rules.Object.Where(x => x.Type == RedPocketType.Url))
+            {
+                for(var i = 0; i < x.Count; i++)
+                {
+                    DB.Briberies.Add(new Bribery
+                    {
+                        Type = RedPocketType.Url,
+                        ActivityId = act.Id,
+                        Url = x.Url
+                    });
+                }
+            }
+            // 创建优惠券红包
+            foreach (var x in rules.Object.Where(x => x.Type == RedPocketType.Coupon))
+            {
+                for (var i = 0; i < x.Count; i++)
+                {
+                    DB.Briberies.Add(new Bribery
+                    {
+                        Type = RedPocketType.Coupon,
+                        ActivityId = act.Id,
+                        CouponId = x.Coupon
                     });
                 }
             }

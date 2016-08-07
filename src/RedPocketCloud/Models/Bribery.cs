@@ -29,6 +29,11 @@ namespace RedPocketCloud.Models
 
         public RedPocketType Type { get; set; }
 
+        [MaxLength(256)]
+        public string Url { get; set; }
+
+        public long? CouponId { get; set; }
+
         [MaxLength(32)]
         public string OpenId { get; set; }
 
