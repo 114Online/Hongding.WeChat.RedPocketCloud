@@ -109,11 +109,14 @@
     }
 
     function AddUrlBribery() {
-        $('#rule-list').append('<tr data-type="url"><td>外部链接</td><td><input type="textbox" class="form-control price" value="http://" /></td><td><input type="textbox" class="form-control count" value="0" /></td><td><a href="javascript:;" onclick="removeRule(this)">删除</a></td></tr>');
+        $('#rule-list').append('<tr data-type="url"><td>外部链接</td><td><input type="textbox" class="form-control url" value="http://" /></td><td><input type="textbox" class="form-control count" value="0" /></td><td><a href="javascript:;" onclick="removeRule(this)">删除</a></td></tr>');
     }
 
     function AddCouponBribery() {
-        $('#rule-list').append('<tr data-type="coupon"><td>优惠券</td><td><input type="textbox" class="form-control price" value="" placeholder="优惠券编码" /></td><td><input type="textbox" class="form-control count" value="0" /></td><td><a href="javascript:;" onclick="removeRule(this)">删除</a></td></tr>');
+        $.get('/Coupon/CouponSelect', {}, function (data) {
+            var select = '<select class="form-control coupon">' + data + '</select>';
+            $('#rule-list').append('<tr data-type="coupon"><td>优惠券</td><td>' + select + '</td><td><input type="textbox" class="form-control count" value="0" /></td><td><a href="javascript:;" onclick="removeRule(this)">删除</a></td></tr>');
+        });
     }
 
     $('#frmDeliver').submit(function () {
@@ -129,16 +132,30 @@
             return false;
         }
         for (var i = 0; i < rulesDom.length; i++) {
-            if ($(rulesDom[i]).find('.price').length > 0)
+            if ($(rulesDom[i]).find('.price').length > 0) // 固定金额
                 rules.push({
+                    Type: '现金红包',
                     From: parseInt(parseFloat($(rulesDom[i]).find('.price').val()) * 100),
                     To: parseInt(parseFloat($(rulesDom[i]).find('.price').val()) * 100),
                     Count: $(rulesDom[i]).find('.count').val()
                 });
-            else
+            else if ($(rulesDom[i]).find('.price-from').length > 0) // 区间金额
                 rules.push({
+                    Type: '现金红包',
                     From: parseInt(parseFloat($(rulesDom[i]).find('.price-from').val()) * 100),
                     To: parseInt(parseFloat($(rulesDom[i]).find('.price-to').val()) * 100),
+                    Count: $(rulesDom[i]).find('.count').val()
+                });
+            else if ($(rulesDom[i]).find('.url').length > 0)
+                rules.push({
+                    Type: '外部链接',
+                    Url: $(rulesDom[i]).find('.url').val(),
+                    Count: $(rulesDom[i]).find('.count').val()
+                });
+            else
+                rules.push({
+                    Type: '优惠券',
+                    Coupon: $(rulesDom[i]).find('.coupon').val(),
                     Count: $(rulesDom[i]).find('.count').val()
                 });
         }

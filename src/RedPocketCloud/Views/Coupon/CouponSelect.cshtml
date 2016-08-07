@@ -2,7 +2,10 @@
 @{ 
     Layout = null;
 }
-
+@if (Model.Count() == 0)
+{
+    <option value="">您还没有创建优惠券</option>
+}
 @foreach(var x in Model)
 {
     <option value="@x.Id">@x.Title</option>
