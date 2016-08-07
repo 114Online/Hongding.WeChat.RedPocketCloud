@@ -242,7 +242,7 @@ namespace RedPocketCloud.Controllers
         }
 
         [HttpPost]
-        public IActionResult Deliver(string Title, string Rules, double Ratio, [FromServices] IDistributedCache Cache)
+        public IActionResult Deliver(string Title, string Rules, double Ratio, int Limit, [FromServices] IDistributedCache Cache)
         {
             if (DB.Activities.Count(x => x.OwnerId == User.Current.Id && !x.End.HasValue) > 0)
                 return Prompt(x =>
@@ -281,10 +281,13 @@ namespace RedPocketCloud.Controllers
                 Rules = Rules,
                 Title = Title,
                 Ratio = Ratio / 100.0,
-                OwnerId = User.Current.Id
+                OwnerId = User.Current.Id,
+                IsBegin = false,
+                Limit = Limit
             };
 
             DB.Activities.Add(act);
+            DB.SaveChanges();
 
             // 创建现金红包
             var random = new Random();
@@ -334,6 +337,7 @@ namespace RedPocketCloud.Controllers
             // 计算红包统计
             act.Price = DB.Briberies.Where(x => x.ActivityId == act.Id).Sum(x => x.Price);
             act.BriberiesCount = DB.Briberies.Count(x => x.ActivityId == act.Id);
+            act.IsBegin = true;
             DB.SaveChanges();
 
             return RedirectToAction("Activity", "RedPocket", new { id = act.Id });
@@ -349,8 +353,10 @@ namespace RedPocketCloud.Controllers
                     x.Title = "权限不足";
                     x.Details = "您没有权限查看这个活动";
                 });
+            var coupons = act.Rules.Object.Where(x => x.Type == RedPocketType.Coupon).Select(x => x.Coupon).ToList();
             ViewBag.Price = DB.Briberies.Where(x => x.ActivityId == id && x.ReceivedTime.HasValue).Sum(x => x.Price);
             ViewBag.Amount = DB.Briberies.Count(x => x.ActivityId == id && x.ReceivedTime.HasValue);
+            ViewBag.Coupons = DB.Coupons.Where(x => coupons.Contains(x.Id)).ToDictionary(x => x.Id, x => x.Title);
             ViewBag.Briberies = DB.Briberies
                 .Where(x => x.ActivityId == id && x.ReceivedTime.HasValue)
                 .OrderByDescending(x => x.ReceivedTime)

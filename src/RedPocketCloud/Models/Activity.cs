@@ -33,5 +33,7 @@ namespace RedPocketCloud.Models
         public virtual User Owner { get; set; }
         
         public long? TemplateId { get; set; }
+
+        public bool IsBegin { get; set; }
     }
 }
