@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.EntityFrameworkCore;
 using RedPocketCloud.Models;
+using RedPocketCloud.ViewModels;
 using RedPocketCloud.Hubs;
 using static RedPocketCloud.Common.Wxpay;
 
@@ -72,15 +73,35 @@ namespace RedPocketCloud.Controllers
             return false;
         }
 
-        private Activity GetActivityByUserId(string Username)
+        private TemplateViewModel GetTemplateCache(string Merchant, IDistributedCache Cache)
         {
+            var json = Cache.GetString("MERCHANT_CURRENT_ACTIVITY_ATTEND_" + Merchant);
+            if (json == null)
+            { 
             var uid = DB.Users
-                .Where(x => x.UserName == Username)
+                .Where(x => x.UserName == Merchant)
                 .Select(x => x.Id)
                 .SingleOrDefault();
             if (uid == default(long))
                 return null;
-            return DB.Activities.LastOrDefault(x => x.OwnerId == uid);
+            var ret = DB.Activities
+                .Where(x => x.OwnerId == uid)
+                .Join(DB.Templates, x => x.TemplateId, x => x.Id, (x, y) => new TemplateViewModel
+                {
+                    Type = y.Type,
+                    Top = y.TopPartId,
+                    Bottom = y.BottomPartId,
+                    Background = y.BackgroundId
+                })
+                .LastOrDefault();
+                json = Newtonsoft.Json.JsonConvert.SerializeObject(ret);
+                Cache.SetString("MERCHANT_CURRENT_ACTIVITY_ATTEND_" + Merchant, json);
+                return ret;
+            }
+            else
+            {
+                return Newtonsoft.Json.JsonConvert.DeserializeObject<TemplateViewModel>(json);
+            }
         }
         #endregion
 
@@ -115,11 +136,12 @@ namespace RedPocketCloud.Controllers
         }
 
         [HttpGet]
-        public IActionResult RedPocket(string Merchant)
+        public IActionResult RedPocket(string Merchant, [FromServices] IDistributedCache Cache)
         {
             if (NeedAuthorize)
                 return RedirectToEntry(Operation.RedPocket);
-            return View(GetActivityByUserId(Merchant));
+            var ret = GetTemplateCache(Merchant, Cache);
+            return View(ret);
         }
 
         [HttpPost]

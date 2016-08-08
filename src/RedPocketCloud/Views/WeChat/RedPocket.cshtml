@@ -1,17 +1,1 @@
-﻿@model Activity
-@{
-    Layout = null;
-    var img_top = "/images/top.jpg";
-    var img_bottom = "/images/bottom.jpg";
-    if (Model != null)
-    {
-        if (Model.Owner.TopPictureId.HasValue)
-        {
-            img_top = "/file/download/" + Model.Owner.TopPictureId.Value;
-        }
-        if (Model.Owner.BottomPictureId.HasValue)
-        {
-            img_bottom = "/file/download/" + Model.Owner.TopPictureId.Value;
-        }
-    }
-}
+﻿@model TemplateViewModel

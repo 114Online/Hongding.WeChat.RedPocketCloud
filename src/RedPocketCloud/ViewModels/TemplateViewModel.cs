@@ -6,10 +6,10 @@ namespace RedPocketCloud.ViewModels
     {
         public TemplateType Type { get; set; }
 
-        public long Image1 { get; set; }
+        public long? Top { get; set; }
 
-        public long Image2 { get; set; }
+        public long? Bottom { get; set; }
 
-        public long Image3 { get; set; }
+        public long? Background { get; set; }
     }
 }
