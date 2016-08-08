@@ -175,13 +175,18 @@ namespace RedPocketCloud.Controllers
             var activity_id = Convert.ToInt64(activity_id_str);
 
             // 参与人数缓存
-            // TODO: 每隔100个参与人数写入一次DB
-            DB.Activities
-                .Where(x => x.Id == activity_id)
-                .SetField(x => x.Attend).Plus(1)
-                .UpdateAsync();
-            
-            await Cache.SetStringAsync("MERCHANT_CURRENT_ACTIVITY_ATTEND_" + Merchant, Convert.ToInt64(await Cache.GetStringAsync("MERCHANT_CURRENT_ACTIVITY_ATTEND_" + Merchant) + 1).ToString());
+            lock (this)
+            {
+                var attend = Convert.ToInt64(Cache.GetString("MERCHANT_CURRENT_ACTIVITY_ATTEND_" + Merchant));
+                if (attend % 100 == 0)
+                {
+                    DB.Activities
+                        .Where(x => x.Id == activity_id)
+                        .SetField(x => x.Attend).WithValue(attend)
+                        .Update();
+                }
+                Cache.SetString("MERCHANT_CURRENT_ACTIVITY_ATTEND_" + Merchant, (attend + 1).ToString());
+            }
 
             // 抽奖
             var ratio = Convert.ToDouble(await Cache.GetStringAsync("MERCHANT_CURRENT_ACTIVITY_RATIO_" + Merchant));
@@ -228,7 +233,12 @@ namespace RedPocketCloud.Controllers
                 else if (prize.Type == Models.RedPocketType.Coupon)
                 {
                     // TODO: Cache the coupons
-                    var coupon = DB.Coupons.Where(x => x.Id == prize.CouponId).Select(x => x.Title).Single(); 
+                    var coupon = await Cache.GetStringAsync("COUPON_" + prize.CouponId);
+                    if (coupon == null)
+                    {
+                        coupon = DB.Coupons.Where(x => x.Id == prize.CouponId).Select(x => x.Title).Single();
+                        await Cache.SetStringAsync("COUPON_" + prize.CouponId, coupon);
+                    }
                     return Json(new { Type = prize.Type, Display = coupon });
                 }
                 else
