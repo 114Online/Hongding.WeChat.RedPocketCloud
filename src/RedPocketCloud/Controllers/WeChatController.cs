@@ -141,7 +141,10 @@ namespace RedPocketCloud.Controllers
             if (NeedAuthorize)
                 return RedirectToEntry(Operation.RedPocket);
             var ret = GetTemplateCache(Merchant, Cache);
-            return View(ret);
+            if (ret.Type == TemplateType.Shake)
+                return View("Shake", ret);
+            else
+                return View("Shoop", ret);
         }
 
         [HttpPost]
