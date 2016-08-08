@@ -214,6 +214,12 @@ namespace RedPocketCloud.Controllers
                 await TransferMoneyAsync(prize.Id, HttpContext.Session.GetString("OpenId"), prize.Price, Startup.Config["WeChat:TransferDescription"]);
                 Hub.Clients.Group(prize.ActivityId.ToString()).OnDelivered(new { time = prize.ReceivedTime, avatar = HttpContext.Session.GetString("AvatarUrl"), name = HttpContext.Session.GetString("Nickname"), price = prize.Price, id = HttpContext.Session.GetString("OpenId") });
 
+                // 添加logs
+                if (logs.Count >= limit)
+                    logs.RemoveRange(0, logs.Count - limit + 1);
+                logs.Add(DateTime.Now);
+                Cache.SetStringAsync("REDPOCKET_LOGS_" + OpenId, Newtonsoft.Json.JsonConvert.SerializeObject(logs));
+
                 try
                 {
                     // 检查剩余红包数
