@@ -1,9 +1,14 @@
 ﻿@model TemplateViewModel
-@if (Model.Type == TemplateType.Shake)
-{
-
-}
-else
-{
-
-}
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>摇一摇抽红包</title>
+</head>
+<body>
+    <img class="background" src="/file/download/@Model.Background" />
+    <img class="top" src="/file/download/@Model.Top" />
+    <img class="bottom" src="/file/download/@Model.Bottom" />
+    <audio style="display:none;" id="shakeSound" preload="metadata" controls src="~/assets/sounds/shake_sound.mp3"></audio>
+</body>
+</html>
