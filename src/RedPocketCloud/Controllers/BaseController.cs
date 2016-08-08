@@ -38,16 +38,5 @@ namespace RedPocketCloud.Controllers
                 ViewBag.Notifications = notifications;
             }
         }
-
-        protected Activity GetActivityByUserId(string Username)
-        {
-            var uid = DB.Users
-                .Where(x => x.UserName == Username)
-                .Select(x => x.Id)
-                .SingleOrDefault();
-            if (uid == default(long))
-                return null;
-            return DB.Activities.LastOrDefault(x => x.OwnerId == uid);
-        }
     }
 }

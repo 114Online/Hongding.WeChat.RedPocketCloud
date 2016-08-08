@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.EntityFrameworkCore;
+using RedPocketCloud.Models;
 using RedPocketCloud.Hubs;
 using static RedPocketCloud.Common.Wxpay;
 
@@ -69,6 +70,17 @@ namespace RedPocketCloud.Controllers
                 return true;
             }
             return false;
+        }
+
+        private Activity GetActivityByUserId(string Username)
+        {
+            var uid = DB.Users
+                .Where(x => x.UserName == Username)
+                .Select(x => x.Id)
+                .SingleOrDefault();
+            if (uid == default(long))
+                return null;
+            return DB.Activities.LastOrDefault(x => x.OwnerId == uid);
         }
         #endregion
 
@@ -171,13 +183,25 @@ namespace RedPocketCloud.Controllers
             // 获取活动信息
             var activity_id_str = await Cache.GetStringAsync("MERCHANT_CURRENT_ACTIVITY_" + Merchant);
             if (activity_id_str == null)
+            {
                 return Content("NO");
+            }
             var activity_id = Convert.ToInt64(activity_id_str);
 
             // 参与人数缓存
             lock (this)
             {
-                var attend = Convert.ToInt64(Cache.GetString("MERCHANT_CURRENT_ACTIVITY_ATTEND_" + Merchant));
+                long attend;
+                var attend_str = Cache.GetString("MERCHANT_CURRENT_ACTIVITY_ATTEND_" + Merchant);
+                if (attend_str == null)
+                {
+                    attend = DB.Activities.Single(x => x.Id == activity_id).Attend;
+                    Cache.SetString("MERCHANT_CURRENT_ACTIVITY_ATTEND_" + Merchant, attend.ToString());
+                }
+                else
+                {
+                    attend = Convert.ToInt64(attend_str);
+                }
                 if (attend % 100 == 0)
                 {
                     DB.Activities
@@ -189,7 +213,17 @@ namespace RedPocketCloud.Controllers
             }
 
             // 抽奖
-            var ratio = Convert.ToDouble(await Cache.GetStringAsync("MERCHANT_CURRENT_ACTIVITY_RATIO_" + Merchant));
+            var ratio_str = await Cache.GetStringAsync("MERCHANT_CURRENT_ACTIVITY_RATIO_" + Merchant);
+            double ratio;
+            if (ratio_str == null)
+            {
+                ratio= DB.Activities.Single(x => x.Id == activity_id).Ratio;
+                Cache.SetStringAsync("MERCHANT_CURRENT_ACTIVITY_RATIO_" + Merchant, ratio.ToString());
+            }
+            else
+            {
+                ratio = Convert.ToDouble(ratio_str);
+            }
             var rand = new Random();
             var num = rand.Next(0, 10000);
             if (num < ratio * 10000)
