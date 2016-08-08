@@ -52,6 +52,7 @@ namespace RedPocketCloud.Controllers
         [NonAction]
         private IActionResult RedirectToEntry(Operation operation) => RedirectToAction("Entry", "WeChat", new { Merchant = RouteData.Values["Merchant"].ToString(), Operation = operation });
 
+        [NonAction]
         private async Task<bool> CheckActivityEnd(long activity_id, string Merchant, IDistributedCache Cache, IHubContext<RedPocketHub> Hub)
         {
             if (DB.Briberies.Count(x => x.ActivityId == activity_id) > 0) // 没有红包了
@@ -73,6 +74,7 @@ namespace RedPocketCloud.Controllers
             return false;
         }
 
+        [NonAction]
         private TemplateViewModel GetTemplateCache(string Merchant, IDistributedCache Cache)
         {
             var json = Cache.GetString("MERCHANT_CURRENT_ACTIVITY_ATTEND_" + Merchant);
