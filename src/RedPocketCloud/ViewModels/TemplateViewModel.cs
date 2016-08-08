@@ -11,5 +11,11 @@ namespace RedPocketCloud.ViewModels
         public long? Bottom { get; set; }
 
         public long? Background { get; set; }
+
+        public long? Drawn { get; set; }
+
+        public long? Undrawn { get; set; }
+
+        public long? Pending { get; set; }
     }
 }

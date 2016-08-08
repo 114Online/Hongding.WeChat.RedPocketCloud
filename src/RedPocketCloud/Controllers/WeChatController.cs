@@ -93,7 +93,10 @@ namespace RedPocketCloud.Controllers
                     Type = y.Type,
                     Top = y.TopPartId,
                     Bottom = y.BottomPartId,
-                    Background = y.BackgroundId
+                    Background = y.BackgroundId,
+                    Pending = y.PendingId,
+                    Drawn = y.DrawnId,
+                    Undrawn = y.UndrawnId
                 })
                 .LastOrDefault();
                 json = Newtonsoft.Json.JsonConvert.SerializeObject(ret);
