@@ -21,7 +21,7 @@ namespace RedPocketCloud
             services.AddRedis(x =>
             {
                 x.ConnectionString = Config["Host:Redis"];
-                x.Database = 10;
+                x.Database = 0;
                 x.EventKey = "REDPOCKET_SIGNALR_INSTANCE_";
             })
                 .AddSignalR();
