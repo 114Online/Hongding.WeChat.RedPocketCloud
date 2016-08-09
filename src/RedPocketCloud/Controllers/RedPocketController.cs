@@ -392,7 +392,7 @@ namespace RedPocketCloud.Controllers
             Cache.Remove("MERCHANT_CURRENT_ACTIVITY_ATTEND_" + Merchant);
             Cache.Remove("MERCHANT_CURRENT_ACTIVITY_" + Merchant);
 
-            return RedirectToAction("Activity", "Home", new { id = id });
+            return RedirectToAction("Activity", "RedPocket", new { id = id });
         }
 
         public string AttendCount(string id, [FromServices] IDistributedCache Cache)
