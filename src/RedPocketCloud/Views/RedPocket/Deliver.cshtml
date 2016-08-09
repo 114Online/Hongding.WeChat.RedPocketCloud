@@ -28,6 +28,7 @@
                         <td class="row-title">红包设定</td>
                         <td>
                             <input type="hidden" name="Rules" />
+                            <input type="hidden" name="TemplateId" />
                             <table class="table" style="background: none">
                                 <colgroup>
                                     <col style="width: 80px;" />
@@ -124,6 +125,10 @@
         {
             alert('请选择一个红包页面模板');
             return false;
+        }
+        else
+        {
+            $('input[name="TemplateId"]').val($('.template-active').attr('data-id'));
         }
         var rules = [];
         var rulesDom = $('#rule-list tr');

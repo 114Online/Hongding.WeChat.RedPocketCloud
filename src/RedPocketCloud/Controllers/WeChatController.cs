@@ -77,31 +77,47 @@ namespace RedPocketCloud.Controllers
         [NonAction]
         private TemplateViewModel GetTemplateCache(string Merchant, IDistributedCache Cache)
         {
-            var json = Cache.GetString("MERCHANT_CURRENT_ACTIVITY_ATTEND_" + Merchant);
+            var json = Cache.GetString("MERCHANT_CURRENT_ACTIVITY_TEMPLATE_" + Merchant);
             if (json == null)
-            { 
-            var uid = DB.Users
-                .Where(x => x.UserName == Merchant)
-                .Select(x => x.Id)
-                .SingleOrDefault();
-            if (uid == default(long))
-                return null;
-            var ret = DB.Activities
-                .Where(x => x.OwnerId == uid)
-                .Join(DB.Templates, x => x.TemplateId, x => x.Id, (x, y) => new TemplateViewModel
+            {
+                var uid = DB.Users
+                    .Where(x => x.UserName == Merchant)
+                    .Select(x => x.Id)
+                    .SingleOrDefault();
+                if (uid == default(long))
+                    return null;
+                var tid = DB.Activities
+                    .Where(x => x.OwnerId == uid)
+                    .Select(x => x.TemplateId)
+                    .LastOrDefault();
+
+                // 如果没有找到活动
+                if (tid == default(long))
                 {
-                    Type = y.Type,
-                    Top = y.TopPartId,
-                    Bottom = y.BottomPartId,
-                    Background = y.BackgroundId,
-                    Pending = y.PendingId,
-                    Drawn = y.DrawnId,
-                    Undrawn = y.UndrawnId
-                })
-                .LastOrDefault();
-                json = Newtonsoft.Json.JsonConvert.SerializeObject(ret);
-                Cache.SetString("MERCHANT_CURRENT_ACTIVITY_ATTEND_" + Merchant, json);
-                return ret;
+                    var ret = new TemplateViewModel();
+                    json = Newtonsoft.Json.JsonConvert.SerializeObject(ret);
+                    Cache.SetString("MERCHANT_CURRENT_ACTIVITY_TEMPLATE_" + Merchant, json);
+                    return ret;
+                }
+                else
+                {
+                    var ret = DB.Templates
+                        .Where(x => x.Id == tid)
+                        .Select(x => new TemplateViewModel
+                        {
+                            Type = x.Type,
+                            Top = x.TopPartId,
+                            Bottom = x.BottomPartId,
+                            Background = x.BackgroundId,
+                            Pending = x.PendingId,
+                            Drawn = x.DrawnId,
+                            Undrawn = x.UndrawnId
+                        })
+                        .Single();
+                    json = Newtonsoft.Json.JsonConvert.SerializeObject(ret);
+                    Cache.SetString("MERCHANT_CURRENT_ACTIVITY_TEMPLATE_" + Merchant, json);
+                    return ret;
+                }
             }
             else
             {
@@ -141,10 +157,11 @@ namespace RedPocketCloud.Controllers
         }
 
         [HttpGet]
+        [Route("[controller]/RedPocket/{Merchant}")]
         public IActionResult RedPocket(string Merchant, [FromServices] IDistributedCache Cache)
         {
-            if (NeedAuthorize)
-                return RedirectToEntry(Operation.RedPocket);
+            //if (NeedAuthorize)
+            //    return RedirectToEntry(Operation.RedPocket);
             var ret = GetTemplateCache(Merchant, Cache);
             if (ret.Type == TemplateType.Shake)
                 return View("Shake", ret);
@@ -247,7 +264,7 @@ namespace RedPocketCloud.Controllers
             double ratio;
             if (ratio_str == null)
             {
-                ratio= DB.Activities.Single(x => x.Id == activity_id).Ratio;
+                ratio = DB.Activities.Single(x => x.Id == activity_id).Ratio;
                 Cache.SetStringAsync("MERCHANT_CURRENT_ACTIVITY_RATIO_" + Merchant, ratio.ToString());
             }
             else
@@ -264,7 +281,7 @@ namespace RedPocketCloud.Controllers
                     .FirstOrDefault();
 
                 // 检查剩余红包数量
-                if (prize == null && await CheckActivityEnd(activity_id, Merchant, Cache, Hub)) 
+                if (prize == null && await CheckActivityEnd(activity_id, Merchant, Cache, Hub))
                     return Content("RETRY");
 
                 // 中奖发放红包

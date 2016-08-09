@@ -242,7 +242,7 @@ namespace RedPocketCloud.Controllers
         }
 
         [HttpPost]
-        public IActionResult Deliver(string Title, string Rules, double Ratio, int Limit, [FromServices] IDistributedCache Cache)
+        public IActionResult Deliver(string Title, string Rules, double Ratio, int Limit, long TemplateId, [FromServices] IDistributedCache Cache)
         {
             if (DB.Activities.Count(x => x.OwnerId == User.Current.Id && !x.End.HasValue) > 0)
                 return Prompt(x =>
@@ -283,7 +283,8 @@ namespace RedPocketCloud.Controllers
                 Ratio = Ratio / 100.0,
                 OwnerId = User.Current.Id,
                 IsBegin = false,
-                Limit = Limit
+                Limit = Limit,
+                TemplateId = TemplateId
             };
 
             DB.Activities.Add(act);
