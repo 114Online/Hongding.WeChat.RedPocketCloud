@@ -174,7 +174,7 @@
     var timer2 = setInterval(function(){
         if (!end)
         {
-            $.get('/RedPocket/AttendCount/@Model.Id', {}, function(data){
+            $.get('/RedPocket/AttendCount/@ViewBag.UserName', {}, function(data){
                 $('.attend').html(data);
             });
         }
@@ -189,7 +189,7 @@
             $('#realtime-list').prepend('<div class="redpocket"><img class="redpocket-avatar" src="' + data.avatar + '" /><div class="redpocket-price">￥' + (data.price / 100.0).toFixed(2) + '</div><div class="redpocket-name">' + data.name + '</div><div class="redpocket-time">' + moment(data.time).format('hh:mm:ss') + '</div></div>');
         else if (data.type == 1)
             $('#realtime-list').prepend('<div class="redpocket"><img class="redpocket-avatar" src="' + data.avatar + '" /><div class="redpocket-price">外部链接</div><div class="redpocket-name">' + data.name + '</div><div class="redpocket-time">' + moment(data.time).format('hh:mm:ss') + '</div></div>');
-        else            
+        else
             $('#realtime-list').prepend('<div class="redpocket"><img class="redpocket-avatar" src="' + data.avatar + '" /><div class="redpocket-price">' + data.coupon + '</div><div class="redpocket-name">' + data.name + '</div><div class="redpocket-time">' + moment(data.time).format('hh:mm:ss') + '</div></div>');
     }
 

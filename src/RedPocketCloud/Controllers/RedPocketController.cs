@@ -363,6 +363,7 @@ namespace RedPocketCloud.Controllers
                 .Where(x => x.ActivityId == id && x.ReceivedTime.HasValue)
                 .OrderByDescending(x => x.ReceivedTime)
                 .ToList();
+            ViewBag.UserName = DB.Users.Single(x => x.Id == act.Id).UserName;
             return View(act);
         }
 
@@ -385,14 +386,17 @@ namespace RedPocketCloud.Controllers
             DB.SaveChanges();
 
             // TODO: Clean up cache
-            Cache.Remove("ATTEND-" + id);
+            var Merchant = DB.Users.Single(x => x.Id == act.OwnerId).UserName;
+            Cache.Remove("MERCHANT_CURRENT_ACTIVITY_RATIO_" + Merchant);
+            Cache.Remove("MERCHANT_CURRENT_ACTIVITY_ATTEND_" + Merchant);
+            Cache.Remove("MERCHANT_CURRENT_ACTIVITY_" + Merchant);
 
             return RedirectToAction("Activity", "Home", new { id = id });
         }
 
-        public string AttendCount(long id, [FromServices] IDistributedCache Cache)
+        public string AttendCount(string id, [FromServices] IDistributedCache Cache)
         {
-            return Cache.GetString("ATTEND-" + id);
+            return Cache.GetString("MERCHANT_CURRENT_ACTIVITY_ATTEND_" + id);
         }
     }
 }

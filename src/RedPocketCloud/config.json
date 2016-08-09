@@ -13,7 +13,7 @@
     "Ip": "139.129.202.247",
     "Mode": "MySQL",
     "ConnectionString": "Server=localhost;database=wechat;uid=root;pwd=19931101",
-    "Domain": "http://h5.114-online.com",
-    "Redis": "localhost"
+    "Domain": "http://m5.114-online.com",
+    "Redis": "139.129.210.149,password=Sun060810,139.129.210.116,password=Sun060810,139.129.210.136,password=Sun060810,139.129.204.211,password=Sun060810"
   }
 }

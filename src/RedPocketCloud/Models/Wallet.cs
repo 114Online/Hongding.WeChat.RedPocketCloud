@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
 
 namespace RedPocketCloud.Models
 {
@@ -16,5 +14,8 @@ namespace RedPocketCloud.Models
         public DateTime Expire { get; set; }
 
         public long CouponId { get; set; }
+
+        [MaxLength(32)]
+        public string OpenId { get; set; }
     }
 }
