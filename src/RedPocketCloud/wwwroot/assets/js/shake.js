@@ -50,3 +50,17 @@ function Shake()
         }, 610);
     }, 610);
 }
+
+function Close()
+{
+    $('.pending').removeClass('showing');
+    $('.drawn').removeClass('showing');
+    $('.undrawn').removeClass('showing');
+    $('.alpha').removeClass('active');
+}
+
+function ShowPending()
+{
+    $('.alpha').addClass('active');
+    $('.pending').addClass('showing');
+}
