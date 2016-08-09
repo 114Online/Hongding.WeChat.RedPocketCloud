@@ -67,4 +67,24 @@
     visibility: visible;
     opacity: 1;
     transform: scale(1);
+    -webkit-transform: scale(1);
+}
+
+.drawn-text {
+    position: fixed;
+    width: 100%;
+    text-align: center;
+    color: #df012e;
+    visibility: hidden;
+    transform: scale(0.3);
+    -webkit-transform: scale(0.3);
+    transition: all 0.2s ease-in-out;
+    left: 0;
+    top: 50%;
+}
+
+.drawn-text.active {
+    transform: scale(1);
+    -webkit-transform: scale(1);
+    visibility: visible;
 }
