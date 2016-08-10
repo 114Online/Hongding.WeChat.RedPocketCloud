@@ -50,9 +50,24 @@ function Shake()
         $('.top').removeClass('shaking');
         $('.bottom').removeClass('shaking');
         setTimeout(function () {
-            // TODO: Send request
-
-
+            $.post('/WeChat/Drawn/' + Merchant, {}, function (data) {
+                console.error(data);
+                if (data == "AUTH")
+                    window.location.reload();
+                else if (data == "NO") {
+                    ShowPending();
+                } else if (data == "RETRY") {
+                    ShowUndrawn();
+                } else if (data == "EXCEEDED") {
+                    window.location = "/WeChat/Exceeded";
+                } else {
+                    var obj = JSON.parse(data);
+                    if (obj.Type != 1)
+                        ShowDrawn(obj.Display);
+                    else
+                        ShowDrawn(obj.Display, obj.Url);
+                }
+            });
             setTimeout(function () {
                 lock = false;
             });
