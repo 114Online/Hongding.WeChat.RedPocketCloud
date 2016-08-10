@@ -44,7 +44,6 @@ function Shoop()
                 $($('.circle')[2]).removeClass('transition');
                 $($('.circle')[2]).removeClass('shooping');
                 $.post('/WeChat/Drawn/' + Merchant, {}, function (data) {
-                    lock = false;
                     if (data == "AUTH")
                         window.location.reload();
                     else if (data == "NO") {
@@ -54,11 +53,11 @@ function Shoop()
                     } else if (data == "EXCEEDED") {
                         window.location = "/WeChat/Exceeded";
                     } else {
-                        var obj = JSON.parse(data);
-                        if (obj.Type != 1)
-                            ShowDrawn(obj.Display);
+                        var obj = data;
+                        if (obj.type != 1)
+                            ShowDrawn(obj.display);
                         else
-                            ShowDrawn(obj.Display, obj.Url);
+                            ShowDrawn("点击打开", obj.url);
                     }
                 });
             }, 600);
@@ -73,6 +72,7 @@ function Close()
     $('.undrawn').removeClass('showing');
     $('.alpha').removeClass('active');
     $('.drawn-text').removeClass('active');
+    lock = false;
 }
 
 function ShowPending()
@@ -91,13 +91,5 @@ function ShowDrawn(txt, url) {
     $('.drawn-text').addClass('active');
     $('.drawn').addClass('showing');
     $('.drawn-text').text(txt);
-    if (!url)
-    {
-        $('.drawn-text').attr('href', '#');
-    }
-    else
-    {
-        $('.drawn-text').attr('href', url);
-        $('.drawn-text').text('点击拆开');
-    }
+    $('.drawn-text').attr('href', '#');
 }

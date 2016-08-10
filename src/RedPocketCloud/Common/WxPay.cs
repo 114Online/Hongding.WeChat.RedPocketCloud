@@ -77,7 +77,7 @@ namespace RedPocketCloud.Common
             }
 
             var handler = new HttpClientHandler();
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "/Cerificates/apiclient_cert.p12");
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "Cerificates/apiclient_cert.p12");
             handler.ClientCertificates.Add(new System.Security.Cryptography.X509Certificates.X509Certificate2(path, Startup.Config["WeChat:MchId"]));
             using (var client = new HttpClient(handler) { BaseAddress = new Uri("https://api.mch.weixin.qq.com") })
             {

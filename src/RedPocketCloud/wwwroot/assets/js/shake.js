@@ -51,7 +51,6 @@ function Shake()
         $('.bottom').removeClass('shaking');
         setTimeout(function () {
             $.post('/WeChat/Drawn/' + Merchant, {}, function (data) {
-                lock = false;
                 console.error(data);
                 if (data == "AUTH")
                     window.location.reload();
@@ -62,11 +61,11 @@ function Shake()
                 } else if (data == "EXCEEDED") {
                     window.location = "/WeChat/Exceeded";
                 } else {
-                    var obj = JSON.parse(data);
+                    var obj = data;
                     if (obj.Type != 1)
                         ShowDrawn(obj.Display);
                     else
-                        ShowDrawn(obj.Display, obj.Url);
+                        ShowDrawn("点击打开", obj.Url);
                 }
             });
         }, 610);
@@ -80,6 +79,7 @@ function Close()
     $('.undrawn').removeClass('showing');
     $('.alpha').removeClass('active');
     $('.drawn-text').removeClass('active');
+    lock = false;
 }
 
 function ShowPending()

@@ -136,7 +136,7 @@
             }
             else if (x.Type == RedPocketType.Coupon)
             {
-                <div class="redpocket-price">@ViewBag.Coupons[x.CouponId]</div>
+                <div class="redpocket-price">@ViewBag.Coupons[x.CouponId.Value]</div>
             }
             else
             {

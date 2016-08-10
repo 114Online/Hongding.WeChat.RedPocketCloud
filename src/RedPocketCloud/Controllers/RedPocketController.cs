@@ -348,10 +348,10 @@ namespace RedPocketCloud.Controllers
                 })
                 .Single();
             var json = Newtonsoft.Json.JsonConvert.SerializeObject(template);
+            Cache.SetString("MERCHANT_CURRENT_ACTIVITY_" + User.Current.UserName, act.Id.ToString());
             Cache.SetString("MERCHANT_CURRENT_ACTIVITY_TEMPLATE_" + User.Current.UserName, json);
             Cache.SetString("MERCHANT_CURRENT_ACTIVITY_RATIO_" + User.Current.UserName, act.Ratio.ToString());
             Cache.SetString("MERCHANT_CURRENT_ACTIVITY_ATTEND_" + User.Current.UserName, 0.ToString());
-            Cache.SetString("MERCHANT_CURRENT_ACTIVITY_" + User.Current.UserName, act.Id.ToString());
 
             // 计算红包统计
             act.Price = DB.Briberies.Where(x => x.ActivityId == act.Id).Sum(x => x.Price);
@@ -404,7 +404,6 @@ namespace RedPocketCloud.Controllers
             // TODO: Clean up cache
             var Merchant = DB.Users.Single(x => x.Id == act.OwnerId).UserName;
             Cache.Remove("MERCHANT_CURRENT_ACTIVITY_RATIO_" + Merchant);
-            Cache.Remove("MERCHANT_CURRENT_ACTIVITY_ATTEND_" + Merchant);
             Cache.Remove("MERCHANT_CURRENT_ACTIVITY_" + Merchant);
 
             return RedirectToAction("Activity", "RedPocket", new { id = id });

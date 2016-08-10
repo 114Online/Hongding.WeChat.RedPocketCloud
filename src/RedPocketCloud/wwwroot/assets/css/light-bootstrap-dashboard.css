@@ -3566,6 +3566,9 @@ body > .navbar-collapse[data-color="purple"]:after {
     color: #fed639;
     font-size: 22px;
     text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    height: 36px;
 }
 
 .redpocket-name {

@@ -55,7 +55,7 @@ namespace RedPocketCloud.Controllers
         [NonAction]
         private async Task<bool> CheckActivityEnd(long activity_id, string Merchant, IDistributedCache Cache, IHubContext<RedPocketHub> Hub)
         {
-            if (DB.Briberies.Count(x => x.ActivityId == activity_id) > 0) // 没有红包了
+            if (DB.Briberies.Count(x => x.ActivityId == activity_id && !x.ReceivedTime.HasValue) == 0) // 没有红包了
             {
                 DB.Activities
                     .Where(x => x.Id == activity_id)
@@ -66,9 +66,12 @@ namespace RedPocketCloud.Controllers
                 Hub.Clients.Group(activity_id.ToString()).OnActivityEnd();
 
                 // 清空缓存
-                Cache.Remove("MERCHANT_CURRENT_ACTIVITY_RATIO_" + Merchant);
-                Cache.Remove("MERCHANT_CURRENT_ACTIVITY_ATTEND_" + Merchant);
-                Cache.Remove("MERCHANT_CURRENT_ACTIVITY_" + Merchant);
+                try
+                {
+                    Cache.Remove("MERCHANT_CURRENT_ACTIVITY_" + Merchant);
+                    Cache.Remove("MERCHANT_CURRENT_ACTIVITY_RATIO_" + Merchant);
+                }
+                catch { }
                 return true;
             }
             return false;
@@ -236,28 +239,10 @@ namespace RedPocketCloud.Controllers
             var activity_id = Convert.ToInt64(activity_id_str);
 
             // 参与人数缓存
-            lock (this)
-            {
-                long attend;
-                var attend_str = Cache.GetString("MERCHANT_CURRENT_ACTIVITY_ATTEND_" + Merchant);
-                if (attend_str == null)
-                {
-                    attend = DB.Activities.Single(x => x.Id == activity_id).Attend;
-                    Cache.SetString("MERCHANT_CURRENT_ACTIVITY_ATTEND_" + Merchant, attend.ToString());
-                }
-                else
-                {
-                    attend = Convert.ToInt64(attend_str);
-                }
-                if (attend % 100 == 0)
-                {
-                    DB.Activities
-                        .Where(x => x.Id == activity_id)
-                        .SetField(x => x.Attend).WithValue(attend)
-                        .Update();
-                }
-                Cache.SetString("MERCHANT_CURRENT_ACTIVITY_ATTEND_" + Merchant, (attend + 1).ToString());
-            }
+            DB.Activities
+                .Where(x => x.Id == activity_id)
+                .SetField(x => x.Attend).Plus(1)
+                .UpdateAsync();
 
             // 抽奖
             var ratio_str = await Cache.GetStringAsync("MERCHANT_CURRENT_ACTIVITY_RATIO_" + Merchant);
@@ -281,7 +266,7 @@ namespace RedPocketCloud.Controllers
                     .FirstOrDefault();
 
                 // 检查剩余红包数量
-                if (prize == null && await CheckActivityEnd(activity_id, Merchant, Cache, Hub))
+                if (prize == null && !await CheckActivityEnd(activity_id, Merchant, Cache, Hub))
                     return Content("RETRY");
 
                 // 中奖发放红包
