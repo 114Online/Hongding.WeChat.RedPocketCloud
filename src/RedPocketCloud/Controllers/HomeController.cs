@@ -17,7 +17,7 @@ namespace RedPocketCloud.Controllers
             // General informations
             var beg = DateTime.Now.AddDays(-30);
             var cnt = DB.Activities
-                .Count(x => x.OwnerId == User.Current.Id && x.Begin >= beg);
+                .Count(x => x.MerchantId == User.Current.Id && x.Begin >= beg);
             ViewBag.ActivityCount = cnt;
             ViewBag.TemplateCount = DB.Templates.Count(x => x.UserId == User.Current.Id);
 
@@ -43,7 +43,7 @@ namespace RedPocketCloud.Controllers
             // Activity statistics
             var beg2 = DateTime.Now.Date;
             var ownedActivities = DB.Activities
-                .Where(x => x.OwnerId == User.Current.Id && x.Begin >= beg2)
+                .Where(x => x.MerchantId == User.Current.Id && x.Begin >= beg2)
                 .ToDictionary(x => x.Id, x => x.Title);
             var ownedActivityIds = ownedActivities
                 .Select(x => x.Key)
@@ -62,7 +62,7 @@ namespace RedPocketCloud.Controllers
 
             // Attend statistics
             var _attends = DB.Activities
-                .Where(x => x.OwnerId == User.Current.Id && x.Begin >= beg2)
+                .Where(x => x.MerchantId == User.Current.Id && x.Begin >= beg2)
                 .Select(x => new { Title = x.Title, Attend = x.Attend, Prize = x.Rules.Object.Sum(y => y.Count) })
                 .ToList();
             object attends;

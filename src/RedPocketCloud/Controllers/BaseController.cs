@@ -28,7 +28,7 @@ namespace RedPocketCloud.Controllers
                         .ToList());
                 else
                     notifications.AddRange(DB.Activities
-                        .Where(x => !x.End.HasValue && x.OwnerId == User.Current.Id)
+                        .Where(x => !x.End.HasValue && x.MerchantId == User.Current.Id)
                         .Select(x => new NotificationViewModel
                         {
                             Text = x.Title + " 正在进行",

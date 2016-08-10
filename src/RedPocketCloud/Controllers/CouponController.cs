@@ -25,7 +25,7 @@ namespace RedPocketCloud.Controllers
                     Id = x.Id,
                     UserId = y.Id,
                     UserName = y.UserName,
-                    Merchant = y.Name,
+                    Merchant = y.Merchant,
                     Provider = x.Provider,
                     Time = x.Time
                 });

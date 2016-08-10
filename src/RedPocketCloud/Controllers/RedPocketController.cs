@@ -18,19 +18,47 @@ namespace RedPocketCloud.Controllers
     {
         public IActionResult Index(string title, DateTime? begin, DateTime? end, string merchant)
         {
-            IEnumerable<Activity> ret = DB.Activities.Include(x => x.Owner);
+            IQueryable<Activity> query = DB.Activities;
             if (!string.IsNullOrEmpty(title))
-                ret = ret.Where(x => x.Title.Contains(title) || title.Contains(x.Title));
+                query = query.Where(x => x.Title.Contains(title) || title.Contains(x.Title));
             if (begin.HasValue)
-                ret = ret.Where(x => x.Begin >= begin.Value);
+                query = query.Where(x => x.Begin >= begin.Value);
             if (end.HasValue)
-                ret = ret.Where(x => x.Begin <= end.Value || x.End.HasValue && x.End.Value <= end.Value);
+                query = query.Where(x => x.Begin <= end.Value || x.End.HasValue && x.End.Value <= end.Value);
             if (!string.IsNullOrEmpty(merchant))
-                ret = ret.Where(x => x.Owner.Name.Contains(merchant) || merchant.Contains(x.Owner.Name));
+                query = query.Where(x => DB.Users.Where(y => y.Merchant.Contains(merchant) || merchant.Contains(y.Merchant)).Select(y => y.Id).Contains(x.MerchantId));
             if (!User.IsInRole("Root"))
-                ret = ret.Where(x => x.OwnerId == User.Current.Id);
-            ret = ret.OrderByDescending(x => x.Begin);
-            return PagedView(ret, 20);
+                query = query.Where(x => x.MerchantId == User.Current.Id);
+            query = query.OrderByDescending(x => x.Begin);
+            if (User.IsInRole("Root"))
+            {
+                var ret = query.Join(DB.Users, x => x.MerchantId, x => x.Id, (x,y)=>new ActivityViewModel
+                {
+                    Begin = x.Begin,
+                    BriberiesCount = x.BriberiesCount,
+                    End = x.End,
+                    Id = x.Id,
+                    Price = x.Price,
+                    Ratio = x.Ratio,
+                    Title = x.Title,
+                    Merchant = y.Merchant
+                });
+                return PagedView(ret, 20);
+            }
+            else
+            {
+                var ret = query.Select(x => new ActivityViewModel
+                {
+                    Begin = x.Begin,
+                    BriberiesCount = x.BriberiesCount,
+                    End = x.End,
+                    Id = x.Id,
+                    Price = x.Price,
+                    Ratio = x.Ratio,
+                    Title = x.Title
+                });
+                return PagedView(ret, 20);
+            }
         }
 
         [HttpGet]
@@ -245,7 +273,7 @@ namespace RedPocketCloud.Controllers
         [HttpPost]
         public IActionResult Deliver(string Title, string Rules, double Ratio, int Limit, long TemplateId, [FromServices] IDistributedCache Cache)
         {
-            if (DB.Activities.Count(x => x.OwnerId == User.Current.Id && !x.End.HasValue) > 0)
+            if (DB.Activities.Count(x => x.MerchantId == User.Current.Id && !x.End.HasValue) > 0)
                 return Prompt(x =>
                 {
                     x.Title = "创建失败";
@@ -282,7 +310,7 @@ namespace RedPocketCloud.Controllers
                 Rules = Rules,
                 Title = Title,
                 Ratio = Ratio / 100.0,
-                OwnerId = User.Current.Id,
+                MerchantId = User.Current.Id,
                 IsBegin = false,
                 Limit = Limit,
                 TemplateId = TemplateId
@@ -365,7 +393,7 @@ namespace RedPocketCloud.Controllers
         public IActionResult Activity(long id)
         {
             var act = DB.Activities.Single(x => x.Id == id);
-            if (!User.IsInRole("Root") && User.Current.Id != act.OwnerId)
+            if (!User.IsInRole("Root") && User.Current.Id != act.MerchantId)
                 return Prompt(x =>
                 {
                     x.StatusCode = 403;
@@ -396,13 +424,13 @@ namespace RedPocketCloud.Controllers
             else
             {
                 act = DB.Activities
-                    .Single(x => x.Id == id && x.OwnerId == User.Current.Id);
+                    .Single(x => x.Id == id && x.MerchantId == User.Current.Id);
             }
             act.End = DateTime.Now;
             DB.SaveChanges();
 
             // TODO: Clean up cache
-            var Merchant = DB.Users.Single(x => x.Id == act.OwnerId).UserName;
+            var Merchant = DB.Users.Single(x => x.Id == act.MerchantId).UserName;
             Cache.Remove("MERCHANT_CURRENT_ACTIVITY_RATIO_" + Merchant);
             Cache.Remove("MERCHANT_CURRENT_ACTIVITY_" + Merchant);
 

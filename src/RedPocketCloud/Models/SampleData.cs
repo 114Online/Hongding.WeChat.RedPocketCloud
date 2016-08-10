@@ -15,8 +15,8 @@ namespace RedPocketCloud.Models
             var RoleManager = services.GetRequiredService<RoleManager<IdentityRole<long>>>();
             DB.Database.EnsureCreated();
             await RoleManager.CreateAsync(new IdentityRole<long>() { Name = "Root" });
-            await RoleManager.CreateAsync(new IdentityRole<long>() { Name="Member" });
-            var user = new User { UserName = "admin", Balance = 10000.00 };
+            await RoleManager.CreateAsync(new IdentityRole<long>() { Name = "Member" });
+            var user = new User { UserName = "admin", Balance = 10000.00, Merchant = "宏鼎科技" };
             await UserManager.CreateAsync(user, "123456");
             await UserManager.AddToRoleAsync(user, "Root");
         }

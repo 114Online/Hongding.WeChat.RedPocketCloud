@@ -26,11 +26,8 @@ namespace RedPocketCloud.Models
         public long Attend { get; set; }
 
         public int Limit { get; set; }
-
-        [ForeignKey("Owner")]
-        public long OwnerId { get; set; }
-
-        public virtual User Owner { get; set; }
+        
+        public long MerchantId { get; set; }
         
         public long TemplateId { get; set; }
 

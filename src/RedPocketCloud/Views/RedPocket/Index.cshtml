@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Activity>
+﻿@model IEnumerable<ActivityViewModel>
 @{ 
     ViewBag.Title = "红包活动";
 }
@@ -78,7 +78,7 @@
                         }
                         @if (User.IsInRole("Root"))
                         {
-                            <td>@x.Owner.Name</td>
+                            <td>@x.Merchant</td>
                         }
                         <td>@x.Begin</td>
                         <td>@x.End</td>

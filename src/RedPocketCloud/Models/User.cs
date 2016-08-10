@@ -9,7 +9,7 @@ namespace RedPocketCloud.Models
     {
         public double Balance { get; set; }
 
-        public string Name { get; set; }
+        public string Merchant { get; set; }
 
         public int Limit { get; set; } = 10;
     }

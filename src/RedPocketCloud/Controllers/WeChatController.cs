@@ -91,7 +91,7 @@ namespace RedPocketCloud.Controllers
                 if (uid == default(long))
                     return null;
                 var tid = DB.Activities
-                    .Where(x => x.OwnerId == uid)
+                    .Where(x => x.MerchantId == uid)
                     .Select(x => x.TemplateId)
                     .LastOrDefault();
 

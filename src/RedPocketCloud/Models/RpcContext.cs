@@ -54,7 +54,8 @@ namespace RedPocketCloud.Models
                 e.HasIndex(x => x.Price);
                 e.HasIndex(x => x.Begin);
                 e.HasIndex(x => x.End);
-                e.HasIndex(x => x.OwnerId);
+                e.HasIndex(x => x.MerchantId);
+                e.HasIndex(x => x.IsBegin);
             });
 
             builder.Entity<Bribery>(e =>
