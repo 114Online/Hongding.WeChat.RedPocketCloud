@@ -59,6 +59,7 @@ namespace RedPocketCloud.Controllers
             {
                 DB.Activities
                     .Where(x => x.Id == activity_id)
+                    .Where(x => x.IsBegin)
                     .SetField(x => x.End).WithValue(DateTime.Now)
                     .UpdateAsync();
 

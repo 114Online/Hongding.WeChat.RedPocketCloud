@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<!DOCTYPE mycat:schema SYSTEM "schema.dtd">
+<mycat:schema xmlns:mycat="http://org.opencloudb/" >
+
+	<schema name="test" checkSQLschema="false" sqlMaxLimit="100">
+	 <table name="user" dataNode="dn1,dn2,dn3,dn4" rule="rule1" primaryKey="id" autoIncrement="true">
+       <childTable  name="article" primaryKey="id" joinKey="userid" parentKey="id"/>
+	 </table>
+     <table name="blobs" dataNode="dn1,dn2,dn3,dn4" rule="rule1" primaryKey="Id" autoIncrement="true" />
+     <table name="briberies" dataNode="dn1,dn2,dn3,dn4" rule="rule1" primaryKey="Id" autoIncrement="true" />
+     <table name="coupons" dataNode="dn1,dn2,dn3,dn4" rule="rule1" primaryKey="Id" autoIncrement="true" />
+     <table name="paylogs" dataNode="dn1,dn2,dn3,dn4" rule="rule1" primaryKey="Id" autoIncrement="true" />
+     <table name="templates" dataNode="dn1,dn2,dn3,dn4" rule="rule1" primaryKey="Id" autoIncrement="true" />
+     <table name="wallets" dataNode="dn1,dn2,dn3,dn4" rule="rule1" primaryKey="Id" autoIncrement="true" />
+     <table name="activities" dataNode="dn1,dn2,dn3,dn4" rule="rule1" primaryKey="Id" autoIncrement="true" />
+     <table name="aspnetusers" dataNode="dn1,dn2,dn3,dn4" rule="rule1" primaryKey="Id" autoIncrement="true" />
+    </schema>
+
+    <dataNode name="dn1" dataHost="host1" database="wechat" />
+    <dataNode name="dn2" dataHost="host2" database="wechat" /> 
+	<dataNode name="dn3" dataHost="host3" database="wechat" />
+    <dataNode name="dn4" dataHost="host4" database="wechat" />
+
+    <dataHost name="host1" maxCon="1000" minCon="10" balance="0"
+       writeType="0" dbType="mysql" dbDriver="native">
+       <heartbeat>select user()</heartbeat>
+       <writeHost host="hostM1" url="localhost:3306" user="root" password="Sun060810" />
+    </dataHost>
+
+    <dataHost name="host2" maxCon="1000" minCon="10" balance="0"
+       writeType="0" dbType="mysql" dbDriver="native">
+       <heartbeat>select user()</heartbeat>
+       <writeHost host="hostM2" url="139.129.210.116:3306" user="root" password="Sun060810" />
+    </dataHost>
+
+    <dataHost name="host3" maxCon="1000" minCon="10" balance="0"
+       writeType="0" dbType="mysql" dbDriver="native">
+       <heartbeat>select user()</heartbeat>
+       <writeHost host="hostM3" url="10.25.82.201:3306" user="root" password="Sun060810" />
+    </dataHost>
+	
+    <dataHost name="host4" maxCon="1000" minCon="10" balance="0"
+       writeType="0" dbType="mysql" dbDriver="native">
+       <heartbeat>select user()</heartbeat>
+       <writeHost host="hostM4" url="10.25.82.238:3306" user="root" password="Sun060810" />
+    </dataHost>
+</mycat:schema>
