@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.EntityFrameworkCore;
 using RedPocketCloud.Models;
+using RedPocketCloud.ViewModels;
 
 namespace RedPocketCloud.Controllers
 {
@@ -253,7 +254,7 @@ namespace RedPocketCloud.Controllers
                 });
             JsonObject<List<ViewModels.RuleViewModel>> rules = Rules;
             // 检查余额
-            if (rules.Object.Count == 0 || rules.Object.Where(x => x.Type == RedPocketType.Cash).Sum(x => x.Count) == 0)
+            if (rules.Object.Count == 0)
                 return Prompt(x =>
                 {
                     x.Title = "创建失败";
@@ -333,6 +334,21 @@ namespace RedPocketCloud.Controllers
             DB.SaveChanges();
 
             // 设置缓存
+            var template = DB.Templates
+                .Where(x => x.Id == act.TemplateId)
+                .Select(x => new TemplateViewModel
+                {
+                    Type = x.Type,
+                    Top = x.TopPartId,
+                    Bottom = x.BottomPartId,
+                    Background = x.BackgroundId,
+                    Pending = x.PendingId,
+                    Drawn = x.DrawnId,
+                    Undrawn = x.UndrawnId
+                })
+                .Single();
+            var json = Newtonsoft.Json.JsonConvert.SerializeObject(template);
+            Cache.SetString("MERCHANT_CURRENT_ACTIVITY_TEMPLATE_" + User.Current.UserName, json);
             Cache.SetString("MERCHANT_CURRENT_ACTIVITY_RATIO_" + User.Current.UserName, act.Ratio.ToString());
             Cache.SetString("MERCHANT_CURRENT_ACTIVITY_ATTEND_" + User.Current.UserName, 0.ToString());
             Cache.SetString("MERCHANT_CURRENT_ACTIVITY_" + User.Current.UserName, act.Id.ToString());
@@ -364,7 +380,6 @@ namespace RedPocketCloud.Controllers
                 .Where(x => x.ActivityId == id && x.ReceivedTime.HasValue)
                 .OrderByDescending(x => x.ReceivedTime)
                 .ToList();
-            ViewBag.UserName = DB.Users.Single(x => x.Id == act.Id).UserName;
             return View(act);
         }
 
@@ -395,9 +410,9 @@ namespace RedPocketCloud.Controllers
             return RedirectToAction("Activity", "RedPocket", new { id = id });
         }
 
-        public string AttendCount(string id, [FromServices] IDistributedCache Cache)
+        public string AttendCount(long id, [FromServices] IDistributedCache Cache)
         {
-            return Cache.GetString("MERCHANT_CURRENT_ACTIVITY_ATTEND_" + id);
+            return DB.Activities.Single(x => x.Id == id).Attend.ToString();
         }
     }
 }

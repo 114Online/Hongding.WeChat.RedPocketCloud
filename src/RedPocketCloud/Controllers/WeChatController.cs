@@ -170,8 +170,8 @@ namespace RedPocketCloud.Controllers
         }
 
         [HttpPost]
-        [Route("[controller]/Draw/{Merchant}")]
-        public async Task<IActionResult> Draw(string Merchant, [FromServices] IHubContext<RedPocketHub> Hub, [FromServices] IDistributedCache Cache)
+        [Route("[controller]/Drawn/{Merchant}")]
+        public async Task<IActionResult> Drawn(string Merchant, [FromServices] IHubContext<RedPocketHub> Hub, [FromServices] IDistributedCache Cache)
         {
             // 触发GC
             RequestCount++;

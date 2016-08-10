@@ -6,21 +6,23 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>摇一摇抽红包</title>
-    <link href="~/assets/css/shake.css" rel="stylesheet" />
+    <title>咻一咻抽红包</title>
+    <link href="~/assets/css/shoop.css" rel="stylesheet" />
     <script src="~/assets/js/jquery-1.10.2.js"></script>
-    <script src="~/assets/js/shake.js"></script>
+    <script src="~/assets/js/shoop.js"></script>
 </head>
 <body>
     <img class="background" src="/file/download/@Model.Background" />
-    <img class="top" src="/file/download/@Model.Top" />
-    <img class="bottom" src="/file/download/@Model.Bottom" />
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <img class="button" src="/file/download/@Model.Top" />
     <div class="alpha"></div>
     <img class="pending" src="/file/download/@Model.Pending" />
     <img class="drawn" src="/file/download/@Model.Drawn" />
     <img class="undrawn" src="/file/download/@Model.Undrawn" />
     <a class="drawn-text"></a>
-    <audio style="display:none;" id="shakeSound" preload="metadata" controls src="~/assets/sounds/shake_sound.mp3"></audio>
+    <audio style="display:none;" id="shoopSound" preload="metadata" controls src="~/assets/sounds/shoop_sound.wav"></audio>
     <script>var Merchant = '@ViewContext.RouteData.Values["Merchant"].ToString()';</script>
 </body>
 </html>
