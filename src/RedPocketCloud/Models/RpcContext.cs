@@ -33,7 +33,7 @@ namespace RedPocketCloud.Models
         {
             base.OnModelCreating(builder);
 
-            builder.SetupBlobStorage();
+            builder.SetupBlobStorage<Blob, long>();
 
             builder.Entity<Bribery>(e =>
             {
