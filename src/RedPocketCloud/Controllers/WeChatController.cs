@@ -259,8 +259,54 @@ namespace RedPocketCloud.Controllers
                 if (prize.Type == RedPocketType.Cash)
                     await TransferMoneyAsync(prize.Id, HttpContext.Session.GetString("OpenId"), prize.Price, Startup.Config["WeChat:TransferDescription"]);
 
+                // 生成优惠券缓存
+                string coupon = null;
+                if (prize.Type == RedPocketType.Coupon)
+                {
+                    coupon = await Cache.GetStringAsync("COUPON_" + prize.CouponId);
+                    if (coupon == null)
+                    {
+                        coupon = DB.Coupons.Where(x => x.Id == prize.CouponId).Select(x => x.Title).Single();
+                        await Cache.SetStringAsync("COUPON_" + prize.CouponId, coupon);
+                    }
+                }
+
                 // 推送中奖消息
-                Hub.Clients.Group(prize.ActivityId.ToString()).OnDelivered(new { time = prize.ReceivedTime, avatar = HttpContext.Session.GetString("AvatarUrl"), name = HttpContext.Session.GetString("Nickname"), price = prize.Price, id = HttpContext.Session.GetString("OpenId") });
+                if (prize.Type == RedPocketType.Cash)
+                {
+                    Hub.Clients.Group(prize.ActivityId.ToString()).OnDelivered(new
+                    {
+                        type = prize.Type,
+                        time = prize.ReceivedTime,
+                        avatar = HttpContext.Session.GetString("AvatarUrl"),
+                        name = HttpContext.Session.GetString("Nickname"),
+                        price = prize.Price,
+                        id = HttpContext.Session.GetString("OpenId")
+                    });
+                }
+                else if (prize.Type == RedPocketType.Url)
+                {
+                    Hub.Clients.Group(prize.ActivityId.ToString()).OnDelivered(new
+                    {
+                        type = prize.Type,
+                        time = prize.ReceivedTime,
+                        avatar = HttpContext.Session.GetString("AvatarUrl"),
+                        name = HttpContext.Session.GetString("Nickname"),
+                        id = HttpContext.Session.GetString("OpenId")
+                    });
+                }
+                else
+                {
+                    Hub.Clients.Group(prize.ActivityId.ToString()).OnDelivered(new
+                    {
+                        type = prize.Type,
+                        time = prize.ReceivedTime,
+                        avatar = HttpContext.Session.GetString("AvatarUrl"),
+                        name = HttpContext.Session.GetString("Nickname"),
+                        id = HttpContext.Session.GetString("OpenId"),
+                        coupon = coupon
+                    });
+                }
 
                 // 写入冷却时间
                 Cache.SetObjectAsync("REDPOCKET_COOLDOWN_" + OpenId, DateTime.Now);
@@ -289,12 +335,6 @@ namespace RedPocketCloud.Controllers
                     return Json(new { Type = prize.Type, Display = (prize.Price / 100).ToString("0.00") + "元" });
                 else if (prize.Type == Models.RedPocketType.Coupon)
                 {
-                    var coupon = await Cache.GetStringAsync("COUPON_" + prize.CouponId);
-                    if (coupon == null)
-                    {
-                        coupon = DB.Coupons.Where(x => x.Id == prize.CouponId).Select(x => x.Title).Single();
-                        await Cache.SetStringAsync("COUPON_" + prize.CouponId, coupon);
-                    }
                     return Json(new { Type = prize.Type, Display = coupon });
                 }
                 else

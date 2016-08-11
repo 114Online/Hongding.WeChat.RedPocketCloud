@@ -24,7 +24,10 @@ namespace RedPocketCloud
                 x.Database = 0;
                 x.EventKey = "REDPOCKET_SIGNALR_INSTANCE_";
             })
-                .AddSignalR();
+            .AddSignalR(options =>
+            {
+                options.Hubs.EnableDetailedErrors = true;
+            });
             services.AddSmartUser<User, long>();
             services.AddSmartCookies();
             services.AddBlobStorage()
@@ -68,6 +71,7 @@ namespace RedPocketCloud
         {
             loggerFactory.AddConsole(LogLevel.Error);
             app.UseSession();
+            app.UseWebSockets();
             app.UseSignalR();
             app.UseIdentity();
             app.UseBlobStorage<Blob, long>("/assets/js/jquery.pomelo.fileupload.js");

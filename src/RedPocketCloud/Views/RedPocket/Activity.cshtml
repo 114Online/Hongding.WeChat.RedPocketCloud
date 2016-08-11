@@ -180,22 +180,18 @@
         }
     }, 3000);
 
-    var hub = $.connection.briberyHub;
+    var hub = $.connection.redPocketHub;
 
     hub.client.onDelivered = function (data) {
         $('.price').html((parseFloat($('.price').html()) + parseFloat(data.price / 100.0)).toFixed(2));
         $('.amount').html(parseInt($('.amount').html()) + 1);
         if (data.type == 0)
-            $('#realtime-list').prepend('<div class="redpocket"><img class="redpocket-avatar" src="' + data.avatar + '" /><div class="redpocket-price">￥' + (data.price / 100.0).toFixed(2) + '</div><div class="redpocket-name">' + data.name + '</div><div class="redpocket-time">' + moment(data.time).format('hh:mm:ss') + '</div></div>');
+            $('.redpocket-outer').prepend('<div class="redpocket"><img class="redpocket-avatar" src="' + data.avatar + '" /><div class="redpocket-price">￥' + (data.price / 100.0).toFixed(2) + '</div><div class="redpocket-name">' + data.name + '</div><div class="redpocket-time">' + moment(data.time).format('hh:mm:ss') + '</div></div>');
         else if (data.type == 1)
-            $('#realtime-list').prepend('<div class="redpocket"><img class="redpocket-avatar" src="' + data.avatar + '" /><div class="redpocket-price">外部链接</div><div class="redpocket-name">' + data.name + '</div><div class="redpocket-time">' + moment(data.time).format('hh:mm:ss') + '</div></div>');
+            $('.redpocket-outer').prepend('<div class="redpocket"><img class="redpocket-avatar" src="' + data.avatar + '" /><div class="redpocket-price">外部链接</div><div class="redpocket-name">' + data.name + '</div><div class="redpocket-time">' + moment(data.time).format('hh:mm:ss') + '</div></div>');
         else
-            $('#realtime-list').prepend('<div class="redpocket"><img class="redpocket-avatar" src="' + data.avatar + '" /><div class="redpocket-price">' + data.coupon + '</div><div class="redpocket-name">' + data.name + '</div><div class="redpocket-time">' + moment(data.time).format('hh:mm:ss') + '</div></div>');
+            $('.redpocket-outer').prepend('<div class="redpocket"><img class="redpocket-avatar" src="' + data.avatar + '" /><div class="redpocket-price">' + data.coupon + '</div><div class="redpocket-name">' + data.name + '</div><div class="redpocket-time">' + moment(data.time).format('hh:mm:ss') + '</div></div>');
     }
-
-    hub.client.onShaked = function (data) {
-        $('.attend').html(data);
-    };
 
     hub.client.onActivityEnd = function () {
         $('#status').html("已经结束");

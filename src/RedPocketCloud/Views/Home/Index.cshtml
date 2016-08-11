@@ -16,8 +16,12 @@
                         <td>@User.Current.Merchant</td>
                     </tr>
                     <tr>
-                        <td>接口地址</td>
+                        <td>红包入口</td>
                         <td>@RedPocketCloud.Startup.Config["Host:Domain"]/WeChat/RedPocket/@User.Current.UserName</td>
+                    </tr>
+                    <tr>
+                        <td>卡券入口</td>
+                        <td>@RedPocketCloud.Startup.Config["Host:Domain"]/WeChat/Wallet/@User.Current.UserName</td>
                     </tr>
                     <tr>
                         <td>账户余额</td>
@@ -34,10 +38,6 @@
                     <tr>
                         <td>红包限制</td>
                         <td>每日每用户最多 <span class="badge limit">@User.Current.Limit</span> 个 &nbsp;&nbsp; <a href="javascript:ModifyLimit();">修改</a></td>
-                    </tr>
-                    <tr>
-                        <td>数据库</td>
-                        <td>MySQL 5.7</td>
                     </tr>
                     <tr>
                         <td>平台</td>
