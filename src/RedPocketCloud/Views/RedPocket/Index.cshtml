@@ -86,7 +86,7 @@
                         <td>@x.BriberiesCount</td>
                         <td>@((x.Ratio * 100).ToString("0.00"))%</td>
                         <td>
-                            <a asp-action="Show" asp-controller="RedPocket" asp-route-id="@x.Id">查看详情</a>
+                            <a asp-action="Activity" asp-controller="RedPocket" asp-route-id="@x.Id">查看详情</a>
                             <a asp-action="Export" asp-controller="RedPocket" asp-route-id="@x.Id">导出报表</a>
                         </td>
                     </tr>
