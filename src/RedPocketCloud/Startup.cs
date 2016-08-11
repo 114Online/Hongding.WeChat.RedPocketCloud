@@ -34,7 +34,7 @@ namespace RedPocketCloud
                 .AddEntityFrameworkStorage<RpcContext, Blob, long>();
             services.AddDistributedRedisCache(x => 
             {
-                x.InstanceName = "REDPOCKET_INSTANCE_";
+                x.InstanceName = "REDPOCKET_INSTANCE";
                 x.Configuration = Config["Host:Redis"];
             });
             services.AddSession(o =>
