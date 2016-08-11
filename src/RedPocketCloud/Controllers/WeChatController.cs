@@ -466,7 +466,8 @@ namespace RedPocketCloud.Controllers
                     Id = x.Id,
                     Description = y.Description,
                     ImageId = y.ImageId,
-                    VerifyCode = x.VerifyCode
+                    VerifyCode = x.VerifyCode,
+                    Title = y.Title
                 })
                 .Single();
             ViewBag.QrCode = Newtonsoft.Json.JsonConvert.SerializeObject(new CouponQrCodeViewModel

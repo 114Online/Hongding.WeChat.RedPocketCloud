@@ -11,5 +11,6 @@ namespace RedPocketCloud.ViewModels
         public long ImageId { get; set; }
         public string Description { get; set; }
         public string VerifyCode { get; set; }
+        public string Title { get; set; }
     }
 }

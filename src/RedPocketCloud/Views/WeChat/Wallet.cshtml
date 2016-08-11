@@ -17,7 +17,7 @@
     @foreach(var x in Model)
     {
         <a asp-action="Coupon" asp-controller="WeChat" asp-route-id="@x.Id">
-            <img style="width: 100%; margin-bottom: 10px;" src="/file/download/@x.ImageId" />
+            <img style="box-shadow: 0 0 15px rgba(0,0,0,0.4);width: 100%; margin-bottom: 10px;" src="/file/download/@x.ImageId" />
         </a>
     }
 </body>

@@ -14,10 +14,12 @@
 <body style="background-color:#ebc836;padding:15px;">
     <div style="background-color: #fff; margin: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.2); padding: 15px; border-radius: 15px;">
         <div id="qrcode" style="width: 100%"></div>
-        <p style="color: #666">@Model.Description</p>
+        <p style="color: #000;text-align: center;">@Model.VerifyCode</p>
+        <p style="color: #df012e;text-align: center;">@Model.Title</p>
+        <p style="color: #666;text-align: center;font-size: 12px;">@Model.Description</p>
     </div>
     <script>
-        $('#qrcode').qrcode('@ViewBag.QrCode');
+        $('#qrcode').qrcode({ text: '@ViewBag.QrCode', width: $('#qrcode').width(), height: $('#qrcode').width() });
     </script>
 </body>
 </html>
