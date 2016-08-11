@@ -34,7 +34,7 @@
   <dataHost name="host2" maxCon="1000" minCon="10" balance="0"
      writeType="0" dbType="mysql" dbDriver="native">
     <heartbeat>select user()</heartbeat>
-    <writeHost host="hostM2" url="139.129.210.116:3306" user="root" password="Sun060810" />
+    <writeHost host="hostM2" url="10.25.82.221:3306" user="root" password="Sun060810" />
   </dataHost>
 
   <dataHost name="host3" maxCon="1000" minCon="10" balance="0"
