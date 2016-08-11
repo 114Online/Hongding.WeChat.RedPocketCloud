@@ -2,7 +2,7 @@
 <!DOCTYPE mycat:schema SYSTEM "schema.dtd">
 <mycat:schema xmlns:mycat="http://org.opencloudb/" >
 
-  <schema name="test" checkSQLschema="false" sqlMaxLimit="100">
+  <schema name="wechat" checkSQLschema="false" sqlMaxLimit="100">
     <table name="blobs" dataNode="dn1,dn2,dn3,dn4" rule="rule1" primaryKey="Id" autoIncrement="true" />
     <table name="briberies" dataNode="dn1,dn2,dn3,dn4" rule="rule1" primaryKey="Id" autoIncrement="true" />
     <table name="coupons" dataNode="dn1,dn2,dn3,dn4" rule="rule1" primaryKey="Id" autoIncrement="true" />

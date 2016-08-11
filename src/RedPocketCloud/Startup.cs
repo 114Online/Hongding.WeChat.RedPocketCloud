@@ -22,7 +22,7 @@ namespace RedPocketCloud
             {
                 x.ConnectionString = Config["Host:Redis"];
                 x.Database = 0;
-                x.EventKey = "REDPOCKET_SIGNALR_INSTANCE_";
+                x.EventKey = "REDPOCKET_SIGNALR_INSTANCE";
             })
             .AddSignalR(options =>
             {
@@ -34,7 +34,7 @@ namespace RedPocketCloud
                 .AddEntityFrameworkStorage<RpcContext, Blob, long>();
             services.AddDistributedRedisCache(x => 
             {
-                x.InstanceName = "REDPOCKET_INSTANCE";
+                x.InstanceName = "REDPOCKET_INSTANCE_";
                 x.Configuration = Config["Host:Redis"];
             });
             services.AddSession(o =>
