@@ -60,13 +60,13 @@ namespace RedPocketCloud.Controllers
         /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Add(Coupon Model, IFormFile coupon, IFormFile icon)
+        public IActionResult Add(Coupon Model, IFormFile coupon)
         {
-            if (coupon == null || icon == null)
+            if (coupon == null)
                 return Prompt(x =>
                 {
                     x.Title = "添加失败";
-                    x.Details = "必须上传商家Logo与优惠券图片！";
+                    x.Details = "必须上传优惠券图片！";
                 });
             var _coupon = new Blob
             {
@@ -118,7 +118,7 @@ namespace RedPocketCloud.Controllers
         /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(long id, Coupon Model, IFormFile coup, IFormFile icon)
+        public IActionResult Edit(long id, Coupon Model, IFormFile coup)
         {
             var coupon = DB.Coupons.SingleOrDefault(x => x.Id == id);
             if (!User.IsInRole("Root") && coupon.MerchantId != User.Current.Id || coupon == null)

@@ -316,20 +316,31 @@ namespace RedPocketCloud.Controllers
                 prize.ReceivedTime = DateTime.Now;
                 DB.SaveChanges();
 
-                // 微信转账
+                // 分发奖品
+                Coupon coupon = null;
                 if (prize.Type == RedPocketType.Cash)
-                    await TransferMoneyAsync(prize.Id, HttpContext.Session.GetString("OpenId"), prize.Price, Startup.Config["WeChat:TransferDescription"]);
-
-                // 生成优惠券缓存
-                string coupon = null;
-                if (prize.Type == RedPocketType.Coupon)
                 {
-                    coupon = await Cache.GetStringAsync("COUPON_" + prize.CouponId);
+                    // 微信转账
+                    await TransferMoneyAsync(prize.Id, HttpContext.Session.GetString("OpenId"), prize.Price, Startup.Config["WeChat:TransferDescription"]);
+                }
+                else if (prize.Type == RedPocketType.Coupon)
+                {
+                    // 为微信用户添加优惠券
+                    coupon = await Cache.GetObjectAsync<Coupon>("COUPON_" + prize.CouponId);
                     if (coupon == null)
                     {
-                        coupon = DB.Coupons.Where(x => x.Id == prize.CouponId).Select(x => x.Title).Single();
-                        await Cache.SetStringAsync("COUPON_" + prize.CouponId, coupon);
+                        coupon = DB.Coupons.Where(x => x.Id == prize.CouponId).Single();
+                        await Cache.SetObjectAsync("COUPON_" + prize.CouponId, coupon);
                     }
+                    DB.Wallets.Add(new Wallet
+                    {
+                        CouponId = prize.CouponId.Value,
+                        Expire = DateTime.Now.AddDays(coupon.Time),
+                        OpenId = HttpContext.Session.GetString("OpenId"),
+                        Time = DateTime.Now,
+                        MerchantId = coupon.MerchantId
+                    });
+                    await DB.SaveChangesAsync();
                 }
 
                 // 推送中奖消息
@@ -365,7 +376,7 @@ namespace RedPocketCloud.Controllers
                         avatar = HttpContext.Session.GetString("AvatarUrl"),
                         name = HttpContext.Session.GetString("Nickname"),
                         id = HttpContext.Session.GetString("OpenId"),
-                        coupon = coupon
+                        coupon = coupon.Title
                     });
                 }
 
