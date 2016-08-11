@@ -34,11 +34,6 @@
         /// 优惠券背景图
         /// </summary>
         public long ImageId { get; set; }
-        
-        /// <summary>
-        /// 优惠券提供商logo图片BlobID
-        /// </summary>
-        public long ProviderImageId { get; set; }
 
         /// <summary>
         /// 商户ID（对应User.Id）

@@ -77,20 +77,9 @@ namespace RedPocketCloud.Controllers
                 Time = DateTime.Now
             };
             DB.Blobs.Add(_coupon);
-
-            var _icon = new Blob
-            {
-                Bytes = icon.ReadAllBytes(),
-                ContentLength = coupon.Length,
-                ContentType = coupon.ContentType,
-                FileName = coupon.FileName,
-                Time = DateTime.Now
-            };
-            DB.Blobs.Add(_icon);
             DB.SaveChanges();
 
             Model.ImageId = _coupon.Id;
-            Model.ProviderImageId = _icon.Id;
             Model.MerchantId = User.Current.Id;
             DB.Coupons.Add(Model);
             DB.SaveChanges();
@@ -149,15 +138,6 @@ namespace RedPocketCloud.Controllers
                 _coupon.ContentType = coup.ContentType;
                 _coupon.FileName = coup.FileName;
                 _coupon.Time = DateTime.Now;
-            }
-            if (icon != null)
-            {
-                var _icon = DB.Blobs.Single(x => x.Id == coupon.ProviderImageId);
-                _icon.Bytes = icon.ReadAllBytes();
-                _icon.ContentLength = icon.Length;
-                _icon.ContentType = icon.ContentType;
-                _icon.FileName = icon.FileName;
-                _icon.Time = DateTime.Now;
             }
             DB.SaveChanges();
             return Prompt(x =>

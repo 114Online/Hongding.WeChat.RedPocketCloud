@@ -39,7 +39,8 @@
 
   "buildOptions": {
     "emitEntryPoint": true,
-    "preserveCompilationContext": true
+    "preserveCompilationContext": true,
+    "nowarn": ["CS1998", "CS4014"]
   },
 
   "runtimeOptions": {
