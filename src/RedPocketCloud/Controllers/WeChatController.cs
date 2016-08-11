@@ -305,5 +305,7 @@ namespace RedPocketCloud.Controllers
 
             return Content("RETRY");
         }
+
+        public IActionResult Exceeded() => View();
     }
 }
