@@ -243,7 +243,7 @@ namespace RedPocketCloud.Controllers
 
             var OpenId = HttpContext.Session.GetString("OpenId");
 
-            // 微信平台要求15秒内不能给同一个用户再次发红包
+            // 微信平台要求15秒内不能给同一个用户再次发现金红包
             try
             {
                 var openIdCoolDown = await Cache.GetObjectAsync<DateTime?>("REDPOCKET_COOLDOWN_" + OpenId);
@@ -369,8 +369,9 @@ namespace RedPocketCloud.Controllers
                     });
                 }
 
-                // 写入冷却时间
-                Cache.SetObjectAsync("REDPOCKET_COOLDOWN_" + OpenId, DateTime.Now);
+                // 如果抽中现金红包，则写入冷却时间
+                if (prize.Type == RedPocketType.Coupon)
+                    Cache.SetObjectAsync("REDPOCKET_COOLDOWN_" + OpenId, DateTime.Now);
 
                 // 添加logs
                 if (logs.Count >= limit.Value)
