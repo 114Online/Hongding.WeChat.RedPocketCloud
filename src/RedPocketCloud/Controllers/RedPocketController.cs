@@ -14,6 +14,14 @@ namespace RedPocketCloud.Controllers
     [Authorize]
     public class RedPocketController : BaseController
     {
+        /// <summary>
+        /// 展示红包活动列表界面
+        /// </summary>
+        /// <param name="title"></param>
+        /// <param name="begin"></param>
+        /// <param name="end"></param>
+        /// <param name="merchant"></param>
+        /// <returns></returns>
         public IActionResult Index(string title, DateTime? begin, DateTime? end, string merchant)
         {
             IQueryable<Activity> query = DB.Activities;
@@ -59,16 +67,40 @@ namespace RedPocketCloud.Controllers
             }
         }
 
+        /// <summary>
+        /// 展示创建红包活动界面
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
-        public IActionResult Deliver() => View(DB.Templates.Where(x => x.UserId == User.Current.Id).ToList());
+        public IActionResult Deliver() => View(DB.Templates.Where(x => x.MerchantId == User.Current.Id).ToList());
         
+        /// <summary>
+        /// 展示红包活动页面模板列表界面
+        /// </summary>
+        /// <returns></returns>
         public IActionResult Template() => View(DB.Templates
-            .Where(x => x.UserId == User.Current.Id)
+            .Where(x => x.MerchantId == User.Current.Id)
             .ToList());
 
+        /// <summary>
+        /// 展示创建红包活动页面模板界面
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public IActionResult AddTemplate() => View();
 
+        /// <summary>
+        /// 处理创建红包活动页面模板请求
+        /// </summary>
+        /// <param name="bg"></param>
+        /// <param name="top"></param>
+        /// <param name="bottom"></param>
+        /// <param name="drawn"></param>
+        /// <param name="undrawn"></param>
+        /// <param name="pending"></param>
+        /// <param name="type"></param>
+        /// <param name="env"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult AddTemplate(long? bg, long? top, long? bottom, long? drawn, long? undrawn, long? pending, TemplateType type, [FromServices] IHostingEnvironment env)
@@ -206,7 +238,7 @@ namespace RedPocketCloud.Controllers
                 DrawnId = drawn,
                 UndrawnId = undrawn,
                 PendingId = pending,
-                UserId = User.Current.Id,
+                MerchantId = User.Current.Id,
                 Type = type
             };
             DB.Templates.Add(template);
@@ -214,9 +246,25 @@ namespace RedPocketCloud.Controllers
             return RedirectToAction("Template", "RedPocket");
         }
 
+        /// <summary>
+        /// 展示编辑红包页面模板界面
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet]
         public IActionResult EditTemplate(long id) => View(DB.Templates.Single(x => x.Id == id));
 
+        /// <summary>
+        /// 处理编辑红包页面模板请求
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="bg"></param>
+        /// <param name="top"></param>
+        /// <param name="bottom"></param>
+        /// <param name="drawn"></param>
+        /// <param name="undrawn"></param>
+        /// <param name="pending"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult EditTemplate(long id, long? bg, long? top, long? bottom, long? drawn, long? undrawn, long? pending)
@@ -268,6 +316,16 @@ namespace RedPocketCloud.Controllers
             return RedirectToAction("Template", "RedPocket");
         }
 
+        /// <summary>
+        /// 处理创建红包活动请求
+        /// </summary>
+        /// <param name="Title"></param>
+        /// <param name="Rules"></param>
+        /// <param name="Ratio"></param>
+        /// <param name="Limit"></param>
+        /// <param name="TemplateId"></param>
+        /// <param name="Cache"></param>
+        /// <returns></returns>
         [HttpPost]
         public IActionResult Deliver(string Title, string Rules, double Ratio, int Limit, long TemplateId, [FromServices] IDistributedCache Cache)
         {
@@ -323,7 +381,7 @@ namespace RedPocketCloud.Controllers
             {
                 for (var i = 0; i < x.Count; i++)
                 {
-                    DB.Briberies.Add(new Bribery
+                    DB.RedPockets.Add(new RedPocket
                     {
                         Type = RedPocketType.Cash,
                         ActivityId = act.Id,
@@ -336,7 +394,7 @@ namespace RedPocketCloud.Controllers
             {
                 for(var i = 0; i < x.Count; i++)
                 {
-                    DB.Briberies.Add(new Bribery
+                    DB.RedPockets.Add(new RedPocket
                     {
                         Type = RedPocketType.Url,
                         ActivityId = act.Id,
@@ -349,7 +407,7 @@ namespace RedPocketCloud.Controllers
             {
                 for (var i = 0; i < x.Count; i++)
                 {
-                    DB.Briberies.Add(new Bribery
+                    DB.RedPockets.Add(new RedPocket
                     {
                         Type = RedPocketType.Coupon,
                         ActivityId = act.Id,
@@ -378,8 +436,8 @@ namespace RedPocketCloud.Controllers
             Cache.SetObject("MERCHANT_CURRENT_ACTIVITY_RATIO_" + User.Current.UserName, act.Ratio);
 
             // 计算红包统计
-            act.Price = DB.Briberies.Where(x => x.ActivityId == act.Id).Sum(x => x.Price);
-            act.BriberiesCount = DB.Briberies.Count(x => x.ActivityId == act.Id);
+            act.Price = DB.RedPockets.Where(x => x.ActivityId == act.Id).Sum(x => x.Price);
+            act.BriberiesCount = DB.RedPockets.Count(x => x.ActivityId == act.Id);
             act.IsBegin = true;
             DB.SaveChanges();
 
@@ -397,16 +455,22 @@ namespace RedPocketCloud.Controllers
                     x.Details = "您没有权限查看这个活动";
                 });
             var coupons = act.Rules.Object.Where(x => x.Type == RedPocketType.Coupon).Select(x => x.Coupon).ToList();
-            ViewBag.Price = DB.Briberies.Where(x => x.ActivityId == id && x.ReceivedTime.HasValue).Sum(x => x.Price);
-            ViewBag.Amount = DB.Briberies.Count(x => x.ActivityId == id && x.ReceivedTime.HasValue);
+            ViewBag.Price = DB.RedPockets.Where(x => x.ActivityId == id && x.ReceivedTime.HasValue).Sum(x => x.Price);
+            ViewBag.Amount = DB.RedPockets.Count(x => x.ActivityId == id && x.ReceivedTime.HasValue);
             ViewBag.Coupons = DB.Coupons.Where(x => coupons.Contains(x.Id)).ToDictionary(x => x.Id, x => x.Title);
-            ViewBag.Briberies = DB.Briberies
+            ViewBag.Briberies = DB.RedPockets
                 .Where(x => x.ActivityId == id && x.ReceivedTime.HasValue)
                 .OrderByDescending(x => x.ReceivedTime)
                 .ToList();
             return View(act);
         }
 
+        /// <summary>
+        /// 处理强制终止红包活动请求
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="Cache"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Stop(long id, [FromServices] IDistributedCache Cache)
@@ -433,6 +497,12 @@ namespace RedPocketCloud.Controllers
             return RedirectToAction("Activity", "RedPocket", new { id = id });
         }
 
+        /// <summary>
+        /// Ajax获取参与人数
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="Cache"></param>
+        /// <returns></returns>
         public string AttendCount(long id, [FromServices] IDistributedCache Cache)
         {
             return DB.Activities.Single(x => x.Id == id).Attend.ToString();

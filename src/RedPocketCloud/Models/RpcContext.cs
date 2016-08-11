@@ -19,7 +19,7 @@ namespace RedPocketCloud.Models
 
         public DbSet<Activity> Activities { get; set; }
 
-        public DbSet<Bribery> Briberies { get; set; }
+        public DbSet<RedPocket> RedPockets { get; set; }
 
         public DbSet<PayLog> PayLogs { get; set; }
 
@@ -35,7 +35,7 @@ namespace RedPocketCloud.Models
 
             builder.SetupBlobStorage<Blob, long>();
 
-            builder.Entity<Bribery>(e =>
+            builder.Entity<RedPocket>(e =>
             {
                 e.HasIndex(x => x.ReceivedTime);
                 e.HasIndex(x => x.Price);
@@ -46,7 +46,7 @@ namespace RedPocketCloud.Models
             {
                 e.HasIndex(x => x.Price);
                 e.HasIndex(x => x.Time);
-                e.HasIndex(x => x.UserId);
+                e.HasIndex(x => x.MerchantId);
             });
 
             builder.Entity<Activity>(e =>
@@ -58,7 +58,7 @@ namespace RedPocketCloud.Models
                 e.HasIndex(x => x.IsBegin);
             });
 
-            builder.Entity<Bribery>(e =>
+            builder.Entity<RedPocket>(e =>
             {
                 e.HasIndex(x => x.ReceivedTime);
                 e.HasIndex(x => x.ActivityId);

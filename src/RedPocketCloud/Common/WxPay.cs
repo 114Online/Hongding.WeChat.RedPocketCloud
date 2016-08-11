@@ -39,7 +39,7 @@ namespace RedPocketCloud.Common
             }
         }
 
-        public static async Task<bool> TransferMoneyAsync(Guid DeliverId, string OpenId, long Price, string Description)
+        public static async Task<bool> TransferMoneyAsync(long DeliverId, string OpenId, long Price, string Description)
         {
             var nounce = Guid.NewGuid().ToString().Replace("-", "");
             var requestUrl = "";

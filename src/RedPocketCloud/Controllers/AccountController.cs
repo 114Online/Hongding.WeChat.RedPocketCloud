@@ -10,10 +10,20 @@ namespace RedPocketCloud.Controllers
     [Authorize]
     public class AccountController : BaseController
     {
+        /// <summary>
+        /// 展示登录界面
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         [AllowAnonymous]
         public IActionResult Login() => View();
 
+        /// <summary>
+        /// 处理登录请求
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
@@ -26,6 +36,10 @@ namespace RedPocketCloud.Controllers
                 return RedirectToAction("Login", "Account");
         }
 
+        /// <summary>
+        /// 注销登录
+        /// </summary>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SignOut()
@@ -34,9 +48,20 @@ namespace RedPocketCloud.Controllers
             return RedirectToAction("Index", "Home");
         }
 
+        /// <summary>
+        /// 展示修改密码界面
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public IActionResult Password() => View();
 
+        /// <summary>
+        /// 处理修改密码请求
+        /// </summary>
+        /// <param name="old"></param>
+        /// <param name="new"></param>
+        /// <param name="confirm"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Password(string old, string @new, string confirm)
@@ -62,18 +87,22 @@ namespace RedPocketCloud.Controllers
                 });
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Logout()
-        {
-            await SignInManager.SignOutAsync();
-            return RedirectToAction("Login", "Account");
-        }
-
+        /// <summary>
+        /// 展示创建商户界面
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         [Authorize(Roles = "Root")]
         public IActionResult Create() => View();
 
+        /// <summary>
+        /// 处理创建商户请求
+        /// </summary>
+        /// <param name="balance"></param>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <param name="role"></param>
+        /// <returns></returns>
         [HttpPost]
         [Authorize(Roles = "Root")]
         [ValidateAntiForgeryToken]
@@ -86,10 +115,10 @@ namespace RedPocketCloud.Controllers
             {
                 DB.PayLogs.Add(new PayLog
                 {
-                    Current = balance,
+                    Balance = balance,
                     Price = balance,
                     Time = DateTime.Now,
-                    UserId = user.Id
+                    MerchantId = user.Id
                 });
                 DB.SaveChanges();
             }
@@ -100,6 +129,10 @@ namespace RedPocketCloud.Controllers
             });
         }
 
+        /// <summary>
+        /// 展示商户列表
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         [Authorize(Roles = "Root")]
         public IActionResult Index()
@@ -108,6 +141,11 @@ namespace RedPocketCloud.Controllers
             return View(ret);
         }
 
+        /// <summary>
+        /// 展示充值界面
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet]
         [Authorize(Roles = "Root")]
         public async Task<IActionResult> Charge(string id)
@@ -116,6 +154,12 @@ namespace RedPocketCloud.Controllers
             return View(user);
         }
 
+        /// <summary>
+        /// 处理为商户充值的请求
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="price"></param>
+        /// <returns></returns>
         [HttpPost]
         [Authorize(Roles = "Root")]
         [ValidateAntiForgeryToken]
@@ -125,7 +169,7 @@ namespace RedPocketCloud.Controllers
             lock (this)
             {
                 user.Balance += price;
-                DB.PayLogs.Add(new PayLog { UserId = User.Current.Id, Price = price, Time = DateTime.Now, Current = user.Balance });
+                DB.PayLogs.Add(new PayLog { MerchantId = User.Current.Id, Price = price, Time = DateTime.Now, Balance = user.Balance });
                 DB.SaveChanges();
             }
             return Prompt(x =>
@@ -135,7 +179,11 @@ namespace RedPocketCloud.Controllers
             });
         }
 
-
+        /// <summary>
+        /// 展示强制修改密码界面
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet]
         [Authorize(Roles = "Root")]
         public async Task<IActionResult> ResetPwd(string id)
@@ -144,6 +192,12 @@ namespace RedPocketCloud.Controllers
             return View(user);
         }
 
+        /// <summary>
+        /// 处理强制修改密码请求
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="pwd"></param>
+        /// <returns></returns>
         [HttpPost]
         [Authorize(Roles = "Root")]
         [ValidateAntiForgeryToken]
@@ -159,9 +213,11 @@ namespace RedPocketCloud.Controllers
             });
         }
 
-        [HttpGet]
-        public IActionResult Pay() => View();
-
+        /// <summary>
+        /// 处理设置红包每日上限请求
+        /// </summary>
+        /// <param name="limit"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Limit(int limit)

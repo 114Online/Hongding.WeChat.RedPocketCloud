@@ -6,6 +6,10 @@ namespace RedPocketCloud.Controllers
 {
     public class TestController : Controller
     {
+        /// <summary>
+        /// 伪造微信授权信息以便测试
+        /// </summary>
+        /// <returns></returns>
         public IActionResult Test()
         {
             HttpContext.Session.SetString("OpenId", "oHriRjg5tgcRD5f0jM7la5BMsC18");

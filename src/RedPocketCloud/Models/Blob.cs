@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Pomelo.AspNetCore.Extensions.BlobStorage.Models;
+﻿using Pomelo.AspNetCore.Extensions.BlobStorage.Models;
 
 namespace RedPocketCloud.Models
 {
+    /// <summary>
+    /// 二进制文件存储实体
+    /// </summary>
     public class Blob : Blob<long>
     {
     }

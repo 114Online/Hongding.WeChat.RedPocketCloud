@@ -13,6 +13,10 @@ namespace RedPocketCloud.Controllers
     [Authorize]
     public class CouponController : BaseController
     {
+        /// <summary>
+        /// 展示优惠券列表界面
+        /// </summary>
+        /// <returns></returns>
         public IActionResult Index()
         {
             IQueryable<Coupon> query = DB.Coupons;
@@ -40,9 +44,20 @@ namespace RedPocketCloud.Controllers
             }
         }
 
+        /// <summary>
+        /// 展示创建优惠券界面
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public IActionResult Add() => View();
 
+        /// <summary>
+        /// 处理创建优惠券请求
+        /// </summary>
+        /// <param name="Model"></param>
+        /// <param name="coupon"></param>
+        /// <param name="icon"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Add(Coupon Model, IFormFile coupon, IFormFile icon)
@@ -86,6 +101,11 @@ namespace RedPocketCloud.Controllers
             });
         }
 
+        /// <summary>
+        /// 展示编辑优惠券界面
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet]
         public IActionResult Edit(long id)
         {
@@ -99,6 +119,14 @@ namespace RedPocketCloud.Controllers
             return View(coupon);
         }
 
+        /// <summary>
+        /// 处理编辑优惠券请求
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="Model"></param>
+        /// <param name="coup"></param>
+        /// <param name="icon"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Edit(long id, Coupon Model, IFormFile coup, IFormFile icon)
@@ -139,9 +167,18 @@ namespace RedPocketCloud.Controllers
             });
         }
 
+        /// <summary>
+        /// Ajax返回备选优惠券
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public IActionResult CouponSelect() => View(DB.Coupons.Where(x => x.UserId == User.Current.Id).ToList());
 
+        /// <summary>
+        /// 处理删除优惠券请求
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Delete(int id)
@@ -155,6 +192,9 @@ namespace RedPocketCloud.Controllers
                     x.Title = "删除失败";
                     x.Details = "没有找到相关优惠券！";
                 });
+            DB.Wallets
+                .Where(x => x.CouponId == id)
+                .Delete();
             return Prompt(x =>
             {
                 x.Title = "删除成功";

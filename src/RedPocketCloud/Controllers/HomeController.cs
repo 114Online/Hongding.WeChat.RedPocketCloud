@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.EntityFrameworkCore;
 
 namespace RedPocketCloud.Controllers
 {
     [Authorize]
     public class HomeController : BaseController
     {
-        // GET: /<controller>/
+        /// <summary>
+        /// 展示仪表盘界面
+        /// </summary>
+        /// <returns></returns>
         public IActionResult Index()
         {
             // General informations
@@ -19,7 +20,7 @@ namespace RedPocketCloud.Controllers
             var cnt = DB.Activities
                 .Count(x => x.MerchantId == User.Current.Id && x.Begin >= beg);
             ViewBag.ActivityCount = cnt;
-            ViewBag.TemplateCount = DB.Templates.Count(x => x.UserId == User.Current.Id);
+            ViewBag.TemplateCount = DB.Templates.Count(x => x.MerchantId == User.Current.Id);
 
             // Money statistics
             var labels = new List<string>();
@@ -29,13 +30,13 @@ namespace RedPocketCloud.Controllers
             {
                 labels.Add(i.ToString("HH:mm"));
                 var pl = DB.PayLogs
-                    .Where(x => x.UserId == User.Current.Id)
+                    .Where(x => x.MerchantId == User.Current.Id)
                     .Where(x => x.Time <= i)
                     .LastOrDefault();
                 if (pl == null)
-                    money.Add(User.Current.Balance - DB.PayLogs.Where(x => x.UserId == User.Current.Id).Sum(x => x.Price));
+                    money.Add(User.Current.Balance - DB.PayLogs.Where(x => x.MerchantId == User.Current.Id).Sum(x => x.Price));
                 else
-                    money.Add(pl.Current);
+                    money.Add(pl.Balance);
             }
             ViewBag.MoneyHeight = Convert.ToInt64(money.Max()) + 100;
             ViewBag.MoneyGraphicJson = Newtonsoft.Json.JsonConvert.SerializeObject(new { labels = labels, series = new object[] { money } });
@@ -48,7 +49,7 @@ namespace RedPocketCloud.Controllers
             var ownedActivityIds = ownedActivities
                 .Select(x => x.Key)
                 .ToList();
-            var _activities = DB.Briberies
+            var _activities = DB.RedPockets
                 .Where(x => ownedActivityIds.Contains(x.ActivityId))
                 .GroupBy(x => x.ActivityId)
                 .Select(x => new { Id = x.Key, Money = x.Sum(y => y.Price) })

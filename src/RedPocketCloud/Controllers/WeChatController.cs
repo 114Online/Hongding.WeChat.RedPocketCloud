@@ -25,8 +25,17 @@ namespace RedPocketCloud.Controllers
     public class WeChatController : BaseController
     {
         #region Infrastructures
+        /// <summary>
+        /// 请求数
+        /// </summary>
         private long RequestCount = 0;
 
+        /// <summary>
+        /// 计算回调路径
+        /// </summary>
+        /// <param name="Merchant"></param>
+        /// <param name="Operation"></param>
+        /// <returns></returns>
         private string OperationToRoute(string Merchant, Operation Operation)
         {
             var prefix = HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + "/WeChat/";
@@ -44,18 +53,38 @@ namespace RedPocketCloud.Controllers
             }
         }
 
+        /// <summary>
+        /// 判断是否需要微信授权
+        /// </summary>
         private bool NeedAuthorize => string.IsNullOrWhiteSpace(HttpContext.Session.GetString("OpenId")) || Convert.ToDateTime(HttpContext.Session.GetString("Expire")) <= DateTime.Now;
 
+        /// <summary>
+        /// 跳转至入口点
+        /// </summary>
+        /// <returns></returns>
         [NonAction]
         private IActionResult RedirectToEntry() => RedirectToAction("Entry", "WeChat", new { Merchant = RouteData.Values["Merchant"].ToString(), Operation = Enum.Parse(typeof(Operation), HttpContext.Request.Query["Operation"].ToString()) });
 
+        /// <summary>
+        /// 跳转至入口点
+        /// </summary>
+        /// <param name="operation"></param>
+        /// <returns></returns>
         [NonAction]
         private IActionResult RedirectToEntry(Operation operation) => RedirectToAction("Entry", "WeChat", new { Merchant = RouteData.Values["Merchant"].ToString(), Operation = operation });
 
+        /// <summary>
+        /// 检查活动是否已经结束
+        /// </summary>
+        /// <param name="activity_id"></param>
+        /// <param name="Merchant"></param>
+        /// <param name="Cache"></param>
+        /// <param name="Hub"></param>
+        /// <returns></returns>
         [NonAction]
         private async Task<bool> CheckActivityEnd(long activity_id, string Merchant, IDistributedCache Cache, IHubContext<RedPocketHub> Hub)
         {
-            if (DB.Briberies.Count(x => x.ActivityId == activity_id && !x.ReceivedTime.HasValue) == 0) // 没有红包了
+            if (DB.RedPockets.Count(x => x.ActivityId == activity_id && !x.ReceivedTime.HasValue) == 0) // 没有红包了
             {
                 DB.Activities
                     .Where(x => x.Id == activity_id)
@@ -77,6 +106,12 @@ namespace RedPocketCloud.Controllers
             return false;
         }
 
+        /// <summary>
+        /// 获取红包活动页面模板缓存
+        /// </summary>
+        /// <param name="Merchant"></param>
+        /// <param name="Cache"></param>
+        /// <returns></returns>
         [NonAction]
         private TemplateViewModel GetTemplateCache(string Merchant, IDistributedCache Cache)
         {
@@ -122,6 +157,12 @@ namespace RedPocketCloud.Controllers
         }
         #endregion
 
+        /// <summary>
+        /// 处理微信入口请求
+        /// </summary>
+        /// <param name="Merchant"></param>
+        /// <param name="Operation"></param>
+        /// <returns></returns>
         [HttpGet]
         [Route("[controller]/Entry/{Merchant}/{Operation}")]
         public IActionResult Entry(string Merchant, Operation Operation)
@@ -132,6 +173,13 @@ namespace RedPocketCloud.Controllers
                 return Redirect(OperationToRoute(Merchant, Operation));
         }
 
+        /// <summary>
+        /// 处理微信授权回调
+        /// </summary>
+        /// <param name="Merchant"></param>
+        /// <param name="code"></param>
+        /// <param name="next"></param>
+        /// <returns></returns>
         [HttpGet]
         [Route("[controller]/CallBack/{Merchant}")]
         public async Task<IActionResult> CallBack(string Merchant, string code, string next)
@@ -152,6 +200,12 @@ namespace RedPocketCloud.Controllers
             }
         }
 
+        /// <summary>
+        /// 展示红包活动页面
+        /// </summary>
+        /// <param name="Merchant"></param>
+        /// <param name="Cache"></param>
+        /// <returns></returns>
         [HttpGet]
         [Route("[controller]/RedPocket/{Merchant}")]
         public IActionResult RedPocket(string Merchant, [FromServices] IDistributedCache Cache)
@@ -165,6 +219,13 @@ namespace RedPocketCloud.Controllers
                 return View("Shoop", ret);
         }
 
+        /// <summary>
+        /// 处理抽红包请求
+        /// </summary>
+        /// <param name="Merchant"></param>
+        /// <param name="Hub"></param>
+        /// <param name="Cache"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("[controller]/Drawn/{Merchant}")]
         public async Task<IActionResult> Drawn(string Merchant, [FromServices] IHubContext<RedPocketHub> Hub, [FromServices] IDistributedCache Cache)
@@ -239,7 +300,7 @@ namespace RedPocketCloud.Controllers
             var num = rand.Next(0, 10000);
             if (num < ratio.Value * 10000)
             {
-                var prize = DB.Briberies
+                var prize = DB.RedPockets
                     .Where(x => x.ActivityId == activityId.Value && !x.ReceivedTime.HasValue)
                     .OrderBy(x => Guid.NewGuid())
                     .FirstOrDefault();
@@ -346,6 +407,10 @@ namespace RedPocketCloud.Controllers
             return Content("RETRY");
         }
 
+        /// <summary>
+        /// 展示中奖次数超出上限界面
+        /// </summary>
+        /// <returns></returns>
         public IActionResult Exceeded() => View();
     }
 }
