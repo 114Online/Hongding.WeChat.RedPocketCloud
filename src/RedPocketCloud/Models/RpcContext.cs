@@ -35,13 +35,6 @@ namespace RedPocketCloud.Models
 
             builder.SetupBlobStorage<Blob, long>();
 
-            builder.Entity<RedPocket>(e =>
-            {
-                e.HasIndex(x => x.ReceivedTime);
-                e.HasIndex(x => x.Price);
-                e.HasIndex(x => x.ActivityId);
-            });
-
             builder.Entity<PayLog>(e =>
             {
                 e.HasIndex(x => x.Price);
@@ -56,6 +49,7 @@ namespace RedPocketCloud.Models
                 e.HasIndex(x => x.End);
                 e.HasIndex(x => x.MerchantId);
                 e.HasIndex(x => x.IsBegin);
+                e.HasIndex(x => x.Attend);
             });
 
             builder.Entity<RedPocket>(e =>
@@ -68,13 +62,13 @@ namespace RedPocketCloud.Models
 
             builder.Entity<Wallet>(e => 
             {
-                e.HasIndex(x => x.OpenId).IsUnique();
+                e.HasIndex(x => x.OpenId);
                 e.HasIndex(x => x.MerchantId);
             });
 
             builder.Entity<Coupon>(e =>
             {
-                e.HasIndex(x => x.UserId);
+                e.HasIndex(x => x.MerchantId);
             });
         }
     }

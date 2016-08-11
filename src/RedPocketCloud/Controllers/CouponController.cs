@@ -22,7 +22,7 @@ namespace RedPocketCloud.Controllers
             IQueryable<Coupon> query = DB.Coupons;
             if (User.IsInRole("Root"))
             {
-                var ret = query.Join(DB.Users, x => x.UserId, x => x.Id, (x, y) => new CouponViewModel
+                var ret = query.Join(DB.Users, x => x.MerchantId, x => x.Id, (x, y) => new CouponViewModel
                 {
                     Title = x.Title,
                     Description = x.Description,
@@ -38,7 +38,7 @@ namespace RedPocketCloud.Controllers
             else
             {
                 query = query
-                    .Where(x => x.UserId == User.Current.Id)
+                    .Where(x => x.MerchantId == User.Current.Id)
                     .OrderBy(x => x.Id);
                 return PagedView(query.OrderByDescending(x => x.Id));
             }
@@ -91,7 +91,7 @@ namespace RedPocketCloud.Controllers
 
             Model.ImageId = _coupon.Id;
             Model.ProviderImageId = _icon.Id;
-            Model.UserId = User.Current.Id;
+            Model.MerchantId = User.Current.Id;
             DB.Coupons.Add(Model);
             DB.SaveChanges();
             return Prompt(x =>
@@ -110,7 +110,7 @@ namespace RedPocketCloud.Controllers
         public IActionResult Edit(long id)
         {
             var coupon = DB.Coupons.SingleOrDefault(x => x.Id == id);
-            if (!User.IsInRole("Root") && coupon.UserId != User.Current.Id || coupon == null)
+            if (!User.IsInRole("Root") && coupon.MerchantId != User.Current.Id || coupon == null)
                 return Prompt(x =>
                 {
                     x.Title = "没有找到优惠券";
@@ -132,7 +132,7 @@ namespace RedPocketCloud.Controllers
         public IActionResult Edit(long id, Coupon Model, IFormFile coup, IFormFile icon)
         {
             var coupon = DB.Coupons.SingleOrDefault(x => x.Id == id);
-            if (!User.IsInRole("Root") && coupon.UserId != User.Current.Id || coupon == null)
+            if (!User.IsInRole("Root") && coupon.MerchantId != User.Current.Id || coupon == null)
                 return Prompt(x =>
                 {
                     x.Title = "没有找到优惠券";
@@ -172,7 +172,7 @@ namespace RedPocketCloud.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public IActionResult CouponSelect() => View(DB.Coupons.Where(x => x.UserId == User.Current.Id).ToList());
+        public IActionResult CouponSelect() => View(DB.Coupons.Where(x => x.MerchantId == User.Current.Id).ToList());
 
         /// <summary>
         /// 处理删除优惠券请求
@@ -185,7 +185,7 @@ namespace RedPocketCloud.Controllers
         {
             var query = DB.Coupons.Where(x => x.Id == id);
             if (!User.IsInRole("Root"))
-                query = query.Where(x => x.UserId == User.Current.Id);
+                query = query.Where(x => x.MerchantId == User.Current.Id);
             if (query.Delete() == 0)
                 return Prompt(x => 
                 {
