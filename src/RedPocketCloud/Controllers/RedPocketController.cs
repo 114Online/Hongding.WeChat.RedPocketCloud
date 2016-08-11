@@ -375,11 +375,9 @@ namespace RedPocketCloud.Controllers
                     Undrawn = x.UndrawnId
                 })
                 .Single();
-            var json = Newtonsoft.Json.JsonConvert.SerializeObject(template);
-            Cache.SetString("MERCHANT_CURRENT_ACTIVITY_" + User.Current.UserName, act.Id.ToString());
-            Cache.SetString("MERCHANT_CURRENT_ACTIVITY_TEMPLATE_" + User.Current.UserName, json);
-            Cache.SetString("MERCHANT_CURRENT_ACTIVITY_RATIO_" + User.Current.UserName, act.Ratio.ToString());
-            Cache.SetString("MERCHANT_CURRENT_ACTIVITY_ATTEND_" + User.Current.UserName, 0.ToString());
+            Cache.SetObject("MERCHANT_CURRENT_ACTIVITY_" + User.Current.UserName, act.Id);
+            Cache.SetObject("MERCHANT_CURRENT_ACTIVITY_TEMPLATE_" + User.Current.UserName, template);
+            Cache.SetObject("MERCHANT_CURRENT_ACTIVITY_RATIO_" + User.Current.UserName, act.Ratio);
 
             // 计算红包统计
             act.Price = DB.Briberies.Where(x => x.ActivityId == act.Id).Sum(x => x.Price);

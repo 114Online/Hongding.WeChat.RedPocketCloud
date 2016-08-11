@@ -65,7 +65,7 @@ function Shake()
                     if (obj.Type != 1)
                         ShowDrawn(obj.Display);
                     else
-                        ShowDrawn("点击打开", obj.Url);
+                        ShowDrawn("点击打开", obj.display);
                 }
             });
         }, 610);
@@ -99,12 +99,7 @@ function ShowDrawn(txt, url) {
     $('.drawn').addClass('showing');
     $('.drawn-text').text(txt);
     if (!url)
-    {
         $('.drawn-text').attr('href', '#');
-    }
     else
-    {
         $('.drawn-text').attr('href', url);
-        $('.drawn-text').text('点击拆开');
-    }
 }

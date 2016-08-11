@@ -57,7 +57,7 @@ function Shoop()
                         if (obj.type != 1)
                             ShowDrawn(obj.display);
                         else
-                            ShowDrawn("点击打开", obj.url);
+                            ShowDrawn("点击打开", obj.display);
                     }
                 });
             }, 600);
@@ -91,5 +91,8 @@ function ShowDrawn(txt, url) {
     $('.drawn-text').addClass('active');
     $('.drawn').addClass('showing');
     $('.drawn-text').text(txt);
-    $('.drawn-text').attr('href', '#');
+    if (!url)
+        $('.drawn-text').attr('href', '#');
+    else
+        $('.drawn-text').attr('href', url);
 }

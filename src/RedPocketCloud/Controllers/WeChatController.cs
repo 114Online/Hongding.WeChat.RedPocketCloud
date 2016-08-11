@@ -186,7 +186,7 @@ namespace RedPocketCloud.Controllers
             try
             {
                 var openIdCoolDown = await Cache.GetObjectAsync<DateTime?>("REDPOCKET_COOLDOWN_" + OpenId);
-                if (openIdCoolDown.HasValue && openIdCoolDown.Value >= DateTime.Now.AddSeconds(15))
+                if (openIdCoolDown.HasValue && openIdCoolDown.Value >= DateTime.Now.AddSeconds(-15))
                     return Content("RETRY");
             }
             catch
@@ -256,11 +256,14 @@ namespace RedPocketCloud.Controllers
                 DB.SaveChanges();
 
                 // 微信转账
-                await TransferMoneyAsync(prize.Id, HttpContext.Session.GetString("OpenId"), prize.Price, Startup.Config["WeChat:TransferDescription"]);
+                if (prize.Type == RedPocketType.Cash)
+                    await TransferMoneyAsync(prize.Id, HttpContext.Session.GetString("OpenId"), prize.Price, Startup.Config["WeChat:TransferDescription"]);
+
+                // 推送中奖消息
                 Hub.Clients.Group(prize.ActivityId.ToString()).OnDelivered(new { time = prize.ReceivedTime, avatar = HttpContext.Session.GetString("AvatarUrl"), name = HttpContext.Session.GetString("Nickname"), price = prize.Price, id = HttpContext.Session.GetString("OpenId") });
 
                 // 写入冷却时间
-                Cache.SetObjectAsync<DateTime>("REDPOCKET_COOLDOWN_" + OpenId, DateTime.Now);
+                Cache.SetObjectAsync("REDPOCKET_COOLDOWN_" + OpenId, DateTime.Now);
 
                 // 添加logs
                 if (logs.Count >= limit.Value)
