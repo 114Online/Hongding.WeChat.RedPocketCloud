@@ -14,6 +14,12 @@ namespace RedPocketCloud.Models
         public long Id { get; set; }
 
         /// <summary>
+        /// 校验码
+        /// </summary>
+        [MaxLength(20)]
+        public string VerifyCode { get; set; } = GenerateVerifyCode();
+
+        /// <summary>
         /// 所属商户ID
         /// </summary>
         public long MerchantId { get; set; }
@@ -38,5 +44,15 @@ namespace RedPocketCloud.Models
         /// </summary>
         [MaxLength(32)]
         public string OpenId { get; set; }
+
+        /// <summary>
+        /// 生成校验码
+        /// </summary>
+        /// <returns></returns>
+        private static string GenerateVerifyCode()
+        {
+            var rand = new Random();
+            return rand.Next(1000, 9999) + "-" + rand.Next(1000, 9999) + "-" + rand.Next(1000, 9999) + "-" + rand.Next(1000, 9999);
+        }
     }
 }

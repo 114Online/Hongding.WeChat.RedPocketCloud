@@ -210,8 +210,8 @@ namespace RedPocketCloud.Controllers
         [Route("[controller]/RedPocket/{Merchant}")]
         public IActionResult RedPocket(string Merchant, [FromServices] IDistributedCache Cache)
         {
-            //if (NeedAuthorize)
-            //    return RedirectToEntry(Operation.RedPocket);
+            if (NeedAuthorize)
+                return RedirectToEntry(Operation.RedPocket);
             var ret = GetTemplateCache(Merchant, Cache);
             if (ret.Type == TemplateType.Shake)
                 return View("Shake", ret);
@@ -413,5 +413,57 @@ namespace RedPocketCloud.Controllers
         /// </summary>
         /// <returns></returns>
         public IActionResult Exceeded() => View();
+
+        /// <summary>
+        /// 展示优惠券列表
+        /// </summary>
+        /// <param name="Merchant"></param>
+        /// <param name="Cache"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("[controller]/Wallet/{Merchant}")]
+        public IActionResult Wallet(string Merchant)
+        {
+            if (NeedAuthorize)
+                return RedirectToEntry(Operation.RedPocket);
+            var ret = DB.Wallets
+                .Where(x => x.OpenId == HttpContext.Session.GetString("OpenId"))
+                .OrderByDescending(x => x.Time)
+                .Join(DB.Coupons, x => x.CouponId, x => x.Id, (x,y) => new WalletViewModel
+                {
+                    Id = x.Id,
+                    ImageId = y.ImageId
+                })
+                .ToList();
+            return View(ret);
+        }
+
+        /// <summary>
+        /// 展示优惠券二维码
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public IActionResult Coupon(long id)
+        {
+            if (NeedAuthorize)
+                return RedirectToEntry(Operation.RedPocket);
+            var ret = DB.Wallets
+                .Where(x => x.Id == id && x.OpenId == HttpContext.Session.GetString("OpenId"))
+                .Join(DB.Coupons, x => x.CouponId, x => x.Id, (x, y) => new WalletViewModel
+                {
+                    Id = x.Id,
+                    Description = y.Description,
+                    ImageId = y.ImageId,
+                    VerifyCode = x.VerifyCode
+                })
+                .Single();
+            ViewBag.QrCode = Newtonsoft.Json.JsonConvert.SerializeObject(new CouponQrCodeViewModel
+            {
+                Id = ret.Id,
+                VerifyCode = ret.VerifyCode
+            });
+            return View(ret);
+        }
     }
 }

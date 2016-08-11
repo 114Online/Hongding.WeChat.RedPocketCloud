@@ -1,0 +1,23 @@
+﻿@model WalletViewModel
+@{
+    Layout = null;
+}
+
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的优惠券</title>
+    <script src="~/assets/js/jquery-1.10.2.js"></script>
+    <script src="~/assets/js/jquery.qrcode.js"></script>
+</head>
+<body style="background-color:#ebc836;padding:15px;">
+    <div style="background-color: #fff; margin: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.2); padding: 15px; border-radius: 15px;">
+        <div id="qrcode" style="width: 100%"></div>
+        <p style="color: #666">@Model.Description</p>
+    </div>
+    <script>
+        $('#qrcode').qrcode('@ViewBag.QrCode');
+    </script>
+</body>
+</html>

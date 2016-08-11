@@ -1,0 +1,24 @@
+﻿@model IEnumerable<WalletViewModel>
+@{ 
+    Layout = null;
+}
+
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的优惠券</title>
+</head>
+<body style="background-color:#ebc836;padding:15px;">
+    @if (Model.Count() == 0)
+    {
+        <p style="text-align:center;color:#df012e">您还没有获得任何优惠券</p>
+    }
+    @foreach(var x in Model)
+    {
+        <a asp-action="Coupon" asp-controller="WeChat" asp-route-id="@x.Id">
+            <img style="width: 100%; margin-bottom: 10px;" src="/file/download/@x.ImageId" />
+        </a>
+    }
+</body>
+</html>
