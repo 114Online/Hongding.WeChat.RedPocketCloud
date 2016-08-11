@@ -62,8 +62,7 @@ namespace RedPocketCloud.Controllers
                     .Where(x => x.IsBegin)
                     .SetField(x => x.End).WithValue(DateTime.Now)
                     .UpdateAsync();
-
-                Hub.Clients.Group(activity_id.ToString()).OnShaked(Convert.ToInt64(await Cache.GetStringAsync("MERCHANT_CURRENT_ACTIVITY_ATTEND_" + Merchant)));
+                
                 Hub.Clients.Group(activity_id.ToString()).OnActivityEnd();
 
                 // 清空缓存
@@ -81,8 +80,8 @@ namespace RedPocketCloud.Controllers
         [NonAction]
         private TemplateViewModel GetTemplateCache(string Merchant, IDistributedCache Cache)
         {
-            var json = Cache.GetString("MERCHANT_CURRENT_ACTIVITY_TEMPLATE_" + Merchant);
-            if (json == null)
+            var cache = Cache.GetObject<TemplateViewModel>("MERCHANT_CURRENT_ACTIVITY_TEMPLATE_" + Merchant);
+            if (cache == null)
             {
                 var uid = DB.Users
                     .Where(x => x.UserName == Merchant)
@@ -98,14 +97,12 @@ namespace RedPocketCloud.Controllers
                 // 如果没有找到活动
                 if (tid == default(long))
                 {
-                    var ret = new TemplateViewModel();
-                    json = Newtonsoft.Json.JsonConvert.SerializeObject(ret);
-                    Cache.SetString("MERCHANT_CURRENT_ACTIVITY_TEMPLATE_" + Merchant, json);
-                    return ret;
+                    cache = new TemplateViewModel();
+                    Cache.SetObject("MERCHANT_CURRENT_ACTIVITY_TEMPLATE_" + Merchant, cache);
                 }
                 else
                 {
-                    var ret = DB.Templates
+                    cache = DB.Templates
                         .Where(x => x.Id == tid)
                         .Select(x => new TemplateViewModel
                         {
@@ -118,15 +115,10 @@ namespace RedPocketCloud.Controllers
                             Undrawn = x.UndrawnId
                         })
                         .Single();
-                    json = Newtonsoft.Json.JsonConvert.SerializeObject(ret);
-                    Cache.SetString("MERCHANT_CURRENT_ACTIVITY_TEMPLATE_" + Merchant, json);
-                    return ret;
+                    Cache.SetObject("MERCHANT_CURRENT_ACTIVITY_TEMPLATE_" + Merchant, cache);
                 }
             }
-            else
-            {
-                return Newtonsoft.Json.JsonConvert.DeserializeObject<TemplateViewModel>(json);
-            }
+            return cache;
         }
         #endregion
 
@@ -191,10 +183,10 @@ namespace RedPocketCloud.Controllers
             var OpenId = HttpContext.Session.GetString("OpenId");
 
             // 微信平台要求15秒内不能给同一个用户再次发红包
-            var cooldown = DateTime.Now.AddSeconds(-15);
             try
             {
-                if (Convert.ToDateTime(await Cache.GetStringAsync("REDPOCKET_COOLDOWN_" + OpenId)) >= DateTime.Now.AddSeconds(15))
+                var openIdCoolDown = await Cache.GetObjectAsync<DateTime?>("REDPOCKET_COOLDOWN_" + OpenId);
+                if (openIdCoolDown.HasValue && openIdCoolDown.Value >= DateTime.Now.AddSeconds(15))
                     return Content("RETRY");
             }
             catch
@@ -203,71 +195,57 @@ namespace RedPocketCloud.Controllers
             }
 
             // 获取商户制定的每日上限
-            int limit;
-            var limit_str = await Cache.GetStringAsync("MERCHANT_LIMIT_" + Merchant);
-            if (limit_str == null)
+            var limit = await Cache.GetObjectAsync<int?>("MERCHANT_LIMIT_" + Merchant);
+            if (!limit.HasValue)
             {
                 limit = DB.Users
                     .Where(x => x.UserName == Merchant)
                     .Select(x => x.Limit)
                     .Single();
-                await Cache.SetStringAsync("MERCHANT_LIMIT_" + Merchant, limit.ToString());
-            }
-            else
-            {
-                limit = Convert.ToInt32(limit_str);
+                await Cache.SetObjectAsync("MERCHANT_LIMIT_" + Merchant, limit);
             }
 
             // 判断是否中奖超过每日最大次数
             var beg = DateTime.Now.Date;
-            var logs_str = await Cache.GetStringAsync("REDPOCKET_LOGS_" + OpenId);
-            if (logs_str == null)
+            var logs = await Cache.GetObjectAsync<List<DateTime>>("REDPOCKET_LOGS_" + OpenId);
+            if (logs == null)
             {
-                await Cache.SetStringAsync("REDPOCKET_LOGS_" + OpenId, "[]");
-                logs_str = "[]";
+                logs = new List<DateTime>();
+                await Cache.SetObjectAsync("REDPOCKET_LOGS_" + OpenId, logs);
             }
-            var logs = Newtonsoft.Json.JsonConvert.DeserializeObject<List<DateTime>>(logs_str);
 
-            if (logs.Count > limit)
+            if (logs.Count > limit.Value)
                 return Content("EXCEEDED");
 
-            // 获取活动信息
-            var activity_id_str = await Cache.GetStringAsync("MERCHANT_CURRENT_ACTIVITY_" + Merchant);
-            if (activity_id_str == null)
-            {
+            // 获取活动ID
+            var activityId = await Cache.GetObjectAsync<long?>("MERCHANT_CURRENT_ACTIVITY_" + Merchant);
+            if (activityId == null)
                 return Content("NO");
-            }
-            var activity_id = Convert.ToInt64(activity_id_str);
 
             // 参与人数缓存
             DB.Activities
-                .Where(x => x.Id == activity_id)
+                .Where(x => x.Id == activityId.Value)
                 .SetField(x => x.Attend).Plus(1)
                 .UpdateAsync();
 
             // 抽奖
-            var ratio_str = await Cache.GetStringAsync("MERCHANT_CURRENT_ACTIVITY_RATIO_" + Merchant);
-            double ratio;
-            if (ratio_str == null)
+            var ratio = await Cache.GetObjectAsync<double?>("MERCHANT_CURRENT_ACTIVITY_RATIO_" + Merchant);
+            if (ratio == null)
             {
-                ratio = DB.Activities.Single(x => x.Id == activity_id).Ratio;
-                Cache.SetStringAsync("MERCHANT_CURRENT_ACTIVITY_RATIO_" + Merchant, ratio.ToString());
-            }
-            else
-            {
-                ratio = Convert.ToDouble(ratio_str);
+                ratio = DB.Activities.Single(x => x.Id == activityId.Value).Ratio;
+                Cache.SetObjectAsync("MERCHANT_CURRENT_ACTIVITY_RATIO_" + Merchant, ratio);
             }
             var rand = new Random();
             var num = rand.Next(0, 10000);
-            if (num < ratio * 10000)
+            if (num < ratio.Value * 10000)
             {
                 var prize = DB.Briberies
-                    .Where(x => x.ActivityId == activity_id && !x.ReceivedTime.HasValue)
+                    .Where(x => x.ActivityId == activityId.Value && !x.ReceivedTime.HasValue)
                     .OrderBy(x => Guid.NewGuid())
                     .FirstOrDefault();
 
                 // 检查剩余红包数量
-                if (prize == null && !await CheckActivityEnd(activity_id, Merchant, Cache, Hub))
+                if (prize == null && !await CheckActivityEnd(activityId.Value, Merchant, Cache, Hub))
                     return Content("RETRY");
 
                 // 中奖发放红包
@@ -281,16 +259,19 @@ namespace RedPocketCloud.Controllers
                 await TransferMoneyAsync(prize.Id, HttpContext.Session.GetString("OpenId"), prize.Price, Startup.Config["WeChat:TransferDescription"]);
                 Hub.Clients.Group(prize.ActivityId.ToString()).OnDelivered(new { time = prize.ReceivedTime, avatar = HttpContext.Session.GetString("AvatarUrl"), name = HttpContext.Session.GetString("Nickname"), price = prize.Price, id = HttpContext.Session.GetString("OpenId") });
 
+                // 写入冷却时间
+                Cache.SetObjectAsync<DateTime>("REDPOCKET_COOLDOWN_" + OpenId, DateTime.Now);
+
                 // 添加logs
-                if (logs.Count >= limit)
-                    logs.RemoveRange(0, logs.Count - limit + 1);
+                if (logs.Count >= limit.Value)
+                    logs.RemoveRange(0, logs.Count - limit.Value + 1);
                 logs.Add(DateTime.Now);
-                Cache.SetStringAsync("REDPOCKET_LOGS_" + OpenId, Newtonsoft.Json.JsonConvert.SerializeObject(logs));
+                Cache.SetObjectAsync("REDPOCKET_LOGS_" + OpenId, logs);
 
                 try
                 {
                     // 检查剩余红包数
-                    await CheckActivityEnd(activity_id, Merchant, Cache, Hub);
+                    await CheckActivityEnd(activityId.Value, Merchant, Cache, Hub);
                 }
                 catch { }
 
@@ -305,7 +286,6 @@ namespace RedPocketCloud.Controllers
                     return Json(new { Type = prize.Type, Display = (prize.Price / 100).ToString("0.00") + "元" });
                 else if (prize.Type == Models.RedPocketType.Coupon)
                 {
-                    // TODO: Cache the coupons
                     var coupon = await Cache.GetStringAsync("COUPON_" + prize.CouponId);
                     if (coupon == null)
                     {
