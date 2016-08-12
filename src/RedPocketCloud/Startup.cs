@@ -37,9 +37,9 @@ namespace RedPocketCloud
                 x.InstanceName = "REDPOCKET_INSTANCE_";
                 x.Configuration = Config["Host:Redis"];
             });
-            services.AddSession(o =>
+            services.AddSession(x =>
             {
-                o.IdleTimeout = new TimeSpan(0, 20, 0);
+                x.IdleTimeout = new TimeSpan(0, 20, 0);
             });
             services.AddLogging();
             if (Config["Host:Mode"] == "MySQL")
@@ -79,7 +79,7 @@ namespace RedPocketCloud
             app.UseDeveloperExceptionPage();
             app.UseMvcWithDefaultRoute();
 
-            await SampleData.InitDB(app.ApplicationServices);
+            //await SampleData.InitDB(app.ApplicationServices);
         }
     }
 }

@@ -38,7 +38,7 @@ namespace RedPocketCloud.Controllers
             query = query.OrderByDescending(x => x.Begin);
             if (User.IsInRole("Root"))
             {
-                var ret = query.Join(DB.Users, x => x.MerchantId, x => x.Id, (x,y)=>new ActivityViewModel
+                var ret = query.Join(DB.Users, x => x.MerchantId, x => x.Id, (x, y) => new ActivityViewModel
                 {
                     Begin = x.Begin,
                     BriberiesCount = x.BriberiesCount,
@@ -73,7 +73,7 @@ namespace RedPocketCloud.Controllers
         /// <returns></returns>
         [HttpGet]
         public IActionResult Deliver() => View(DB.Templates.Where(x => x.MerchantId == User.Current.Id).ToList());
-        
+
         /// <summary>
         /// 展示红包活动页面模板列表界面
         /// </summary>
@@ -390,9 +390,9 @@ namespace RedPocketCloud.Controllers
                 }
             }
             // 创建Url红包
-            foreach(var x in rules.Object.Where(x => x.Type == RedPocketType.Url))
+            foreach (var x in rules.Object.Where(x => x.Type == RedPocketType.Url))
             {
-                for(var i = 0; i < x.Count; i++)
+                for (var i = 0; i < x.Count; i++)
                 {
                     DB.RedPockets.Add(new RedPocket
                     {
@@ -506,6 +506,29 @@ namespace RedPocketCloud.Controllers
         public string AttendCount(long id, [FromServices] IDistributedCache Cache)
         {
             return DB.Activities.Single(x => x.Id == id).Attend.ToString();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult RemoveTemplate(long id, [FromServices] IDistributedCache Cache)
+        {
+            var template = DB.Templates.Single(x => x.Id == id);
+            if (!User.IsInRole("Root") && template.MerchantId != User.Current.Id)
+            {
+                return Prompt(x =>
+                {
+                    x.Title = "操作失败";
+                    x.Details = "没有找到相关的红包页面模板";
+                    x.StatusCode = 404;
+                });
+            }
+            DB.Templates.Remove(template);
+            DB.SaveChanges();
+            return Prompt(x =>
+            {
+                x.Title = "操作成功";
+                x.Details = "红包页面模板已经成功删除";
+            });
         }
     }
 }

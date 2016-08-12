@@ -194,7 +194,7 @@ namespace RedPocketCloud.Controllers
                 HttpContext.Session.SetString("AvatarUrl", oid.AvatarUrl);
                 return Redirect(next);
             }
-            catch
+            catch (Exception ex)
             {
                 return RedirectToEntry(Operation.RedPocket);
             }

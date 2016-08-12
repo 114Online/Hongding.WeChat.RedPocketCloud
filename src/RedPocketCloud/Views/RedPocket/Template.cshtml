@@ -41,6 +41,14 @@
     </div>
 </div>
 
+<form asp-action="RemoveTemplate" asp-controller="RedPocket" id="frmRemoveTemplate">
+    <input type="hidden" name="id" id="templateId" />
+</form>
+
 <script>
-    // TODO: Remove template
+    function Delete(id)
+    {
+        $('#templateId').val(id);
+        $('#frmRemoveTemplate').submit();
+    }
 </script>

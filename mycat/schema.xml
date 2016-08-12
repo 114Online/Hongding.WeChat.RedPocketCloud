@@ -3,21 +3,21 @@
 <mycat:schema xmlns:mycat="http://org.opencloudb/" >
 
   <schema name="wechat" checkSQLschema="false" sqlMaxLimit="100">
-    <table name="blobs" dataNode="dn1,dn2,dn3,dn4" rule="rule1" primaryKey="Id" autoIncrement="true" />
-    <table name="briberies" dataNode="dn1,dn2,dn3,dn4" rule="rule1" primaryKey="Id" autoIncrement="true" />
-    <table name="coupons" dataNode="dn1,dn2,dn3,dn4" rule="rule1" primaryKey="Id" autoIncrement="true" />
-    <table name="paylogs" dataNode="dn1,dn2,dn3,dn4" rule="rule1" primaryKey="Id" autoIncrement="true" />
-    <table name="templates" dataNode="dn1,dn2,dn3,dn4" rule="rule1" primaryKey="Id" autoIncrement="true" />
-    <table name="wallets" dataNode="dn1,dn2,dn3,dn4" rule="rule1" primaryKey="Id" autoIncrement="true" />
-    <table name="activities" dataNode="dn1,dn2,dn3,dn4" rule="rule1" primaryKey="Id" autoIncrement="true" />
+    <table name="Blobs" dataNode="dn1,dn2,dn3,dn4" rule="rule1" primaryKey="Id" autoIncrement="true" />
+    <table name="RedPockets" dataNode="dn1,dn2,dn3,dn4" rule="rule1" primaryKey="Id" autoIncrement="true" />
+    <table name="Coupons" dataNode="dn1,dn2,dn3,dn4" rule="rule1" primaryKey="Id" autoIncrement="true" />
+    <table name="PayLogs" dataNode="dn1,dn2,dn3,dn4" rule="rule1" primaryKey="Id" autoIncrement="true" />
+    <table name="Templates" dataNode="dn1,dn2,dn3,dn4" rule="rule1" primaryKey="Id" autoIncrement="true" />
+    <table name="Wallets" dataNode="dn1,dn2,dn3,dn4" rule="rule1" primaryKey="Id" autoIncrement="true" />
+    <table name="Activities" dataNode="dn1,dn2,dn3,dn4" rule="rule1" primaryKey="Id" autoIncrement="true" />
     
-    <table name="aspnetusers" dataNode="dn1" primaryKey="Id" autoIncrement="true" />
-    <table name="aspnetroles" dataNode="dn1" primaryKey="Id" autoIncrement="true" />
-    <table name="aspnetroleclaims" dataNode="dn1" primaryKey="Id" autoIncrement="true" />
-    <table name="aspnetusertokens" dataNode="dn1" primaryKey="Id" autoIncrement="true" />
-    <table name="aspnetuserclaims" dataNode="dn1" primaryKey="Id" autoIncrement="true" />
-    <table name="aspnetuserroles" dataNode="dn1" />
-    <table name="aspnetuserlogins" dataNode="dn1" />
+    <table name="AspNetUsers" dataNode="dn1" primaryKey="Id" autoIncrement="true" />
+    <table name="AspNetRoles" dataNode="dn1" primaryKey="Id" autoIncrement="true" />
+    <table name="AspNetRoleClaims" dataNode="dn1" primaryKey="Id" autoIncrement="true" />
+    <table name="AspNetUserTokens" dataNode="dn1" primaryKey="Id" autoIncrement="true" />
+    <table name="AspNetUserClaims" dataNode="dn1" primaryKey="Id" autoIncrement="true" />
+    <table name="AspNetUserRoles" dataNode="dn1" />
+    <table name="AspNetUserLogins" dataNode="dn1" />
   </schema>
 
   <dataNode name="dn1" dataHost="host1" database="wechat" />
