@@ -450,7 +450,7 @@ namespace RedPocketCloud.Controllers
 
             // 计算红包统计
             act.Price = money;
-            act.BriberiesCount = rules.Object.Count;
+            act.BriberiesCount = rules.Object.Sum(x => x.Count);
             act.IsBegin = true;
             DB.SaveChanges();
 
