@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Caching.Distributed;
+using Pomelo.Data.Excel;
 using RedPocketCloud.Models;
 using RedPocketCloud.ViewModels;
 
@@ -553,6 +554,66 @@ namespace RedPocketCloud.Controllers
                 x.Title = "操作成功";
                 x.Details = "红包页面模板已经成功删除";
             });
+        }
+
+        /// <summary>
+        /// 导出红包中奖纪录
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public IActionResult Export(long id)
+        {
+            Activity activity;
+            if (User.IsInRole("Root"))
+                activity = DB.Activities.Single(x => x.Id == id);
+            else
+                activity = DB.Activities.Single(x => x.Id == id && x.MerchantId == User.Current.Id);
+
+            var src = DB.RedPockets
+                .Where(x => x.ActivityId == id && x.ReceivedTime.HasValue)
+                .OrderBy(x => x.ReceivedTime)
+                .ToList();
+
+            var nonawarded = activity.BriberiesCount - activity.ReceivedCount;
+
+            var tmp = Guid.NewGuid().ToString();
+            var path = Path.Combine(Directory.GetCurrentDirectory(), tmp + ".xlsx");
+            using (var excel = ExcelStream.Create(path))
+            using (var sheet1 = excel.LoadSheet(1))
+            {
+                // Headers
+                sheet1.Add(new Pomelo.Data.Excel.Infrastructure.Row { "Open Id", "昵称", "类型", "红包", "领取时间" });
+                var ids = activity.Rules.Object.Where(x => x.Type == RedPocketType.Coupon).Select(x => x.Coupon).ToList();
+                var coupon = DB.Coupons.Where(x => ids.Contains(x.Id)).ToDictionary(x => x.Id, x => x.Title);
+                foreach (var x in src)
+                {
+                    string rp;
+                    switch (x.Type)
+                    {
+                        case RedPocketType.Cash:
+                            rp = (x.Price / 100.0).ToString("0.00");
+                            break;
+                        case RedPocketType.Coupon:
+                            rp = coupon[x.CouponId.Value];
+                            break;
+                        case RedPocketType.Url:
+                            rp = x.Url;
+                            break;
+                        default:
+                            rp = "";
+                            break;
+                    }
+                    sheet1.Add(new Pomelo.Data.Excel.Infrastructure.Row { x.OpenId ?? "", x.NickName ?? "", x.Type.ToString(), rp, x.ReceivedTime.Value.ToString("yyyy-MM-dd HH:mm:ss") });
+                }
+                sheet1.Add(new Pomelo.Data.Excel.Infrastructure.Row());
+                sheet1.Add(new Pomelo.Data.Excel.Infrastructure.Row { "未领取金额（元）", "未领取红包（个）", "总参与人数" });
+                sheet1.Add(new Pomelo.Data.Excel.Infrastructure.Row { ((activity.Price - src.Sum(x => x.Price)) / 100.0).ToString("0.00"), nonawarded.ToString(), activity.Attend.ToString() });
+                sheet1.SaveChanges();
+            }
+
+            var ret = System.IO.File.ReadAllBytes(path);
+            System.IO.File.Delete(path);
+            return File(ret, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", activity.Title + ".xlsx");
         }
     }
 }
