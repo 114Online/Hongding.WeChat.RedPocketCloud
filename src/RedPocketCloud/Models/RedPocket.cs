@@ -77,5 +77,12 @@ namespace RedPocketCloud.Models
         /// </summary>
         [MaxLength(64)]
         public string Ip { get; set; }
+
+        /// <summary>
+        /// 并发标识
+        /// </summary>
+        [ConcurrencyCheck]
+        [MaxLength(64)]
+        public string ConcurrencyStamp { get; set; } = Guid.NewGuid().ToString();
     }
 }

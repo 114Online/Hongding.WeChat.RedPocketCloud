@@ -39,7 +39,7 @@ namespace RedPocketCloud
             });
             services.AddSession(x =>
             {
-                x.IdleTimeout = new TimeSpan(0, 20, 0);
+                x.IdleTimeout = new TimeSpan(1, 0, 0);
             });
             services.AddLogging();
             if (Config["Host:Mode"] == "MySQL")

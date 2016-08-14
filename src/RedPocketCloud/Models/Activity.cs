@@ -46,6 +46,11 @@ namespace RedPocketCloud.Models
         public long BriberiesCount { get; set; }
 
         /// <summary>
+        /// 已经领取个数（冗余）
+        /// </summary>
+        public long ReceivedCount { get; set; }
+
+        /// <summary>
         /// 现金红包总额（冗余）
         /// </summary>
         public long Price { get; set; }

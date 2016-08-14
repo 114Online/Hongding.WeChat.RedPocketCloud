@@ -464,7 +464,7 @@ namespace RedPocketCloud.Controllers
                 });
             var coupons = act.Rules.Object.Where(x => x.Type == RedPocketType.Coupon).Select(x => x.Coupon).ToList();
             ViewBag.Price = DB.RedPockets.Where(x => x.ActivityId == id && x.ReceivedTime.HasValue).Sum(x => x.Price);
-            ViewBag.Amount = DB.RedPockets.Count(x => x.ActivityId == id && x.ReceivedTime.HasValue);
+            ViewBag.Amount = DB.RedPockets.Count(x => x.ActivityId == id && x.OpenId != null);
             ViewBag.Coupons = DB.Coupons.Where(x => coupons.Contains(x.Id)).ToDictionary(x => x.Id, x => x.Title);
             ViewBag.Briberies = DB.RedPockets
                 .Where(x => x.ActivityId == id && x.ReceivedTime.HasValue)
