@@ -367,6 +367,8 @@ namespace RedPocketCloud.Controllers
                     x.StatusCode = 400;
                 });
 
+            var money = 0L;
+
             // 存储活动信息
             var act = new Activity
             {
@@ -389,11 +391,13 @@ namespace RedPocketCloud.Controllers
             {
                 for (var i = 0; i < x.Count; i++)
                 {
+                    var p = random.Next(x.From, x.To);
+                    money += p;
                     DB.RedPockets.Add(new RedPocket
                     {
                         Type = RedPocketType.Cash,
                         ActivityId = act.Id,
-                        Price = random.Next(x.From, x.To)
+                        Price = p
                     });
                 }
             }
@@ -440,12 +444,13 @@ namespace RedPocketCloud.Controllers
                 })
                 .Single();
             Cache.SetObject("MERCHANT_CURRENT_ACTIVITY_" + User.Current.UserName, act.Id);
+            Cache.SetObject("MERCHANT_CURRENT_ACTIVITY_LIMIT" + User.Current.UserName, act.Limit);
             Cache.SetObject("MERCHANT_CURRENT_ACTIVITY_TEMPLATE_" + User.Current.UserName, template);
             Cache.SetObject("MERCHANT_CURRENT_ACTIVITY_RATIO_" + User.Current.UserName, act.Ratio);
 
             // 计算红包统计
-            act.Price = DB.RedPockets.Where(x => x.ActivityId == act.Id).Sum(x => x.Price);
-            act.BriberiesCount = DB.RedPockets.Count(x => x.ActivityId == act.Id);
+            act.Price = money;
+            act.BriberiesCount = rules.Object.Count;
             act.IsBegin = true;
             DB.SaveChanges();
 

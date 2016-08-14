@@ -28,7 +28,8 @@ namespace RedPocketCloud.Controllers
         /// <summary>
         /// 请求数
         /// </summary>
-        private long RequestCount = 0;
+        public static long RequestCount = 0;
+        public static double Limiting = 1;
 
         /// <summary>
         /// 计算回调路径
@@ -226,6 +227,7 @@ namespace RedPocketCloud.Controllers
             if (NeedAuthorize)
                 return RedirectToEntry(Operation.RedPocket);
             var ret = GetTemplateCache(Merchant, Cache);
+            ViewBag.Limit = Limiting;
             if (ret.Type == TemplateType.Shake)
                 return View("Shake", ret);
             else
@@ -243,14 +245,6 @@ namespace RedPocketCloud.Controllers
         [Route("[controller]/Drawn/{Merchant}")]
         public async Task<IActionResult> Drawn(string Merchant, [FromServices] IHubContext<RedPocketHub> Hub, [FromServices] IDistributedCache Cache)
         {
-            // 触发GC
-            RequestCount++;
-            if (RequestCount >= 600)
-            {
-                RequestCount = 0;
-                GC.Collect();
-            }
-
             if (NeedAuthorize)
                 return Content("AUTH");
 
@@ -267,6 +261,11 @@ namespace RedPocketCloud.Controllers
             {
                 return Content("RETRY");
             }
+            
+            // 获取活动ID
+            var activityId = await Cache.GetObjectAsync<long?>("MERCHANT_CURRENT_ACTIVITY_" + Merchant);
+            if (activityId == null)
+                return Content("NO");
 
             // 获取商户制定的每日上限
             var limit = await Cache.GetObjectAsync<int?>("MERCHANT_LIMIT_" + Merchant);
@@ -279,22 +278,28 @@ namespace RedPocketCloud.Controllers
                 await Cache.SetObjectAsync("MERCHANT_LIMIT_" + Merchant, limit);
             }
 
+            // 获取当前活动上限
+            var activity_limit = await Cache.GetObjectAsync<int?>("MERCHANT_CURRENT_ACTIVITY_LIMIT" + Merchant);
+            if (!limit.HasValue)
+            {
+                limit = DB.Activities
+                    .Where(x => x.Id == activityId)
+                    .Select(x => x.Limit)
+                    .Single();
+                await Cache.SetObjectAsync("MERCHANT_CURRENT_ACTIVITY_LIMIT" + Merchant, limit);
+            }
+
             // 判断是否中奖超过每日最大次数
             var beg = DateTime.Now.Date;
-            var logs = await Cache.GetObjectAsync<List<DateTime>>("REDPOCKET_LOGS_" + OpenId);
+            var logs = await Cache.GetObjectAsync<List<DrawnLogViewModel>>("REDPOCKET_LOGS_" + OpenId);
             if (logs == null)
             {
-                logs = new List<DateTime>();
+                logs = new List<DrawnLogViewModel>();
                 await Cache.SetObjectAsync("REDPOCKET_LOGS_" + OpenId, logs);
             }
 
-            if (logs.Count > limit.Value)
+            if (logs.Count > limit.Value || logs.Where(x => x.ActivityId == activityId).Count() > activity_limit.Value)
                 return Content("EXCEEDED");
-
-            // 获取活动ID
-            var activityId = await Cache.GetObjectAsync<long?>("MERCHANT_CURRENT_ACTIVITY_" + Merchant);
-            if (activityId == null)
-                return Content("NO");
 
             // 参与人数缓存
             DB.Activities
@@ -409,13 +414,17 @@ namespace RedPocketCloud.Controllers
                 }
 
                 // 如果抽中现金红包，则写入冷却时间
-                if (prize.Type == RedPocketType.Coupon)
+                if (prize.Type == RedPocketType.Cash)
                     Cache.SetObjectAsync("REDPOCKET_COOLDOWN_" + OpenId, DateTime.Now);
 
                 // 添加logs
                 if (logs.Count >= limit.Value)
                     logs.RemoveRange(0, logs.Count - limit.Value + 1);
-                logs.Add(DateTime.Now);
+                logs.Add(new DrawnLogViewModel
+                {
+                    ActivityId = activityId.Value,
+                    Time = DateTime.Now
+                });
                 Cache.SetObjectAsync("REDPOCKET_LOGS_" + OpenId, logs);
 
                 try

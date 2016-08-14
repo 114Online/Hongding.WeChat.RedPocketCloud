@@ -21,6 +21,6 @@
     <img class="undrawn" src="/file/download/@Model.Undrawn" />
     <a class="drawn-text"></a>
     <audio style="display:none;" id="shakeSound" preload="metadata" controls src="~/assets/sounds/shake_sound.mp3"></audio>
-    <script>var Merchant = '@ViewContext.RouteData.Values["Merchant"].ToString()';</script>
+    <script>var Merchant = '@ViewContext.RouteData.Values["Merchant"].ToString()'; limiting = @ViewBag.Limit;</script>
 </body>
 </html>

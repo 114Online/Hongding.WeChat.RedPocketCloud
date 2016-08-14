@@ -1,4 +1,6 @@
 ﻿var lock = false;
+var cooldown = null;
+var limiting = 1;
 
 $(document).ready(function () {
     if (window.DeviceMotionEvent) {
@@ -50,6 +52,16 @@ function Shake()
         $('.top').removeClass('shaking');
         $('.bottom').removeClass('shaking');
         setTimeout(function () {
+            if (cooldown && ((new Date()).getTime() - cooldown.getTime() / 1000) <= 15)
+            {
+                ShowUndrawn();
+                return;
+            }
+            if (Math.random() >= limiting)
+            {
+                ShowUndrawn();
+                return;
+            }
             $.post('/WeChat/Drawn/' + Merchant, {}, function (data) {
                 console.error(data);
                 if (data == "AUTH")
@@ -62,6 +74,8 @@ function Shake()
                     window.location = "/WeChat/Exceeded";
                 } else {
                     var obj = data;
+                    if (obj.type == 0)
+                        cooldown = new Date();
                     if (obj.type != 1)
                         ShowDrawn(obj.display);
                     else
