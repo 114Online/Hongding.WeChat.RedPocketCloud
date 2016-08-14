@@ -62,8 +62,8 @@ function Shake()
                     window.location = "/WeChat/Exceeded";
                 } else {
                     var obj = data;
-                    if (obj.Type != 1)
-                        ShowDrawn(obj.Display);
+                    if (obj.type != 1)
+                        ShowDrawn(obj.display);
                     else
                         ShowDrawn("点击打开", obj.display);
                 }

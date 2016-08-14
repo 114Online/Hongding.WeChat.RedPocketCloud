@@ -93,6 +93,7 @@ namespace RedPocketCloud.Controllers
 
                 if (affected == 1)
                 {
+                    // 推送活动结束消息
                     Hub.Clients.Group(activity_id.ToString()).OnActivityEnd();
 
                     // 清空缓存
@@ -102,6 +103,18 @@ namespace RedPocketCloud.Controllers
                         Cache.Remove("MERCHANT_CURRENT_ACTIVITY_RATIO_" + Merchant);
                     }
                     catch { }
+
+                    // 生成扣费记录
+                    var price = DB.RedPockets.Where(x => x.ActivityId == activity_id && x.Type == RedPocketType.Cash).Sum(x => x.Price);
+                    var merchant = DB.Users.Single(x => x.UserName == Merchant);
+                    DB.PayLogs.Add(new PayLog
+                    {
+                        Balance = merchant.Balance,
+                        MerchantId = merchant.Id,
+                        Price = -price,
+                        Time = DateTime.Now
+                    });
+                    DB.SaveChanges();
                 }
             }
         }
@@ -331,6 +344,12 @@ namespace RedPocketCloud.Controllers
                 {
                     // 微信转账
                     await TransferMoneyAsync(prize.Id, HttpContext.Session.GetString("OpenId"), prize.Price, Startup.Config["WeChat:RedPocket:TransferDescription"]);
+
+                    // 从账户中扣除
+                    DB.Users
+                        .Where(x => x.UserName == Merchant)
+                        .SetField(x => x.Balance).Subtract(prize.Price / 100.0)
+                        .UpdateAsync();
                 }
                 else if (prize.Type == RedPocketType.Coupon)
                 {

@@ -51,7 +51,7 @@ namespace RedPocketCloud.Common
             dic.Add("openid", OpenId);
             dic.Add("amount", Price.ToString());
             dic.Add("desc", Description);
-            dic.Add("spbill_create_ip", Startup.Config["Ip"]);
+            dic.Add("spbill_create_ip", Startup.Config["Host:Ip"]);
             dic.Add("check_name", "NO_CHECK");
             foreach (var x in dic.OrderBy(x => x.Key))
                 requestUrl += x.Key + "=" + x.Value + "&";
@@ -70,14 +70,14 @@ namespace RedPocketCloud.Common
     <openid>{ OpenId }</openid> 
     <amount>{ Price }</amount> 
     <desc>{ Description }</desc> 
-    <spbill_create_ip>{ Startup.Config["Ip"] }</spbill_create_ip> 
+    <spbill_create_ip>{ Startup.Config["Host:Ip"] }</spbill_create_ip> 
     <check_name>NO_CHECK</check_name>
     <sign>{ strResult }</sign> 
 </xml>";
             }
 
             var handler = new HttpClientHandler();
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "Cerificates/apiclient_cert.p12");
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "Certificates/apiclient_cert.p12");
             handler.ClientCertificates.Add(new System.Security.Cryptography.X509Certificates.X509Certificate2(path, Startup.Config["WeChat:MchId"]));
             using (var client = new HttpClient(handler) { BaseAddress = new Uri("https://api.mch.weixin.qq.com") })
             {

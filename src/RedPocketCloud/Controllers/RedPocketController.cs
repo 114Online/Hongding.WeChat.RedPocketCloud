@@ -464,7 +464,6 @@ namespace RedPocketCloud.Controllers
                 });
             var coupons = act.Rules.Object.Where(x => x.Type == RedPocketType.Coupon).Select(x => x.Coupon).ToList();
             ViewBag.Price = DB.RedPockets.Where(x => x.ActivityId == id && x.ReceivedTime.HasValue).Sum(x => x.Price);
-            ViewBag.Amount = DB.RedPockets.Count(x => x.ActivityId == id && x.OpenId != null);
             ViewBag.Coupons = DB.Coupons.Where(x => coupons.Contains(x.Id)).ToDictionary(x => x.Id, x => x.Title);
             ViewBag.Briberies = DB.RedPockets
                 .Where(x => x.ActivityId == id && x.ReceivedTime.HasValue)
@@ -497,10 +496,22 @@ namespace RedPocketCloud.Controllers
             act.End = DateTime.Now;
             DB.SaveChanges();
 
-            // TODO: Clean up cache
+            // 清空缓存
             var Merchant = DB.Users.Single(x => x.Id == act.MerchantId).UserName;
             Cache.Remove("MERCHANT_CURRENT_ACTIVITY_RATIO_" + Merchant);
             Cache.Remove("MERCHANT_CURRENT_ACTIVITY_" + Merchant);
+
+            // 生成扣费记录
+            var price = DB.RedPockets.Where(x => x.ActivityId == act.Id && x.Type == RedPocketType.Cash).Sum(x => x.Price);
+            var merchant = DB.Users.Single(x => x.UserName == Merchant);
+            DB.PayLogs.Add(new PayLog
+            {
+                Balance = merchant.Balance,
+                MerchantId = merchant.Id,
+                Price = -price,
+                Time = DateTime.Now
+            });
+            DB.SaveChanges();
 
             return RedirectToAction("Activity", "RedPocket", new { id = id });
         }
