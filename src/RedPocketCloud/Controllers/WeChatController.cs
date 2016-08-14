@@ -441,9 +441,9 @@ namespace RedPocketCloud.Controllers
                     .UpdateAsync();
 
                 // 返回中奖信息
-                if (prize.Type == Models.RedPocketType.Cash)
-                    return Json(new { Type = prize.Type, Display = (prize.Price / 100).ToString("0.00") + "元" });
-                else if (prize.Type == Models.RedPocketType.Coupon)
+                if (prize.Type == RedPocketType.Cash)
+                    return Json(new { Type = prize.Type, Display = (prize.Price / 100.0).ToString("0.00") + "元" });
+                else if (prize.Type == RedPocketType.Coupon)
                 {
                     return Json(new { Type = prize.Type, Display = coupon.Title });
                 }
