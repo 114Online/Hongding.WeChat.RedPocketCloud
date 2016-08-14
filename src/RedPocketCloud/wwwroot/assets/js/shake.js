@@ -52,68 +52,68 @@ function Shake()
         $('.top').removeClass('shaking');
         $('.bottom').removeClass('shaking');
         setTimeout(function () {
-            if (cooldown && ((new Date()).getTime() - cooldown.getTime() / 1000) <= 15)
-            {
-                ShowUndrawn();
-                return;
-            }
-            if (Math.random() >= limiting)
-            {
-                ShowUndrawn();
-                return;
-            }
-            $.post('/WeChat/Drawn/' + Merchant, {}, function (data) {
-                console.error(data);
-                if (data == "AUTH")
-                    window.location.reload();
-                else if (data == "NO") {
-                    ShowPending();
-                } else if (data == "RETRY") {
+            if (cooldown && (((new Date()).getTime() - cooldown.getTime()) / 1000.0) <= 15) {
+                {
                     ShowUndrawn();
-                } else if (data == "EXCEEDED") {
-                    window.location = "/WeChat/Exceeded";
-                } else {
-                    var obj = data;
-                    if (obj.type == 0)
-                        cooldown = new Date();
-                    if (obj.type != 1)
-                        ShowDrawn(obj.display);
-                    else
-                        ShowDrawn("点击打开", obj.display);
+                    return;
                 }
-            });
+                if (Math.random() >= limiting)
+                {
+                    ShowUndrawn();
+                    return;
+                }
+                $.post('/WeChat/Drawn/' + Merchant, {}, function (data) {
+                    console.error(data);
+                    if (data == "AUTH")
+                        window.location.reload();
+                    else if (data == "NO") {
+                        ShowPending();
+                    } else if (data == "RETRY") {
+                        ShowUndrawn();
+                    } else if (data == "EXCEEDED") {
+                        window.location = "/WeChat/Exceeded";
+                    } else {
+                        var obj = data;
+                        if (obj.type == 0)
+                            cooldown = new Date();
+                        if (obj.type != 1)
+                            ShowDrawn(obj.display);
+                        else
+                            ShowDrawn("点击打开", obj.display);
+                    }
+                });
+            }, 610);
         }, 610);
-    }, 610);
-}
+    }
 
-function Close()
-{
-    $('.pending').removeClass('showing');
-    $('.drawn').removeClass('showing');
-    $('.undrawn').removeClass('showing');
-    $('.alpha').removeClass('active');
-    $('.drawn-text').removeClass('active');
-    lock = false;
-}
+    function Close()
+    {
+        $('.pending').removeClass('showing');
+        $('.drawn').removeClass('showing');
+        $('.undrawn').removeClass('showing');
+        $('.alpha').removeClass('active');
+        $('.drawn-text').removeClass('active');
+        lock = false;
+    }
 
-function ShowPending()
-{
-    $('.alpha').addClass('active');
-    $('.pending').addClass('showing');
-}
+    function ShowPending()
+    {
+        $('.alpha').addClass('active');
+        $('.pending').addClass('showing');
+    }
 
-function ShowUndrawn() {
-    $('.alpha').addClass('active');
-    $('.undrawn').addClass('showing');
-}
+    function ShowUndrawn() {
+        $('.alpha').addClass('active');
+        $('.undrawn').addClass('showing');
+    }
 
-function ShowDrawn(txt, url) {
-    $('.alpha').addClass('active');
-    $('.drawn-text').addClass('active');
-    $('.drawn').addClass('showing');
-    $('.drawn-text').text(txt);
-    if (!url)
-        $('.drawn-text').attr('href', '#');
-    else
-        $('.drawn-text').attr('href', url);
-}
+    function ShowDrawn(txt, url) {
+        $('.alpha').addClass('active');
+        $('.drawn-text').addClass('active');
+        $('.drawn').addClass('showing');
+        $('.drawn-text').text(txt);
+        if (!url)
+            $('.drawn-text').attr('href', '#');
+        else
+            $('.drawn-text').attr('href', url);
+    }

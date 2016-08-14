@@ -45,7 +45,7 @@ function Shoop()
             setTimeout(function () {
                 $($('.circle')[2]).removeClass('transition');
                 $($('.circle')[2]).removeClass('shooping');
-                if (cooldown && ((new Date()).getTime() - cooldown.getTime() / 1000) <= 15) {
+                if (cooldown && (((new Date()).getTime() - cooldown.getTime()) / 1000.0) <= 15) {
                     ShowUndrawn();
                     return;
                 }
