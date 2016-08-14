@@ -13,6 +13,7 @@
             <thead>
                 <tr>
                     <th>用户名</th>
+                    <th>商户名称</th>
                     <th>角色</th>
                     <th>余额</th>
                     <th>操作</th>
@@ -23,6 +24,7 @@
                 {
                     <tr>
                         <td>@x.UserName</td>
+                        <td>@x.Merchant</td>
                         <td>@((await User.Manager.GetRolesAsync(x)).First() == "Root" ? "管理员" : "普通商户")</td>
                         <td>￥@(x.Balance.ToString("0.00"))</td>
                         <td>

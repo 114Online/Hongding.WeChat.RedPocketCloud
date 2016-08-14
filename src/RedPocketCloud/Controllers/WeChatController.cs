@@ -22,7 +22,7 @@ namespace RedPocketCloud.Controllers
         Wallet
     }
 
-    public class WeChatController : BaseController
+    public class WeChatController : BaseController<RpcContext, User, long>
     {
         #region Infrastructures
         /// <summary>
@@ -439,7 +439,6 @@ namespace RedPocketCloud.Controllers
                 return RedirectToEntry(Operation.RedPocket);
             var ret = DB.Wallets
                 .Where(x => x.OpenId == HttpContext.Session.GetString("OpenId"))
-                .OrderByDescending(x => x.Time)
                 .Join(DB.Coupons, x => x.CouponId, x => x.Id, (x,y) => new WalletViewModel
                 {
                     Id = x.Id,

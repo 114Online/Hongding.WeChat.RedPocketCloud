@@ -109,14 +109,15 @@ namespace RedPocketCloud.Controllers
             {
                 if (!bg.HasValue)
                 {
+                    var bytes = System.IO.File.ReadAllBytes(Path.Combine("wwwroot", "assets", "img", "shake-bg.jpg"));
                     var blob = new Blob
                     {
-                        Bytes = System.IO.File.ReadAllBytes(Path.Combine("wwwroot", "assets", "img", "shake-bg.jpg")),
+                        Bytes = bytes,
                         ContentType = "image/jpeg",
                         FileName = "shake-bg.jpg",
-                        Time = DateTime.Now
+                        Time = DateTime.Now,
+                        ContentLength = bytes.Length
                     };
-                    blob.ContentLength = blob.Bytes.Length;
                     DB.Blobs.Add(blob);
                     DB.SaveChanges();
                     bg = blob.Id;
@@ -124,14 +125,15 @@ namespace RedPocketCloud.Controllers
 
                 if (!top.HasValue)
                 {
+                    var bytes = System.IO.File.ReadAllBytes(Path.Combine("wwwroot", "assets", "img", "shake-top.jpg"));
                     var blob = new Blob
                     {
-                        Bytes = System.IO.File.ReadAllBytes(Path.Combine("wwwroot", "assets", "img", "shake-top.jpg")),
+                        Bytes = bytes,
                         ContentType = "image/jpeg",
                         FileName = "shake-top.jpeg",
-                        Time = DateTime.Now
+                        Time = DateTime.Now,
+                        ContentLength = bytes.Length
                     };
-                    blob.ContentLength = blob.Bytes.Length;
                     DB.Blobs.Add(blob);
                     DB.SaveChanges();
                     top = blob.Id;
@@ -139,14 +141,15 @@ namespace RedPocketCloud.Controllers
 
                 if (!bottom.HasValue)
                 {
+                    var bytes = System.IO.File.ReadAllBytes(Path.Combine("wwwroot", "assets", "img", "shake-bottom.jpg"));
                     var blob = new Blob
                     {
-                        Bytes = System.IO.File.ReadAllBytes(Path.Combine("wwwroot", "assets", "img", "shake-bottom.jpg")),
+                        Bytes = bytes,
                         ContentType = "image/jpeg",
                         FileName = "shake-bottom.jpeg",
-                        Time = DateTime.Now
+                        Time = DateTime.Now,
+                        ContentLength = bytes.Length
                     };
-                    blob.ContentLength = blob.Bytes.Length;
                     DB.Blobs.Add(blob);
                     DB.SaveChanges();
                     bottom = blob.Id;
@@ -156,14 +159,15 @@ namespace RedPocketCloud.Controllers
             {
                 if (!bg.HasValue)
                 {
+                    var bytes = System.IO.File.ReadAllBytes(Path.Combine("wwwroot", "assets", "img", "shoop-bg.jpg"));
                     var blob = new Blob
                     {
-                        Bytes = System.IO.File.ReadAllBytes(Path.Combine("wwwroot", "assets", "img", "shoop-bg.jpg")),
+                        Bytes = bytes,
                         ContentType = "image/jpeg",
                         FileName = "shoop-bg.jpg",
-                        Time = DateTime.Now
+                        Time = DateTime.Now,
+                        ContentLength = bytes.Length
                     };
-                    blob.ContentLength = blob.Bytes.Length;
                     DB.Blobs.Add(blob);
                     DB.SaveChanges();
                     bg = blob.Id;
@@ -171,14 +175,15 @@ namespace RedPocketCloud.Controllers
 
                 if (!top.HasValue)
                 {
+                    var bytes = System.IO.File.ReadAllBytes(Path.Combine("wwwroot", "assets", "img", "shoop-btn.png"));
                     var blob = new Blob
                     {
-                        Bytes = System.IO.File.ReadAllBytes(Path.Combine("wwwroot", "assets", "img", "shoop-btn.png")),
+                        Bytes = bytes,
                         ContentType = "image/png",
                         FileName = "shoop-btn.png",
-                        Time = DateTime.Now
+                        Time = DateTime.Now,
+                        ContentLength = bytes.Length
                     };
-                    blob.ContentLength = blob.Bytes.Length;
                     DB.Blobs.Add(blob);
                     DB.SaveChanges();
                     top = blob.Id;
@@ -187,14 +192,15 @@ namespace RedPocketCloud.Controllers
 
             if (!drawn.HasValue)
             {
+                var bytes = System.IO.File.ReadAllBytes(Path.Combine("wwwroot", "assets", "img", "drawn.png"));
                 var blob = new Blob
                 {
-                    Bytes = System.IO.File.ReadAllBytes(Path.Combine("wwwroot", "assets", "img", "drawn.png")),
+                    Bytes = bytes,
                     ContentType = "image/png",
                     FileName = "drawn.png",
-                    Time = DateTime.Now
+                    Time = DateTime.Now,
+                    ContentLength = bytes.Length
                 };
-                blob.ContentLength = blob.Bytes.Length;
                 DB.Blobs.Add(blob);
                 DB.SaveChanges();
                 drawn = blob.Id;
@@ -202,14 +208,15 @@ namespace RedPocketCloud.Controllers
 
             if (!undrawn.HasValue)
             {
+                var bytes = System.IO.File.ReadAllBytes(Path.Combine("wwwroot", "assets", "img", "undrawn.png"));
                 var blob = new Blob
                 {
-                    Bytes = System.IO.File.ReadAllBytes(Path.Combine("wwwroot", "assets", "img", "undrawn.png")),
+                    Bytes = bytes,
                     ContentType = "image/png",
                     FileName = "undrawn.png",
-                    Time = DateTime.Now
+                    Time = DateTime.Now,
+                    ContentLength = bytes.Length
                 };
-                blob.ContentLength = blob.Bytes.Length;
                 DB.Blobs.Add(blob);
                 DB.SaveChanges();
                 undrawn = blob.Id;
@@ -217,14 +224,15 @@ namespace RedPocketCloud.Controllers
 
             if (!pending.HasValue)
             {
+                var bytes = System.IO.File.ReadAllBytes(Path.Combine("wwwroot", "assets", "img", "pending.png"));
                 var blob = new Blob
                 {
-                    Bytes = System.IO.File.ReadAllBytes(Path.Combine("wwwroot", "assets", "img", "pending.png")),
+                    Bytes = bytes,
                     ContentType = "image/png",
                     FileName = "pending.png",
-                    Time = DateTime.Now
+                    Time = DateTime.Now,
+                    ContentLength = bytes.Length
                 };
-                blob.ContentLength = blob.Bytes.Length;
                 DB.Blobs.Add(blob);
                 DB.SaveChanges();
                 pending = blob.Id;

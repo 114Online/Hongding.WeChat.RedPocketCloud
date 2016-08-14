@@ -7,13 +7,17 @@
 	WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. - See the 
 	License for the specific language governing permissions and - limitations 
 	under the License. -->
-<!DOCTYPE mycat:server SYSTEM "server.dtd">
-<mycat:server xmlns:mycat="http://io.mycat/">
-	<system>
-        <property name="sequnceHandlerType">0</property> 
-    </system>
-    <user name="root">
-       <property name="password">Sun060810</property>
-       <property name="schemas">wechat</property>
-    </user>
-</mycat:server>
+<!DOCTYPE mycat:rule SYSTEM "rule.dtd">
+<mycat:rule xmlns:mycat="http://org.opencloudb/">
+	<tableRule name="rule1">
+		<rule>
+			<columns>id</columns>
+			<algorithm>func1</algorithm>
+		</rule>
+	</tableRule>
+
+	<function name="func1" class="org.opencloudb.route.function.PartitionByLong">
+		<property name="partitionCount">4</property>
+		<property name="partitionLength">256</property>
+	</function>
+</mycat:rule>
