@@ -434,12 +434,6 @@ namespace RedPocketCloud.Controllers
                 }
                 catch { }
 
-                // 扣除红包费用
-                DB.Users
-                    .Where(x => x.UserName == Merchant)
-                    .SetField(x => x.Balance).Subtract(prize.Price / 100.0)
-                    .UpdateAsync();
-
                 // 返回中奖信息
                 if (prize.Type == RedPocketType.Cash)
                     return Json(new { Type = prize.Type, Display = (prize.Price / 100.0).ToString("0.00") + "元" });
