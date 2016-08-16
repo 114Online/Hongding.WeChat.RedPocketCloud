@@ -107,10 +107,16 @@ namespace RedPocketCloud.Controllers
         [HttpPost]
         [Authorize(Roles = "Root")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(double balance, string username, string password, string role)
+        public async Task<IActionResult> Create(double balance, string username, string password, string role, string merchant)
         {
-            var user = new User { UserName = username, Balance = balance };
-            await UserManager.CreateAsync(user, password);
+            var user = new User { UserName = username, Balance = balance, Merchant = merchant };
+            var result = await UserManager.CreateAsync(user, password);
+            if (!result.Succeeded)
+                return Prompt(x => 
+                {
+                    x.Title = "创建商户失败";
+                    x.Details = result.Errors.First().Description;
+                });
             await UserManager.AddToRoleAsync(user, role);
             if (balance > 0)
             {

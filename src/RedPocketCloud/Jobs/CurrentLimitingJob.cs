@@ -14,8 +14,8 @@ namespace RedPocketCloud.Jobs
         {
             var cnt = WeChatController.RequestCount;
             WeChatController.RequestCount = 0;
-            if (cnt >= 10000)
-                WeChatController.Limiting = 10000.0 / cnt;
+            if (cnt >= 5000)
+                WeChatController.Limiting = 5000 / cnt;
             else
                 WeChatController.Limiting = 1;
             if (cnt >= 1000)
