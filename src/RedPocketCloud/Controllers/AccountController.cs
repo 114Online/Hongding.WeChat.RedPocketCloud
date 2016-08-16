@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
 using RedPocketCloud.Models;
 
 namespace RedPocketCloud.Controllers
@@ -220,10 +221,11 @@ namespace RedPocketCloud.Controllers
         /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Limit(int limit)
+        public IActionResult Limit(int limit, [FromServices]IDistributedCache Cache)
         {
             User.Current.Limit = limit;
             DB.SaveChanges();
+            Cache.SetObject("MERCHANT_LIMIT_" + User.Current.UserName, limit);
             return Content("ok");
         }
     }
