@@ -21,7 +21,7 @@
     "Pomelo.Data.Excel": "1.0.0-prerelease-20160730",
     "Pomelo.Extensions.Caching.Redis": "1.0.0",
     "Pomelo.EntityFrameworkCore.MySql": "1.0.0",
-    "Pomelo.EntityFrameworkCore.MyCat": "1.0.0-prerelease-20160813",
+    "Pomelo.EntityFrameworkCore.MyCat": "1.0.0-prerelease-20160817",
     "Pomelo.EntityFrameworkCore.Lolita.MySql": "1.0.0"
   },
 
