@@ -27,7 +27,7 @@ namespace RedPocketCloud.Controllers
         /// <returns></returns>
         [HttpPost]
         [AllowAnonymous]
-        [ValidateAntiForgeryToken]
+        // [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(string username, string password)
         {
             var result = await SignInManager.PasswordSignInAsync(username, password, false, false);
@@ -42,7 +42,7 @@ namespace RedPocketCloud.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        // [ValidateAntiForgeryToken]
         public async Task<IActionResult> SignOut()
         {
             await SignInManager.SignOutAsync();
@@ -64,7 +64,7 @@ namespace RedPocketCloud.Controllers
         /// <param name="confirm"></param>
         /// <returns></returns>
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        // [ValidateAntiForgeryToken]
         public async Task<IActionResult> Password(string old, string @new, string confirm)
         {
             if (@new != confirm)
@@ -106,7 +106,7 @@ namespace RedPocketCloud.Controllers
         /// <returns></returns>
         [HttpPost]
         [Authorize(Roles = "Root")]
-        [ValidateAntiForgeryToken]
+        // [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(double balance, string username, string password, string role, string merchant)
         {
             var user = new User { UserName = username, Balance = balance, Merchant = merchant };
@@ -169,7 +169,7 @@ namespace RedPocketCloud.Controllers
         /// <returns></returns>
         [HttpPost]
         [Authorize(Roles = "Root")]
-        [ValidateAntiForgeryToken]
+        // [ValidateAntiForgeryToken]
         public async Task<IActionResult> Charge(string id, double price)
         {
             var user = await UserManager.FindByIdAsync(id);
@@ -207,7 +207,7 @@ namespace RedPocketCloud.Controllers
         /// <returns></returns>
         [HttpPost]
         [Authorize(Roles = "Root")]
-        [ValidateAntiForgeryToken]
+        // [ValidateAntiForgeryToken]
         public async Task<IActionResult> ResetPwd(string id, string pwd)
         {
             var user = await UserManager.FindByIdAsync(id);
@@ -226,7 +226,7 @@ namespace RedPocketCloud.Controllers
         /// <param name="limit"></param>
         /// <returns></returns>
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        // [ValidateAntiForgeryToken]
         public IActionResult Limit(int limit, [FromServices]IDistributedCache Cache)
         {
             User.Current.Limit = limit;
