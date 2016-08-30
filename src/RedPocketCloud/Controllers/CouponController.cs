@@ -59,7 +59,7 @@ namespace RedPocketCloud.Controllers
         /// <param name="icon"></param>
         /// <returns></returns>
         [HttpPost]
-        // [ValidateAntiForgeryToken]
+        [ValidateAntiForgeryToken]
         public IActionResult Add(Coupon Model, IFormFile coupon)
         {
             if (coupon == null)
@@ -117,7 +117,7 @@ namespace RedPocketCloud.Controllers
         /// <param name="icon"></param>
         /// <returns></returns>
         [HttpPost]
-        // [ValidateAntiForgeryToken]
+        [ValidateAntiForgeryToken]
         public IActionResult Edit(long id, Coupon Model, IFormFile coup)
         {
             var coupon = DB.Coupons.SingleOrDefault(x => x.Id == id);
@@ -160,7 +160,7 @@ namespace RedPocketCloud.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpPost]
-        // [ValidateAntiForgeryToken]
+        [ValidateAntiForgeryToken]
         public IActionResult Delete(int id)
         {
             var query = DB.Coupons.Where(x => x.Id == id);

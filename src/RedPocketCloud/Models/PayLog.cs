@@ -1,10 +1,12 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RedPocketCloud.Models
 {
     /// <summary>
     /// 商户支付记录实体
     /// </summary>
+    [DataNode("dn0,dn1,dn2,dn3")]
     public class PayLog
     {
         /// <summary>

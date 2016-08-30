@@ -8,6 +8,7 @@ namespace RedPocketCloud.Models
     /// <summary>
     /// 红包活动实体
     /// </summary>
+    [DataNode("dn0,dn1,dn2,dn3")]
     public class Activity
     {
         /// <summary>

@@ -3,6 +3,7 @@
     /// <summary>
     /// 优惠券实体
     /// </summary>
+    [DataNode("dn0,dn1,dn2,dn3")]
     public class Coupon
     {
         /// <summary>

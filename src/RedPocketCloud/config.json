@@ -12,6 +12,56 @@
     "Ip": "139.129.210.149",
     "Mode": "MyCat",
     "ConnectionString": "Server=139.129.210.149;Port=8066;database=wechat;uid=root;pwd=Sun060810",
+    "DataNodes": [
+      {
+        "Server": "139.129.210.149",
+        "Database": "wechat",
+        "Username": "root",
+        "Password": "Sun060810"
+      },
+      {
+        "Server": "139.129.210.116",
+        "Database": "wechat",
+        "Username": "root",
+        "Password": "Sun060810"
+      },
+      {
+        "Server": "139.129.210.136",
+        "Database": "wechat",
+        "Username": "root",
+        "Password": "Sun060810"
+      },
+      {
+        "Server": "139.129.204.211",
+        "Database": "wechat",
+        "Username": "root",
+        "Password": "Sun060810"
+      },
+      {
+        "Server": "139.129.210.149",
+        "Database": "wechat_blobs",
+        "Username": "root",
+        "Password": "Sun060810"
+      },
+      {
+        "Server": "139.129.210.116",
+        "Database": "wechat_blobs",
+        "Username": "root",
+        "Password": "Sun060810"
+      },
+      {
+        "Server": "139.129.210.136",
+        "Database": "wechat_blobs",
+        "Username": "root",
+        "Password": "Sun060810"
+      },
+      {
+        "Server": "139.129.204.211",
+        "Database": "wechat_blobs",
+        "Username": "root",
+        "Password": "Sun060810"
+      }
+    ],
     "Domain": "http://m5.114-online.com",
     "Redis": "139.129.210.149,password=Sun060810,connectTimeout=10000,139.129.210.116,password=Sun060810,connectTimeout=10000,139.129.210.136,password=Sun060810,connectTimeout=10000,139.129.204.211,password=Sun060810,connectTimeout=10000"
   }

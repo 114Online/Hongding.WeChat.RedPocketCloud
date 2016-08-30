@@ -103,7 +103,7 @@ namespace RedPocketCloud.Controllers
         /// <param name="env"></param>
         /// <returns></returns>
         [HttpPost]
-        // [ValidateAntiForgeryToken]
+        [ValidateAntiForgeryToken]
         public IActionResult AddTemplate(long? bg, long? top, long? bottom, long? drawn, long? undrawn, long? pending, TemplateType type, [FromServices] IHostingEnvironment env)
         {
             if (type == TemplateType.Shake)
@@ -275,7 +275,7 @@ namespace RedPocketCloud.Controllers
         /// <param name="pending"></param>
         /// <returns></returns>
         [HttpPost]
-        // [ValidateAntiForgeryToken]
+        [ValidateAntiForgeryToken]
         public IActionResult EditTemplate(long id, long? bg, long? top, long? bottom, long? drawn, long? undrawn, long? pending)
         {
             var template = DB.Templates.Single(x => x.Id == id);
@@ -485,7 +485,7 @@ namespace RedPocketCloud.Controllers
         /// <param name="Cache"></param>
         /// <returns></returns>
         [HttpPost]
-        // [ValidateAntiForgeryToken]
+        [ValidateAntiForgeryToken]
         public IActionResult Stop(long id, [FromServices] IDistributedCache Cache)
         {
             Activity act;
@@ -534,7 +534,7 @@ namespace RedPocketCloud.Controllers
         }
 
         [HttpPost]
-        // [ValidateAntiForgeryToken]
+        [ValidateAntiForgeryToken]
         public IActionResult RemoveTemplate(long id, [FromServices] IDistributedCache Cache)
         {
             var template = DB.Templates.Single(x => x.Id == id);

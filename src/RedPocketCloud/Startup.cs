@@ -52,6 +52,8 @@ namespace RedPocketCloud
                 services.AddDbContext<RpcContext>(x => 
                 {
                     x.UseMyCat(Config["Host:ConnectionString"]);
+                    foreach(var dn in Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(Config["Host:DataNodes"]))
+                        x.UseDataNode((string)dn.Server, (string)dn.Database, (string)dn.Username, (string)dn.Password);
                     x.UseMySqlLolita();
                 });
             services.AddIdentity<User, IdentityRole<long>>(x =>

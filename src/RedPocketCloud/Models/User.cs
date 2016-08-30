@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using RedPocketCloud.ViewModels;
 
 namespace RedPocketCloud.Models
 {
     /// <summary>
     /// 商户/用户实体
     /// </summary>
+    [DataNode("dn0,dn1,dn2,dn3")]
     public class User : IdentityUser<long>
     {
         /// <summary>

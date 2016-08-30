@@ -1,11 +1,13 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RedPocketCloud.Models
 {
     /// <summary>
     /// 红包类型（现金、链接、优惠券）
     /// </summary>
+    [DataNode("dn0,dn1,dn2,dn3")]
     public enum RedPocketType
     {
         Cash,
