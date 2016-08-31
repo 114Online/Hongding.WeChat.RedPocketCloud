@@ -52,7 +52,7 @@ namespace RedPocketCloud
                 services.AddDbContext<RpcContext>(x => 
                 {
                     x.UseMyCat(Config["Host:ConnectionString"]);
-                    foreach(var dn in Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(Config["Host:DataNodes"]))
+                    foreach (var dn in Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(System.IO.File.ReadAllText(System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "config.json"))).Host.DataNodes)
                         x.UseDataNode((string)dn.Server, (string)dn.Database, (string)dn.Username, (string)dn.Password);
                     x.UseMySqlLolita();
                 });
@@ -81,7 +81,7 @@ namespace RedPocketCloud
             app.UseDeveloperExceptionPage();
             app.UseMvcWithDefaultRoute();
 
-            //await SampleData.InitDB(app.ApplicationServices);
+            await SampleData.InitDB(app.ApplicationServices);
         }
     }
 }

@@ -7,7 +7,6 @@ namespace RedPocketCloud.Models
     /// <summary>
     /// 红包类型（现金、链接、优惠券）
     /// </summary>
-    [DataNode("dn0,dn1,dn2,dn3")]
     public enum RedPocketType
     {
         Cash,
@@ -18,6 +17,7 @@ namespace RedPocketCloud.Models
     /// <summary>
     /// 红包（单个）实体
     /// </summary>
+    [DataNode("dn0,dn1,dn2,dn3")]
     public class RedPocket
     {
         /// <summary>

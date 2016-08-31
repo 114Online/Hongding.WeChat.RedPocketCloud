@@ -29,6 +29,8 @@ namespace RedPocketCloud.Models
 
         public DbSet<Wallet> Wallets { get; set; }
 
+        public DbSet<VerificationLog> VerificationLogs { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -69,6 +71,14 @@ namespace RedPocketCloud.Models
             builder.Entity<Coupon>(e =>
             {
                 e.HasIndex(x => x.MerchantId);
+            });
+
+            builder.Entity<VerificationLog>(e =>
+            {
+                e.HasIndex(x => x.ProviderId);
+                e.HasIndex(x => x.Time);
+                e.HasIndex(x => x.CouponId);
+                e.HasIndex(x => x.WalletId);
             });
         }
     }

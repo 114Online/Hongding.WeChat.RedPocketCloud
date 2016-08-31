@@ -1,4 +1,6 @@
-﻿namespace RedPocketCloud.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace RedPocketCloud.Models
 {
     /// <summary>
     /// 优惠券实体

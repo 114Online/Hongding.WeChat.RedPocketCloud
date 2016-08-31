@@ -27,6 +27,11 @@ namespace RedPocketCloud.Models
         public long MerchantId { get; set; }
 
         /// <summary>
+        /// 所属商家ID
+        /// </summary>
+        public long ProviderId { get; set; }
+
+        /// <summary>
         /// 获得时间
         /// </summary>
         public DateTime Time { get; set; }

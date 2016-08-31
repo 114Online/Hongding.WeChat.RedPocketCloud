@@ -6,7 +6,6 @@ namespace RedPocketCloud.Models
     /// <summary>
     /// 红包活动页面模板类型（摇一摇、咻一咻）
     /// </summary>
-    [DataNode("dn0,dn1,dn2,dn3")]
     public enum TemplateType
     {
         Shake,
@@ -16,6 +15,7 @@ namespace RedPocketCloud.Models
     /// <summary>
     /// 红包活动页面模板实体
     /// </summary>
+    [DataNode("dn0,dn1,dn2,dn3")]
     public class Template
     {
         /// <summary>
