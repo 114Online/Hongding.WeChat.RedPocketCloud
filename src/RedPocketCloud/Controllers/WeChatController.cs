@@ -280,13 +280,13 @@ namespace RedPocketCloud.Controllers
 
             // 获取当前活动上限
             var activity_limit = await Cache.GetObjectAsync<int?>("MERCHANT_CURRENT_ACTIVITY_LIMIT" + Merchant);
-            if (!limit.HasValue)
+            if (!activity_limit.HasValue)
             {
-                limit = DB.Activities
+                activity_limit = DB.Activities
                     .Where(x => x.Id == activityId)
                     .Select(x => x.Limit)
                     .Single();
-                await Cache.SetObjectAsync("MERCHANT_CURRENT_ACTIVITY_LIMIT" + Merchant, limit);
+                await Cache.SetObjectAsync("MERCHANT_CURRENT_ACTIVITY_LIMIT" + Merchant, activity_limit);
             }
 
             // 判断是否中奖超过每日最大次数
