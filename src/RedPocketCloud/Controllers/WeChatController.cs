@@ -247,7 +247,7 @@ namespace RedPocketCloud.Controllers
         {
             if (NeedAuthorize)
                 return Content("AUTH");
-
+            
             var OpenId = HttpContext.Session.GetString("OpenId");
 
             // 微信平台要求15秒内不能给同一个用户再次发现金红包
@@ -272,6 +272,7 @@ namespace RedPocketCloud.Controllers
             if (!limit.HasValue)
             {
                 limit = DB.Users
+                    .AsNoTracking()
                     .Where(x => x.UserName == Merchant)
                     .Select(x => x.Limit)
                     .Single();
@@ -283,6 +284,7 @@ namespace RedPocketCloud.Controllers
             if (!activity_limit.HasValue)
             {
                 activity_limit = DB.Activities
+                    .AsNoTracking()
                     .Where(x => x.Id == activityId)
                     .Select(x => x.Limit)
                     .Single();
@@ -290,7 +292,6 @@ namespace RedPocketCloud.Controllers
             }
 
             // 判断是否中奖超过每日最大次数
-            var beg = DateTime.Now.Date;
             var logs = await Cache.GetObjectAsync<List<DrawnLogViewModel>>("REDPOCKET_LOGS_" + OpenId);
             if (logs == null)
             {
@@ -298,7 +299,8 @@ namespace RedPocketCloud.Controllers
                 await Cache.SetObjectAsync("REDPOCKET_LOGS_" + OpenId, logs);
             }
 
-            if (logs.Count > limit.Value || logs.Where(x => x.ActivityId == activityId).Count() > activity_limit.Value)
+            logs = logs.Where(x => x.Time >= DateTime.Now.AddDays(-1)).ToList();
+            if (logs.Count >= limit.Value || logs.Where(x => x.ActivityId == activityId).Count() >= activity_limit.Value)
                 return Content("EXCEEDED");
 
             // 参与人数缓存
@@ -311,7 +313,10 @@ namespace RedPocketCloud.Controllers
             var ratio = await Cache.GetObjectAsync<double?>("MERCHANT_CURRENT_ACTIVITY_RATIO_" + Merchant);
             if (ratio == null)
             {
-                ratio = DB.Activities.Single(x => x.Id == activityId.Value).Ratio;
+                ratio = DB.Activities
+                    .AsNoTracking()
+                    .Single(x => x.Id == activityId.Value)
+                    .Ratio;
                 Cache.SetObjectAsync("MERCHANT_CURRENT_ACTIVITY_RATIO_" + Merchant, ratio);
             }
             var rand = new Random();
@@ -319,6 +324,7 @@ namespace RedPocketCloud.Controllers
             if (num < ratio.Value * 10000)
             {
                 var prize = DB.RedPockets
+                    .AsNoTracking()
                     .Where(x => x.ActivityId == activityId.Value && x.NickName == null)
                     .OrderBy(x => Guid.NewGuid())
                     .FirstOrDefault();
@@ -331,11 +337,13 @@ namespace RedPocketCloud.Controllers
                 }
 
                 // 中奖发放红包
-                prize.OpenId = HttpContext.Session.GetString("OpenId");
-                prize.NickName = HttpContext.Session.GetString("Nickname");
-                prize.AvatarUrl = HttpContext.Session.GetString("AvatarUrl");
-                prize.ReceivedTime = DateTime.Now;
-                DB.SaveChanges();
+                DB.RedPockets
+                    .Where(x => x.Id == prize.Id)
+                    .SetField(x => x.OpenId).WithValue(HttpContext.Session.GetString("OpenId"))
+                    .SetField(x => x.NickName).WithValue(HttpContext.Session.GetString("Nickname"))
+                    .SetField(x => x.AvatarUrl).WithValue(HttpContext.Session.GetString("AvatarUrl"))
+                    .SetField(x => x.ReceivedTime).WithValue(DateTime.Now)
+                    .UpdateAsync();
                 
                 // 中奖人数更新
                 DB.Activities
@@ -349,12 +357,12 @@ namespace RedPocketCloud.Controllers
                 {
                     // 微信转账
                     await TransferMoneyAsync(prize.Id, HttpContext.Session.GetString("OpenId"), prize.Price, Startup.Config["WeChat:RedPocket:TransferDescription"]);
-
+                    
                     // 从账户中扣除
                     DB.Users
                         .Where(x => x.UserName == Merchant)
                         .SetField(x => x.Balance).Subtract(prize.Price / 100.0)
-                        .Update();
+                        .UpdateAsync();
                 }
                 else if (prize.Type == RedPocketType.Coupon)
                 {
@@ -362,7 +370,10 @@ namespace RedPocketCloud.Controllers
                     coupon = await Cache.GetObjectAsync<Coupon>("COUPON_" + prize.CouponId);
                     if (coupon == null)
                     {
-                        coupon = DB.Coupons.Where(x => x.Id == prize.CouponId).Single();
+                        coupon = DB.Coupons
+                            .AsNoTracking()
+                            .Where(x => x.Id == prize.CouponId)
+                            .Single();
                         await Cache.SetObjectAsync("COUPON_" + prize.CouponId, coupon);
                     }
                     DB.Wallets.Add(new Wallet
@@ -418,13 +429,12 @@ namespace RedPocketCloud.Controllers
                     Cache.SetObjectAsync("REDPOCKET_COOLDOWN_" + OpenId, DateTime.Now);
 
                 // 添加logs
-                if (logs.Count >= Math.Max(limit.Value, activity_limit.Value))
-                    logs.RemoveRange(0, logs.Count - limit.Value + 1);
                 logs.Add(new DrawnLogViewModel
                 {
                     ActivityId = activityId.Value,
                     Time = DateTime.Now
                 });
+                logs = logs.Where(x => x.Time >= DateTime.Now.AddDays(-1)).ToList();
                 Cache.SetObjectAsync("REDPOCKET_LOGS_" + OpenId, logs);
 
                 try

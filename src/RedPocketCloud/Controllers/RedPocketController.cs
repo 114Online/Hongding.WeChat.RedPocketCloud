@@ -338,14 +338,15 @@ namespace RedPocketCloud.Controllers
         [HttpPost]
         public IActionResult Deliver(string Title, string Rules, double Ratio, int Limit, long TemplateId, [FromServices] IDistributedCache Cache)
         {
-            if (DB.Activities.Count(x => x.MerchantId == User.Current.Id && !x.End.HasValue) > 0)
+            var last = DB.Activities.LastOrDefault(x => x.MerchantId == User.Current.Id && !x.End.HasValue);
+            if (last != null)
                 return Prompt(x =>
                 {
                     x.Title = "创建失败";
                     x.Details = "还有活动正在进行，请等待活动结束后再创建新活动！";
                     x.StatusCode = 400;
                 });
-            JsonObject<List<ViewModels.RuleViewModel>> rules = Rules;
+            JsonObject<List<RuleViewModel>> rules = Rules;
             // 检查余额
             if (rules.Object.Count == 0)
                 return Prompt(x =>
