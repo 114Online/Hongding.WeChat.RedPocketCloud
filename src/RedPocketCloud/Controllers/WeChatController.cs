@@ -354,7 +354,7 @@ namespace RedPocketCloud.Controllers
                     DB.Users
                         .Where(x => x.UserName == Merchant)
                         .SetField(x => x.Balance).Subtract(prize.Price / 100.0)
-                        .UpdateAsync();
+                        .Update();
                 }
                 else if (prize.Type == RedPocketType.Coupon)
                 {
@@ -418,7 +418,7 @@ namespace RedPocketCloud.Controllers
                     Cache.SetObjectAsync("REDPOCKET_COOLDOWN_" + OpenId, DateTime.Now);
 
                 // 添加logs
-                if (logs.Count >= limit.Value)
+                if (logs.Count >= Math.Max(limit.Value, activity_limit.Value))
                     logs.RemoveRange(0, logs.Count - limit.Value + 1);
                 logs.Add(new DrawnLogViewModel
                 {
