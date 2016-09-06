@@ -515,7 +515,7 @@ namespace RedPocketCloud.Controllers
             {
                 Balance = merchant.Balance,
                 MerchantId = merchant.Id,
-                Price = -price,
+                Price = -(price / 100.0),
                 Time = DateTime.Now
             });
             DB.SaveChanges();

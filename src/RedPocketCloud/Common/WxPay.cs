@@ -29,17 +29,47 @@ namespace RedPocketCloud.Common
                 ret.Id = json.openid;
 
                 // 获取用户头像及昵称
-                var result2 = await client.GetAsync($"/sns/userinfo?access_token={ ret.AccessToken }&openid={ ret.Id }&lang=zh_CN");
-                var jsonStr2 = await result2.Content.ReadAsStringAsync();
-                var json2 = DeserializeObject<dynamic>(jsonStr2);
-                ret.AvatarUrl = json2.headimgurl;
-                ret.NickName = json2.nickname;
+                try
+                {
+                    var result2 = await client.GetAsync($"/sns/userinfo?access_token={ ret.AccessToken }&openid={ ret.Id }&lang=zh_CN");
+                    var jsonStr2 = await result2.Content.ReadAsStringAsync();
+                    var json2 = DeserializeObject<dynamic>(jsonStr2);
+                    ret.AvatarUrl = json2.headimgurl;
+                    ret.NickName = json2.nickname;
+                }
+                catch { }
 
                 return ret;
             }
         }
 
         public static async Task<bool> TransferMoneyAsync(long DeliverId, string OpenId, long Price, string Description)
+        {
+            try
+            {
+                return await _TransferMoneyAsync(DeliverId, OpenId, Price, Description);
+            }
+            catch
+            {
+                try
+                {
+                    return await _TransferMoneyAsync(DeliverId, OpenId, Price, Description);
+                }
+                catch
+                {
+                    try
+                    {
+                        return await _TransferMoneyAsync(DeliverId, OpenId, Price, Description);
+                    }
+                    catch
+                    {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        public static async Task<bool> _TransferMoneyAsync(long DeliverId, string OpenId, long Price, string Description)
         {
             var nounce = Guid.NewGuid().ToString().Replace("-", "");
             var requestUrl = "";
@@ -82,8 +112,10 @@ namespace RedPocketCloud.Common
             using (var client = new HttpClient(handler) { BaseAddress = new Uri("https://api.mch.weixin.qq.com") })
             {
                 var result = await client.PostAsync("/mmpaymkttransfers/promotion/transfers", new ByteArrayContent(Encoding.UTF8.GetBytes(requestXml)));
+                if (!result.IsSuccessStatusCode)
+                    throw new Exception();
                 var html = await result.Content.ReadAsStringAsync();
-                if (html.IndexOf("ERROR") == 0)
+                if (html.IndexOf("ERROR") < 0)
                     return true;
                 return false;
             }

@@ -344,25 +344,22 @@ namespace RedPocketCloud.Controllers
                     .SetField(x => x.AvatarUrl).WithValue(HttpContext.Session.GetString("AvatarUrl"))
                     .SetField(x => x.ReceivedTime).WithValue(DateTime.Now)
                     .UpdateAsync();
-                
-                // 中奖人数更新
-                DB.Activities
-                    .Where(x => x.Id == activityId.Value)
-                    .SetField(x => x.ReceivedCount).Plus(1)
-                    .UpdateAsync();
 
                 // 分发奖品
                 Coupon coupon = null;
                 if (prize.Type == RedPocketType.Cash)
                 {
-                    // 微信转账
-                    await TransferMoneyAsync(prize.Id, HttpContext.Session.GetString("OpenId"), prize.Price, Startup.Config["WeChat:RedPocket:TransferDescription"]);
-                    
-                    // 从账户中扣除
-                    DB.Users
-                        .Where(x => x.UserName == Merchant)
-                        .SetField(x => x.Balance).Subtract(prize.Price / 100.0)
-                        .UpdateAsync();
+                    if (await TransferMoneyAsync(prize.Id, HttpContext.Session.GetString("OpenId"), prize.Price, Startup.Config["WeChat:RedPocket:TransferDescription"]) == false)
+                    {
+                        DB.RedPockets
+                            .Where(x => x.Id == prize.Id)
+                            .SetField(x => x.OpenId).WithValue(null)
+                            .SetField(x => x.NickName).WithValue(null)
+                            .SetField(x => x.AvatarUrl).WithValue(null)
+                            .SetField(x => x.ReceivedTime).WithValue(null)
+                            .UpdateAsync();
+                        return Content("RETRY");
+                    }
                 }
                 else if (prize.Type == RedPocketType.Coupon)
                 {
@@ -386,6 +383,12 @@ namespace RedPocketCloud.Controllers
                     });
                     await DB.SaveChangesAsync();
                 }
+
+                // 中奖人数更新
+                DB.Activities
+                    .Where(x => x.Id == activityId.Value)
+                    .SetField(x => x.ReceivedCount).Plus(1)
+                    .UpdateAsync();
 
                 // 推送中奖消息
                 if (prize.Type == RedPocketType.Cash)
