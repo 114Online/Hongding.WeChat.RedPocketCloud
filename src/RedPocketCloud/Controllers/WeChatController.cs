@@ -349,17 +349,7 @@ namespace RedPocketCloud.Controllers
                 Coupon coupon = null;
                 if (prize.Type == RedPocketType.Cash)
                 {
-                    if (await TransferMoneyAsync(prize.Id, HttpContext.Session.GetString("OpenId"), prize.Price, Startup.Config["WeChat:RedPocket:TransferDescription"]) == false)
-                    {
-                        DB.RedPockets
-                            .Where(x => x.Id == prize.Id)
-                            .SetField(x => x.OpenId).WithValue(null)
-                            .SetField(x => x.NickName).WithValue(null)
-                            .SetField(x => x.AvatarUrl).WithValue(null)
-                            .SetField(x => x.ReceivedTime).WithValue(null)
-                            .UpdateAsync();
-                        return Content("RETRY");
-                    }
+                    await TransferMoneyAsync(prize.Id, HttpContext.Session.GetString("OpenId"), prize.Price, Startup.Config["WeChat:RedPocket:TransferDescription"]);
                 }
                 else if (prize.Type == RedPocketType.Coupon)
                 {
@@ -396,7 +386,7 @@ namespace RedPocketCloud.Controllers
                     Hub.Clients.Group(prize.ActivityId.ToString()).OnDelivered(new
                     {
                         type = prize.Type,
-                        time = prize.ReceivedTime,
+                        time = DateTime.Now,
                         avatar = HttpContext.Session.GetString("AvatarUrl"),
                         name = HttpContext.Session.GetString("Nickname"),
                         price = prize.Price,
@@ -408,7 +398,7 @@ namespace RedPocketCloud.Controllers
                     Hub.Clients.Group(prize.ActivityId.ToString()).OnDelivered(new
                     {
                         type = prize.Type,
-                        time = prize.ReceivedTime,
+                        time = DateTime.Now,
                         avatar = HttpContext.Session.GetString("AvatarUrl"),
                         name = HttpContext.Session.GetString("Nickname"),
                         id = HttpContext.Session.GetString("OpenId")
@@ -419,7 +409,7 @@ namespace RedPocketCloud.Controllers
                     Hub.Clients.Group(prize.ActivityId.ToString()).OnDelivered(new
                     {
                         type = prize.Type,
-                        time = prize.ReceivedTime,
+                        time = DateTime.Now,
                         avatar = HttpContext.Session.GetString("AvatarUrl"),
                         name = HttpContext.Session.GetString("Nickname"),
                         id = HttpContext.Session.GetString("OpenId"),
@@ -481,9 +471,10 @@ namespace RedPocketCloud.Controllers
         {
             if (NeedAuthorize)
                 return RedirectToEntry(Operation.RedPocket);
+            var coupons = DB.Coupons.ToList();
             var ret = DB.Wallets
                 .Where(x => x.OpenId == HttpContext.Session.GetString("OpenId"))
-                .Join(DB.Coupons, x => x.CouponId, x => x.Id, (x, y) => new WalletViewModel
+                .Join(coupons, x => x.CouponId, x => x.Id, (x, y) => new WalletViewModel
                 {
                     Id = x.Id,
                     ImageId = y.ImageId
@@ -502,9 +493,10 @@ namespace RedPocketCloud.Controllers
         {
             if (NeedAuthorize)
                 return RedirectToEntry(Operation.RedPocket);
+            var coupons = DB.Coupons.ToList();
             var ret = DB.Wallets
                 .Where(x => x.Id == id && x.OpenId == HttpContext.Session.GetString("OpenId"))
-                .Join(DB.Coupons, x => x.CouponId, x => x.Id, (x, y) => new WalletViewModel
+                .Join(coupons, x => x.CouponId, x => x.Id, (x, y) => new WalletViewModel
                 {
                     Id = x.Id,
                     Description = y.Description,

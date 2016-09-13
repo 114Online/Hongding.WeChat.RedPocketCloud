@@ -22,7 +22,8 @@ namespace RedPocketCloud.Controllers
             IQueryable<Coupon> query = DB.Coupons;
             if (User.IsInRole("Root"))
             {
-                var ret = query.Join(DB.Users, x => x.MerchantId, x => x.Id, (x, y) => new CouponViewModel
+                var users = DB.Users.ToList();
+                var ret = query.Join(users, x => x.MerchantId, x => x.Id, (x, y) => new CouponViewModel
                 {
                     Title = x.Title,
                     Description = x.Description,

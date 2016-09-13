@@ -59,19 +59,19 @@ namespace RedPocketCloud.Models
         /// <summary>
         /// 微信OpenID
         /// </summary>
-        [MaxLength(32)]
+        [MaxLength(64)]
         public string OpenId { get; set; }
 
         /// <summary>
         /// 微信头像URL
         /// </summary>
-        [MaxLength(256)]
+        [MaxLength(512)]
         public string AvatarUrl { get; set; }
 
         /// <summary>
         /// 微信昵称
         /// </summary>
-        [MaxLength(64)]
+        [MaxLength(128)]
         public string NickName { get; set; }
 
         /// <summary>

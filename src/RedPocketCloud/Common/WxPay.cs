@@ -4,9 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Net.Http;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.IO;
 using System.Security.Cryptography;
 using RedPocketCloud.ViewModels;
+using Microsoft.Extensions.Caching.Distributed;
 using static Newtonsoft.Json.JsonConvert;
 
 namespace RedPocketCloud.Common
@@ -45,39 +47,14 @@ namespace RedPocketCloud.Common
 
         public static async Task<bool> TransferMoneyAsync(long DeliverId, string OpenId, long Price, string Description)
         {
-            try
-            {
-                return await _TransferMoneyAsync(DeliverId, OpenId, Price, Description);
-            }
-            catch
-            {
-                try
-                {
-                    return await _TransferMoneyAsync(DeliverId, OpenId, Price, Description);
-                }
-                catch
-                {
-                    try
-                    {
-                        return await _TransferMoneyAsync(DeliverId, OpenId, Price, Description);
-                    }
-                    catch
-                    {
-                        return false;
-                    }
-                }
-            }
-        }
-
-        public static async Task<bool> _TransferMoneyAsync(long DeliverId, string OpenId, long Price, string Description)
-        {
+            var order_id = Guid.NewGuid().ToString();
             var nounce = Guid.NewGuid().ToString().Replace("-", "");
             var requestUrl = "";
             var dic = new Dictionary<string, string>();
             dic.Add("mch_appid", Startup.Config["WeChat:AppId"]);
             dic.Add("mchid", Startup.Config["WeChat:MchId"]);
             dic.Add("nonce_str", nounce);
-            dic.Add("partner_trade_no", DeliverId.ToString());
+            dic.Add("partner_trade_no", order_id.ToString());
             dic.Add("openid", OpenId);
             dic.Add("amount", Price.ToString());
             dic.Add("desc", Description);
@@ -96,7 +73,7 @@ namespace RedPocketCloud.Common
     <mch_appid>{ Startup.Config["WeChat:AppId"] }</mch_appid> 
     <mchid>{ Startup.Config["WeChat:MchId"] }</mchid> 
     <nonce_str>{ nounce }</nonce_str> 
-    <partner_trade_no>{ DeliverId }</partner_trade_no> 
+    <partner_trade_no>{ order_id }</partner_trade_no> 
     <openid>{ OpenId }</openid> 
     <amount>{ Price }</amount> 
     <desc>{ Description }</desc> 

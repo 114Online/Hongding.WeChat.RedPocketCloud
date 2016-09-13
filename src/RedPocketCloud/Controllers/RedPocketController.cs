@@ -39,7 +39,8 @@ namespace RedPocketCloud.Controllers
             query = query.OrderByDescending(x => x.Begin);
             if (User.IsInRole("Root"))
             {
-                var ret = query.Join(DB.Users, x => x.MerchantId, x => x.Id, (x, y) => new ActivityViewModel
+                var users = DB.Users.ToList();
+                var ret = query.Join(users, x => x.MerchantId, x => x.Id, (x, y) => new ActivityViewModel
                 {
                     Begin = x.Begin,
                     BriberiesCount = x.BriberiesCount,

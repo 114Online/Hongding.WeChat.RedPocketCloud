@@ -3,15 +3,17 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using RedPocketCloud.Models;
 using RedPocketCloud.ViewModels;
 
 namespace RedPocketCloud.Migrations
 {
     [DbContext(typeof(RpcContext))]
-    partial class RpcContextModelSnapshot : ModelSnapshot
+    [Migration("20160912035644_IncreaseFieldLength")]
+    partial class IncreaseFieldLength
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
             modelBuilder
                 .HasAnnotation("ProductVersion", "1.0.0-rtm-21431");

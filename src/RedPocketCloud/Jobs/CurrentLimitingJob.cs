@@ -9,12 +9,12 @@ namespace RedPocketCloud.Jobs
         /// <summary>
         /// 限流器
         /// </summary>
-        [Invoke(SkipWhileExecuting = true, Interval = 1000 * 10)]
+        [Invoke(SkipWhileExecuting = false, Interval = 1000 * 10)]
         public void ClearExpiredCoupon()
         {
             var cnt = WeChatController.RequestCount;
             WeChatController.RequestCount = 0;
-            if (cnt >= 5000)
+            if (cnt >= 3000)
                 WeChatController.Limiting = 5000 / cnt;
             else
                 WeChatController.Limiting = 1;
