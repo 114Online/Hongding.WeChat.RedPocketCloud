@@ -71,7 +71,7 @@ namespace RedPocketCloud
 
         public async void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
-            loggerFactory.AddConsole(LogLevel.Warning);
+            loggerFactory.AddConsole(LogLevel.Information);
             app.UseSession();
             app.UseWebSockets();
             app.UseSignalR();

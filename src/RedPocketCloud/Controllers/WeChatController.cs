@@ -323,33 +323,44 @@ namespace RedPocketCloud.Controllers
             var num = rand.Next(0, 10000);
             if (num < ratio.Value * 10000)
             {
-                var prize = DB.RedPockets
-                    .AsNoTracking()
-                    .Where(x => x.ActivityId == activityId.Value && x.NickName == null)
-                    .OrderBy(x => Guid.NewGuid())
-                    .FirstOrDefault();
-
-                // 检查剩余红包数量
-                if (prize == null)
+                RedPocket prize;
+                lock (this)
                 {
-                    CheckActivityEnd(activityId.Value, Merchant, Cache, Hub);
-                    return Content("RETRY");
-                }
+                    prize = DB.RedPockets
+                        .AsNoTracking()
+                        .Where(x => x.ActivityId == activityId.Value && x.NickName == null)
+                        .OrderBy(x => Guid.NewGuid())
+                        .FirstOrDefault();
 
-                // 中奖发放红包
-                DB.RedPockets
-                    .Where(x => x.Id == prize.Id)
-                    .SetField(x => x.OpenId).WithValue(HttpContext.Session.GetString("OpenId"))
-                    .SetField(x => x.NickName).WithValue(HttpContext.Session.GetString("Nickname"))
-                    .SetField(x => x.AvatarUrl).WithValue(HttpContext.Session.GetString("AvatarUrl"))
-                    .SetField(x => x.ReceivedTime).WithValue(DateTime.Now)
-                    .UpdateAsync();
+                    // 检查剩余红包数量
+                    if (prize == null)
+                    {
+                        CheckActivityEnd(activityId.Value, Merchant, Cache, Hub);
+                        return Content("RETRY");
+                    }
+
+                    // 中奖发放红包
+                    DB.RedPockets
+                        .Where(x => x.Id == prize.Id)
+                        .SetField(x => x.OpenId).WithValue(HttpContext.Session.GetString("OpenId"))
+                        .SetField(x => x.NickName).WithValue(HttpContext.Session.GetString("Nickname"))
+                        .SetField(x => x.AvatarUrl).WithValue(HttpContext.Session.GetString("AvatarUrl"))
+                        .SetField(x => x.ReceivedTime).WithValue(DateTime.Now)
+                        .Update();
+                }
 
                 // 分发奖品
                 Coupon coupon = null;
                 if (prize.Type == RedPocketType.Cash)
                 {
+                    // 微信转账
                     await TransferMoneyAsync(prize.Id, HttpContext.Session.GetString("OpenId"), prize.Price, Startup.Config["WeChat:RedPocket:TransferDescription"]);
+                    
+                    // 从账户中扣除
+                    DB.Users
+                        .Where(x => x.UserName == Merchant)
+                        .SetField(x => x.Balance).Subtract(prize.Price / 100.0)
+                        .UpdateAsync();
                 }
                 else if (prize.Type == RedPocketType.Coupon)
                 {
