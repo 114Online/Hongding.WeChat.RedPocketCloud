@@ -476,6 +476,7 @@ namespace RedPocketCloud.Controllers
             ViewBag.Briberies = DB.RedPockets
                 .Where(x => x.ActivityId == id && x.ReceivedTime.HasValue)
                 .OrderByDescending(x => x.ReceivedTime)
+                .Take(10000)
                 .ToList();
             return View(act);
         }
@@ -574,6 +575,7 @@ namespace RedPocketCloud.Controllers
             var src = DB.RedPockets
                 .Where(x => x.ActivityId == id && x.ReceivedTime.HasValue)
                 .OrderBy(x => x.ReceivedTime)
+                .Take(10000)
                 .ToList();
 
             var nonawarded = activity.BriberiesCount - activity.ReceivedCount;

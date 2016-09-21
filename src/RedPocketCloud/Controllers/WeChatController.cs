@@ -340,13 +340,24 @@ namespace RedPocketCloud.Controllers
                     }
 
                     // 中奖发放红包
-                    DB.RedPockets
+                    var effected = DB.RedPockets
                         .Where(x => x.Id == prize.Id)
+                        .Where(x => string.IsNullOrEmpty(x.NickName))
                         .SetField(x => x.OpenId).WithValue(HttpContext.Session.GetString("OpenId"))
                         .SetField(x => x.NickName).WithValue(HttpContext.Session.GetString("Nickname"))
                         .SetField(x => x.AvatarUrl).WithValue(HttpContext.Session.GetString("AvatarUrl"))
                         .SetField(x => x.ReceivedTime).WithValue(DateTime.Now)
                         .Update();
+
+                    if (effected == 0)
+                    {
+                        DB.Activities
+                            .Where(x => x.Id == activityId.Value)
+                            .SetField(x => x.Attend).Subtract(1)
+                            .UpdateAsync();
+
+                        return Content("NO");
+                    }
                 }
 
                 // 分发奖品
@@ -354,7 +365,15 @@ namespace RedPocketCloud.Controllers
                 if (prize.Type == RedPocketType.Cash)
                 {
                     // 微信转账
-                    await TransferMoneyAsync(prize.Id, HttpContext.Session.GetString("OpenId"), prize.Price, Startup.Config["WeChat:RedPocket:TransferDescription"]);
+                    if (!await TransferMoneyAsync(prize.Id, HttpContext.Session.GetString("OpenId"), prize.Price, Startup.Config["WeChat:RedPocket:TransferDescription"]))
+                    {
+                        DB.Activities
+                            .Where(x => x.Id == activityId.Value)
+                            .SetField(x => x.Attend).Subtract(1)
+                            .UpdateAsync();
+
+                        return Content("NO");
+                    }
                     
                     // 从账户中扣除
                     DB.Users

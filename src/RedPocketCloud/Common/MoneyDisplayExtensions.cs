@@ -11,7 +11,7 @@ namespace Microsoft.AspNetCore.Mvc.Rendering
 
         public static HtmlString Money(this IHtmlHelper self, long money)
         {
-            return new HtmlString((money / 100.0).ToString("0.00"));
+            return new HtmlString((money / 100.0).ToString("￥0.00"));
         }
     }
 }

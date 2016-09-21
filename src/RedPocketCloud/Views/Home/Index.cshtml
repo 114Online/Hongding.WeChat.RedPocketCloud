@@ -16,7 +16,11 @@
                         <td>@User.Current.Merchant</td>
                     </tr>
                     <tr>
-                        <td>红包入口</td>
+                        <td>传统红包</td>
+                        <td><a href="@RedPocketCloud.Startup.Config["Host:Domain"]/WeChat/RedPocket/@User.Current.UserName">@RedPocketCloud.Startup.Config["Host:Domain"]/WeChat/RedPocket/@User.Current.UserName</a></td>
+                    </tr>
+                    <tr>
+                        <td>口令红包</td>
                         <td><a href="@RedPocketCloud.Startup.Config["Host:Domain"]/WeChat/RedPocket/@User.Current.UserName">@RedPocketCloud.Startup.Config["Host:Domain"]/WeChat/RedPocket/@User.Current.UserName</a></td>
                     </tr>
                     <tr>
@@ -26,14 +30,6 @@
                     <tr>
                         <td>账户余额</td>
                         <td>@Html.Money(User.Current.Balance)</td>
-                    </tr>
-                    <tr>
-                        <td>30天活动数</td>
-                        <td>@ViewBag.ActivityCount 次</td>
-                    </tr>
-                    <tr>
-                        <td>活动模板</td>
-                        <td>@ViewBag.TemplateCount 个</td>
                     </tr>
                     <tr>
                         <td>红包限制</td>
