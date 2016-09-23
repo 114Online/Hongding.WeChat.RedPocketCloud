@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Linq;
 using System.IO;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.EntityFrameworkCore;
 using Pomelo.Data.Excel;
 using RedPocketCloud.Models;
 using RedPocketCloud.ViewModels;
@@ -337,7 +339,7 @@ namespace RedPocketCloud.Controllers
         /// <param name="Cache"></param>
         /// <returns></returns>
         [HttpPost]
-        public IActionResult Deliver(string Title, string Rules, double Ratio, int Limit, long TemplateId, [FromServices] IDistributedCache Cache)
+        public async Task<IActionResult> Deliver(string Title, string Rules, double Ratio, int Limit, long TemplateId, [FromServices] IDistributedCache Cache)
         {
             var last = DB.Activities.LastOrDefault(x => x.MerchantId == User.Current.Id && !x.End.HasValue);
             if (last != null)
@@ -452,10 +454,12 @@ namespace RedPocketCloud.Controllers
             Cache.SetObject("MERCHANT_CURRENT_ACTIVITY_RATIO_" + User.Current.UserName, act.Ratio);
 
             // 计算红包统计
-            act.Price = money;
-            act.BriberiesCount = rules.Object.Sum(x => x.Count);
-            act.IsBegin = true;
-            DB.SaveChanges();
+            await DB.Activities
+                .Where(x => x.Id == act.Id)
+                .SetField(x => x.Price).WithValue(money)
+                .SetField(x => x.BriberiesCount).WithValue(rules.Object.Sum(x => x.Count))
+                .SetField(x => x.IsBegin).WithValue(true)
+                .UpdateAsync();
 
             return RedirectToAction("Activity", "RedPocket", new { id = act.Id });
         }
@@ -463,6 +467,12 @@ namespace RedPocketCloud.Controllers
         public IActionResult Activity(long id)
         {
             var act = DB.Activities.Single(x => x.Id == id);
+            if (act.BriberiesCount == 0)
+            {
+                act.BriberiesCount = act.Rules.Object.Sum(x => x.Count);
+                act.Price = DB.RedPockets.Where(x => x.ActivityId == id).Sum(x => x.Price);
+                DB.SaveChanges();
+            }
             if (!User.IsInRole("Root") && User.Current.Id != act.MerchantId)
                 return Prompt(x =>
                 {

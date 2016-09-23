@@ -88,7 +88,7 @@ namespace RedPocketCloud.Controllers
             lock (this)
             {
                 var affected = DB.Activities
-                    .Where(x => x.Id == activity_id && x.IsBegin && x.BriberiesCount == x.ReceivedCount)
+                    .Where(x => x.Id == activity_id && x.IsBegin && x.BriberiesCount <= x.ReceivedCount && x.BriberiesCount != 0)
                     .SetField(x => x.End).WithValue(DateTime.Now)
                     .Update();
 
