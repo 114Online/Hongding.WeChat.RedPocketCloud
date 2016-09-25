@@ -40,7 +40,7 @@
                     </tr>
                     <tr>
                         <td>当前领取红包数</td>
-                        <td><span class="amount">@Model.ReceivedCount</span> 个</td>
+                        <td><span class="amount">@(Math.Min(Model.ReceivedCount, Model.BriberiesCount))</span> 个</td>
                     </tr>
                     <tr>
                         <td>本轮总红包数</td>

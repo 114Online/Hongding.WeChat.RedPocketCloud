@@ -159,7 +159,7 @@ namespace RedPocketCloud.Controllers
                     bottom = blob.Id;
                 }
             }
-            else
+            else if (type == TemplateType.Shoop)
             {
                 if (!bg.HasValue)
                 {
@@ -191,6 +191,24 @@ namespace RedPocketCloud.Controllers
                     DB.Blobs.Add(blob);
                     DB.SaveChanges();
                     top = blob.Id;
+                }
+            }
+            else if (type == TemplateType.Command)
+            {
+                if (!bg.HasValue)
+                {
+                    var bytes = System.IO.File.ReadAllBytes(Path.Combine("wwwroot", "assets", "img", "command-bg.jpg"));
+                    var blob = new Blob
+                    {
+                        Bytes = bytes,
+                        ContentType = "image/jpeg",
+                        FileName = "command-bg.jpg",
+                        Time = DateTime.Now,
+                        ContentLength = bytes.Length
+                    };
+                    DB.Blobs.Add(blob);
+                    DB.SaveChanges();
+                    bg = blob.Id;
                 }
             }
 
@@ -339,14 +357,14 @@ namespace RedPocketCloud.Controllers
         /// <param name="Cache"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<IActionResult> Deliver(string Title, string Rules, double Ratio, int Limit, long TemplateId, [FromServices] IDistributedCache Cache)
+        public async Task<IActionResult> Deliver(string Title, string Rules, double Ratio, int Limit, string Command, long TemplateId, ActivityType Type, [FromServices] IDistributedCache Cache)
         {
-            var last = DB.Activities.LastOrDefault(x => x.MerchantId == User.Current.Id && !x.End.HasValue);
+            var last = DB.Activities.LastOrDefault(x => x.MerchantId == User.Current.Id && !x.End.HasValue && x.Type == Type);
             if (last != null)
                 return Prompt(x =>
                 {
                     x.Title = "创建失败";
-                    x.Details = "还有活动正在进行，请等待活动结束后再创建新活动！";
+                    x.Details = $"还有{ (Type == ActivityType.Command ? "经典红包" : "口令红包") }活动正在进行，请等待活动结束后再创建新活动！";
                     x.StatusCode = 400;
                 });
             JsonObject<List<RuleViewModel>> rules = Rules;
@@ -384,6 +402,8 @@ namespace RedPocketCloud.Controllers
                 MerchantId = User.Current.Id,
                 IsBegin = false,
                 Limit = Limit,
+                Type = Type,
+                Command = Command,
                 TemplateId = TemplateId
             };
 

@@ -1,4 +1,4 @@
-﻿@{ 
+﻿@{
     ViewBag.Title = "创建红包模板";
 }
 
@@ -32,7 +32,7 @@
                         <p style="text-align: center">
                             <a href="javascript: demoShake();" class="btn btn-success">演示效果</a>
                             &nbsp;&nbsp;
-                            <a href="javascript: Submit(true);" class="btn btn-danger">创建模板</a>
+                            <a href="javascript: Submit(0);" class="btn btn-danger">创建模板</a>
                         </p>
                     </div>
                     <div role="tabpanel" class="tab-pane" id="shoop">
@@ -54,7 +54,22 @@
                         <p style="text-align: center">
                             <a href="javascript: demoShoop();" class="btn btn-success">演示效果</a>
                             &nbsp;&nbsp;
-                            <a href="javascript: Submit(false);" class="btn btn-danger">创建模板</a>
+                            <a href="javascript: Submit(1);" class="btn btn-danger">创建模板</a>
+                        </p>
+                    </div>
+                    <div role="tabpanel" class="tab-pane" id="command">
+                        <div class="template-edit">
+                            <img class="shoop-bg" src="~/assets/img/command-bg.jpg" />
+                        </div>
+                        <hr />
+                        <div class="template-pop">
+                            <img class="shoop-drawn" src="~/assets/img/drawn.png" />
+                            <img class="shoop-undrawn" src="~/assets/img/undrawn.png" />
+                        </div>
+                        <hr />
+                        <p style="text-align: center; color: #888">将图片文件拖拽至背景以替换图片。</p>
+                        <p style="text-align: center">
+                            <a href="javascript: Submit(2);" class="btn btn-danger">创建模板</a>
                         </p>
                     </div>
                 </div>
@@ -74,7 +89,7 @@
     <input type="hidden" name="pending" id="hidPending" />
 </form>
 <script>
-    var shake = {}, shoop = {};
+    var shake = {}, shoop = {}, command = {};
     function demoShake()
     {
         $('.top').addClass('top-closed');
@@ -161,10 +176,22 @@
         $('.shoop-pending').attr('src', '/file/download/' + result.Id);
         shoop.pending = result.Id;
     });
+    $('.command-bg').dragDropOrPaste(null, function (result) {
+        $('.shoop-bg').attr('src', '/file/download/' + result.Id);
+        shoop.bg = result.Id;
+    });
+    $('.command-drawn').dragDropOrPaste(null, function (result) {
+        $('.shoop-drawn').attr('src', '/file/download/' + result.Id);
+        shoop.drawn = result.Id;
+    });
+    $('.command-undrawn').dragDropOrPaste(null, function (result) {
+        $('.shoop-undrawn').attr('src', '/file/download/' + result.Id);
+        shoop.undrawn = result.Id;
+    });
 
-    function Submit(IsShake)
+    function Submit(type)
     {
-        if (IsShake)
+        if (type == 0) // 摇一摇
         {
             $('#hidBg').val(shake.bg);
             $('#hidTop').val(shake.top);
@@ -174,7 +201,7 @@
             $('#hidPending').val(shake.pending);
             $('#hidType').val('Shake');
         }
-        else
+        else if (type == 1) // 咻一咻
         {
             $('#hidBg').val(shoop.bg);
             $('#hidTop').val(shoop.btn);
@@ -182,6 +209,13 @@
             $('#hidDrawn').val(shoop.drawn);
             $('#hidUndrawn').val(shoop.undrawn);
             $('#hidPending').val(shoop.pending);
+        }
+        else // 口令红包
+        {
+            $('#hidBg').val(command.bg);
+            $('#hidType').val('Command');
+            $('#hidDrawn').val(command.drawn);
+            $('#hidUndrawn').val(command.undrawn);
         }
         $('#frmSubmit').submit();
     }

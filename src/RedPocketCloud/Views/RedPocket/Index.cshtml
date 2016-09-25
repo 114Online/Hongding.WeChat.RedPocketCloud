@@ -50,6 +50,7 @@
             <thead>
                 <tr>
                     <th>活动名称</th>
+                    <th>类型</th>
                     <th>状态</th>
                     @if (User.IsInRole("Root"))
                     {
@@ -68,6 +69,7 @@
                 {
                     <tr>
                         <td>@x.Title</td>
+                        <td>@(x.Type == ActivityType.Convention ? "经典" : "口令")</td>
                         @if (x.End.HasValue)
                         {
                             <td><span class="label label-default">已经结束</span></td>

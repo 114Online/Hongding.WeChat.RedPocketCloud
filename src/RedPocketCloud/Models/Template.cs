@@ -9,7 +9,8 @@ namespace RedPocketCloud.Models
     public enum TemplateType
     {
         Shake,
-        Shoop
+        Shoop,
+        Command
     }
 
     /// <summary>
@@ -45,7 +46,7 @@ namespace RedPocketCloud.Models
         public long? BottomPartId { get; set; }
         
         /// <summary>
-        /// 北京图片BlobID
+        /// 背景图片BlobID
         /// </summary>
         public long? BackgroundId { get; set; }
         

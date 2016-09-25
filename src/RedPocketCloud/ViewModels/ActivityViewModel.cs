@@ -1,4 +1,5 @@
 ﻿using System;
+using RedPocketCloud.Models;
 
 namespace RedPocketCloud.ViewModels
 {
@@ -6,6 +7,7 @@ namespace RedPocketCloud.ViewModels
     {
         public long Id { get; set; }
         public string Title { get; set; }
+        public ActivityType Type { get; set; }
         public DateTime Begin { get; set; }
         public DateTime? End { get; set; }
         public long Price { get; set; }

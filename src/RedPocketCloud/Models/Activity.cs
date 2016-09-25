@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using RedPocketCloud.ViewModels;
 
@@ -15,6 +16,14 @@ namespace RedPocketCloud.Models
         /// 活动ID
         /// </summary>
         public long Id { get; set; }
+
+        /// <summary>
+        /// 活动类型
+        /// </summary>
+        public ActivityType Type { get; set; }
+
+        [MaxLength(64)]
+        public string Command { get; set; }
 
         /// <summary>
         /// 活动名称
