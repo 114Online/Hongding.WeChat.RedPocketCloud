@@ -46,10 +46,20 @@
                         <td>本轮总红包数</td>
                         <td><span class="">@Model.BriberiesCount</span> 个</td>
                     </tr>
-                    <tr>
-                        <td>中奖率</td>
-                        <td>@((Model.Ratio * 100).ToString("0.00"))%</td>
-                    </tr>
+                    @if (Model.Type == ActivityType.Convention)
+                    {
+                        <tr>
+                            <td>中奖率</td>
+                            <td>@((Model.Ratio * 100).ToString("0.00"))%</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        <tr>
+                            <td>中奖口令</td>
+                            <td>@Model.Command</td>
+                        </tr>
+                    }
                     <tr>
                         <td>参与人数</td>
                         <td><span class="attend">@Model.Attend</span> 人</td>
