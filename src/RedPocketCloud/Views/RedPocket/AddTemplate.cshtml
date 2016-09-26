@@ -65,7 +65,7 @@
                         <hr />
                         <div class="template-pop">
                             <img class="command-drawn" src="~/assets/img/drawn.png" />
-                            <img class="command-undrawn" src="~/assets/img/undrawn.png" />
+                            <img class="command-pending" src="~/assets/img/pending.png" />
                         </div>
                         <hr />
                         <p style="text-align: center; color: #888">将图片文件拖拽至背景以替换图片。</p>
@@ -185,9 +185,9 @@
         $('.command-drawn').attr('src', '/file/download/' + result.Id);
         command.drawn = result.Id;
     });
-    $('.command-undrawn').dragDropOrPaste(null, function (result) {
-        $('.command-undrawn').attr('src', '/file/download/' + result.Id);
-        command.undrawn = result.Id;
+    $('.command-pending').dragDropOrPaste(null, function (result) {
+        $('.command-pending').attr('src', '/file/download/' + result.Id);
+        command.pending = result.Id;
     });
 
     function Submit(type)
@@ -216,7 +216,7 @@
             $('#hidBg').val(command.bg);
             $('#hidType').val('Command');
             $('#hidDrawn').val(command.drawn);
-            $('#hidUndrawn').val(command.undrawn);
+            $('#hidPending').val(command.pending);
         }
         $('#frmSubmit').submit();
     }

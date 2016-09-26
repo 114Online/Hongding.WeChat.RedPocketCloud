@@ -68,7 +68,7 @@
                         <hr />
                         <div class="template-pop">
                             <img class="command-drawn" src="/file/download/@Model.DrawnId" />
-                            <img class="command-undrawn" src="/file/download/@Model.UndrawnId" />
+                            <img class="command-pending" src="/file/download/@Model.PendingId" />
                         </div>
                         <hr />
                         <p style="text-align: center; color: #888">将图片文件拖拽至背景以替换图片。</p>
@@ -88,6 +88,9 @@
     <input type="hidden" name="bg" id="hidBg" />
     <input type="hidden" name="top" id="hidTop" />
     <input type="hidden" name="bottom" id="hidBottom" />
+    <input type="hidden" name="drawn" id="hidDrawn" />
+    <input type="hidden" name="undrawn" id="hidUndrawn" />
+    <input type="hidden" name="pending" id="hidPending" />
 </form>
 <script>
     var shake = {}, shoop = {};
@@ -185,9 +188,9 @@
         $('.command-drawn').attr('src', '/file/download/' + result.Id);
         command.drawn = result.Id;
     });
-    $('.command-undrawn').dragDropOrPaste(null, function (result) {
-        $('.command-undrawn').attr('src', '/file/download/' + result.Id);
-        command.undrawn = result.Id;
+    $('.command-pending').dragDropOrPaste(null, function (result) {
+        $('.command-pending').attr('src', '/file/download/' + result.Id);
+        command.pending = result.Id;
     });
 
     function Submit(type) {
@@ -212,7 +215,7 @@
             $('#hidBg').val(command.bg);
             $('#hidType').val('Command');
             $('#hidDrawn').val(command.drawn);
-            $('#hidUndrawn').val(command.undrawn);
+            $('#hidPending').val(command.pending);
         }
         $('#frmSubmit').submit();
     }

@@ -1,0 +1,24 @@
+﻿@model TemplateViewModel
+@{
+    Layout = null;
+}
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>输口令，赢红包</title>
+    <link href="~/assets/css/command.css" rel="stylesheet" />
+    <script src="~/assets/js/jquery-1.10.2.js"></script>
+    <script src="~/assets/js/command.js"></script>
+</head>
+<body>
+    <img class="background" src="/file/download/@Model.Background" />
+    <input type="text" placeholder="点击输入口令" class="txtCommand" />
+    <div class="alpha"></div>
+    <img class="pending" src="/file/download/@Model.Pending" />
+    <img class="drawn" src="/file/download/@Model.Drawn" />
+    <a class="drawn-text"></a>
+    <script>var Merchant = '@ViewContext.RouteData.Values["Merchant"].ToString()'; var limiting = @ViewBag.Limit;</script>
+    <script src="~/assets/js/command.js"></script>
+</body>
+</html>

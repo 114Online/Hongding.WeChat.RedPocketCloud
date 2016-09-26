@@ -51,7 +51,8 @@ namespace RedPocketCloud.Controllers
                     Price = x.Price,
                     Ratio = x.Ratio,
                     Title = x.Title,
-                    Merchant = y.Merchant
+                    Merchant = y.Merchant,
+                    Type = x.Type
                 });
                 return PagedView(ret, 20);
             }
@@ -65,7 +66,8 @@ namespace RedPocketCloud.Controllers
                     Id = x.Id,
                     Price = x.Price,
                     Ratio = x.Ratio,
-                    Title = x.Title
+                    Title = x.Title,
+                    Type = x.Type
                 });
                 return PagedView(ret, 20);
             }
@@ -468,7 +470,13 @@ namespace RedPocketCloud.Controllers
                     Undrawn = x.UndrawnId
                 })
                 .Single();
-            Cache.SetObject("MERCHANT_CURRENT_ACTIVITY_" + User.Current.UserName, act.Id);
+            if (act.Type == ActivityType.Convention)
+                Cache.SetObject("MERCHANT_CURRENT_ACTIVITY_" + User.Current.UserName, act.Id);
+            else
+            {
+                Cache.SetObject("MERCHANT_CURRENT_COMMAND_ACTIVITY_" + User.Current.UserName, act.Id);
+                Cache.SetString("MERCHANT_COMMAND_ACTIVITY_PWD_" + act.Id, act.Command);
+            }
             Cache.SetObject("MERCHANT_CURRENT_ACTIVITY_LIMIT" + User.Current.UserName, act.Limit);
             Cache.SetObject("MERCHANT_CURRENT_ACTIVITY_TEMPLATE_" + User.Current.UserName, template);
             Cache.SetObject("MERCHANT_CURRENT_ACTIVITY_RATIO_" + User.Current.UserName, act.Ratio);
@@ -538,7 +546,13 @@ namespace RedPocketCloud.Controllers
             // 清空缓存
             var Merchant = DB.Users.Single(x => x.Id == act.MerchantId).UserName;
             Cache.Remove("MERCHANT_CURRENT_ACTIVITY_RATIO_" + Merchant);
-            Cache.Remove("MERCHANT_CURRENT_ACTIVITY_" + Merchant);
+            if (act.Type == ActivityType.Convention)
+                Cache.Remove("MERCHANT_CURRENT_ACTIVITY_" + Merchant);
+            else
+            {
+                Cache.Remove("MERCHANT_CURRENT_COMMAND_ACTIVITY_" + Merchant);
+                Cache.Remove("MERCHANT_COMMAND_ACTIVITY_PWD_" + act.Id);
+            }
 
             // 生成扣费记录
             var price = DB.RedPockets.Where(x => x.ActivityId == act.Id && x.Type == RedPocketType.Cash).Sum(x => x.Price);

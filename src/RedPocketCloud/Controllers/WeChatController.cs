@@ -19,7 +19,8 @@ namespace RedPocketCloud.Controllers
     {
         CallBack,
         RedPocket,
-        Wallet
+        Wallet,
+        Command
     }
 
     public class WeChatController : BaseController<RpcContext, User, long>
@@ -49,6 +50,8 @@ namespace RedPocketCloud.Controllers
                     return prefix + "RedPocket" + postfix;
                 case Operation.Wallet:
                     return prefix + "Wallet" + postfix;
+                case Operation.Command:
+                    return prefix + "Command" + postfix;
                 default:
                     return null;
             }
@@ -105,6 +108,13 @@ namespace RedPocketCloud.Controllers
                     }
                     catch { }
 
+                    try
+                    {
+                        Cache.Remove("MERCHANT_CURRENT_COMMAND_ACTIVITY_" + Merchant);
+                        Cache.Remove("MERCHANT_COMMAND_ACTIVITY_PWD_" + activity_id);
+                    }
+                    catch { }
+
                     // 生成扣费记录
                     var price = DB.RedPockets.Where(x => x.ActivityId == activity_id && x.Type == RedPocketType.Cash).Sum(x => x.Price);
                     var merchant = DB.Users.Single(x => x.UserName == Merchant);
@@ -127,7 +137,7 @@ namespace RedPocketCloud.Controllers
         /// <param name="Cache"></param>
         /// <returns></returns>
         [NonAction]
-        private TemplateViewModel GetTemplateCache(string Merchant, IDistributedCache Cache)
+        private TemplateViewModel GetTemplateCache(string Merchant, IDistributedCache Cache, ActivityType Type)
         {
             var cache = Cache.GetObject<TemplateViewModel>("MERCHANT_CURRENT_ACTIVITY_TEMPLATE_" + Merchant);
             if (cache == null)
@@ -139,7 +149,7 @@ namespace RedPocketCloud.Controllers
                 if (uid == default(long))
                     return null;
                 var tid = DB.Activities
-                    .Where(x => x.MerchantId == uid)
+                    .Where(x => x.MerchantId == uid && x.Type == Type)
                     .Select(x => x.TemplateId)
                     .LastOrDefault();
 
@@ -215,7 +225,7 @@ namespace RedPocketCloud.Controllers
         }
 
         /// <summary>
-        /// 展示红包活动页面
+        /// 展示经典红包活动页面
         /// </summary>
         /// <param name="Merchant"></param>
         /// <param name="Cache"></param>
@@ -226,12 +236,29 @@ namespace RedPocketCloud.Controllers
         {
             if (NeedAuthorize)
                 return RedirectToEntry(Operation.RedPocket);
-            var ret = GetTemplateCache(Merchant, Cache);
+            var ret = GetTemplateCache(Merchant, Cache, ActivityType.Convention);
             ViewBag.Limit = Limiting;
             if (ret.Type == TemplateType.Shake)
                 return View("Shake", ret);
             else
                 return View("Shoop", ret);
+        }
+
+        /// <summary>
+        /// 展示口令红包活动页面
+        /// </summary>
+        /// <param name="Merchant"></param>
+        /// <param name="Cache"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("[controller]/Command/{Merchant}")]
+        public IActionResult Command(string Merchant, [FromServices] IDistributedCache Cache)
+        {
+            if (NeedAuthorize)
+                return RedirectToEntry(Operation.Command);
+            ViewBag.Limit = Limiting;
+            var ret = GetTemplateCache(Merchant, Cache, ActivityType.Command);
+            return View("Command", ret);
         }
 
         /// <summary>
@@ -482,6 +509,215 @@ namespace RedPocketCloud.Controllers
 
             return Content("RETRY");
         }
+
+        /// <summary>
+        /// 处理抽口令红包请求
+        /// </summary>
+        /// <param name="Merchant"></param>
+        /// <param name="Hub"></param>
+        /// <param name="Cache"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("[controller]/DrawnCommand/{Merchant}")]
+        public async Task<IActionResult> DrawnCommand(string Merchant, [FromServices] IHubContext<RedPocketHub> Hub, string Command, [FromServices] IDistributedCache Cache)
+        {
+            if (NeedAuthorize)
+                return Content("AUTH");
+
+            var OpenId = HttpContext.Session.GetString("OpenId");
+
+            // 获取活动ID
+            var activityId = await Cache.GetObjectAsync<long?>("MERCHANT_CURRENT_COMMAND_ACTIVITY_" + Merchant);
+            if (activityId == null)
+                return Content("NO");
+
+            // 获取商户制定的每日上限
+            var limit = await Cache.GetObjectAsync<int?>("MERCHANT_LIMIT_" + Merchant);
+            if (!limit.HasValue)
+            {
+                limit = DB.Users
+                    .AsNoTracking()
+                    .Where(x => x.UserName == Merchant)
+                    .Select(x => x.Limit)
+                    .Single();
+                await Cache.SetObjectAsync("MERCHANT_LIMIT_" + Merchant, limit);
+            }
+
+            // 判断是否已经中奖
+            var logs = await Cache.GetObjectAsync<List<DrawnLogViewModel>>("REDPOCKET_LOGS_" + OpenId);
+            if (logs == null)
+            {
+                logs = new List<DrawnLogViewModel>();
+                await Cache.SetObjectAsync("REDPOCKET_LOGS_" + OpenId, logs);
+            }
+            logs = logs.Where(x => x.Time >= DateTime.Now.AddDays(-1)).ToList();
+            if (logs.Count >= limit.Value || logs.Any(x => x.ActivityId == activityId))
+                return Content("EXCEEDED");
+
+            // 参与人数缓存
+            DB.Activities
+                .Where(x => x.Id == activityId.Value)
+                .SetField(x => x.Attend).Plus(1)
+                .UpdateAsync();
+
+            // 判断是否输入正确口令
+            var cmd = await Cache.GetStringAsync("MERCHANT_COMMAND_ACTIVITY_PWD_" + activityId);
+            if (Command != cmd)
+                return Content("RETRY");
+
+            RedPocket prize;
+            lock (this)
+            {
+                prize = DB.RedPockets
+                        .AsNoTracking()
+                        .Where(x => x.ActivityId == activityId.Value && x.NickName == null)
+                        .OrderBy(x => Guid.NewGuid())
+                        .FirstOrDefault();
+
+                // 检查剩余红包数量
+                if (prize == null)
+                {
+                    CheckActivityEnd(activityId.Value, Merchant, Cache, Hub);
+                    return Content("NO");
+                }
+
+                // 中奖发放红包
+                var effected = DB.RedPockets
+                    .Where(x => x.Id == prize.Id)
+                    .Where(x => string.IsNullOrEmpty(x.NickName))
+                    .SetField(x => x.OpenId).WithValue(HttpContext.Session.GetString("OpenId"))
+                    .SetField(x => x.NickName).WithValue(HttpContext.Session.GetString("Nickname"))
+                    .SetField(x => x.AvatarUrl).WithValue(HttpContext.Session.GetString("AvatarUrl"))
+                    .SetField(x => x.ReceivedTime).WithValue(DateTime.Now)
+                    .Update();
+
+                if (effected == 0)
+                {
+                    DB.Activities
+                        .Where(x => x.Id == activityId.Value)
+                        .SetField(x => x.Attend).Subtract(1)
+                        .UpdateAsync();
+
+                    return Content("NO");
+                }
+            }
+
+            // 分发奖品
+            Coupon coupon = null;
+            if (prize.Type == RedPocketType.Cash)
+            {
+                // 微信转账
+                if (!await TransferMoneyAsync(prize.Id, HttpContext.Session.GetString("OpenId"), prize.Price, Startup.Config["WeChat:RedPocket:TransferDescription"]))
+                {
+                    DB.Activities
+                        .Where(x => x.Id == activityId.Value)
+                        .SetField(x => x.Attend).Subtract(1)
+                        .UpdateAsync();
+
+                    return Content("NO");
+                }
+
+                // 从账户中扣除
+                DB.Users
+                    .Where(x => x.UserName == Merchant)
+                    .SetField(x => x.Balance).Subtract(prize.Price / 100.0)
+                    .UpdateAsync();
+            }
+            else if (prize.Type == RedPocketType.Coupon)
+            {
+                // 为微信用户添加优惠券
+                coupon = await Cache.GetObjectAsync<Coupon>("COUPON_" + prize.CouponId);
+                if (coupon == null)
+                {
+                    coupon = DB.Coupons
+                        .AsNoTracking()
+                        .Where(x => x.Id == prize.CouponId)
+                        .Single();
+                    await Cache.SetObjectAsync("COUPON_" + prize.CouponId, coupon);
+                }
+                DB.Wallets.Add(new Wallet
+                {
+                    CouponId = prize.CouponId.Value,
+                    Expire = DateTime.Now.AddDays(coupon.Time),
+                    OpenId = HttpContext.Session.GetString("OpenId"),
+                    Time = DateTime.Now,
+                    MerchantId = coupon.MerchantId
+                });
+                await DB.SaveChangesAsync();
+            }
+
+            // 中奖人数更新
+            DB.Activities
+                .Where(x => x.Id == activityId.Value)
+                .SetField(x => x.ReceivedCount).Plus(1)
+                .UpdateAsync();
+
+            // 推送中奖消息
+            if (prize.Type == RedPocketType.Cash)
+            {
+                Hub.Clients.Group(prize.ActivityId.ToString()).OnDelivered(new
+                {
+                    type = prize.Type,
+                    time = DateTime.Now,
+                    avatar = HttpContext.Session.GetString("AvatarUrl"),
+                    name = HttpContext.Session.GetString("Nickname"),
+                    price = prize.Price,
+                    id = HttpContext.Session.GetString("OpenId")
+                });
+            }
+            else if (prize.Type == RedPocketType.Url)
+            {
+                Hub.Clients.Group(prize.ActivityId.ToString()).OnDelivered(new
+                {
+                    type = prize.Type,
+                    time = DateTime.Now,
+                    avatar = HttpContext.Session.GetString("AvatarUrl"),
+                    name = HttpContext.Session.GetString("Nickname"),
+                    id = HttpContext.Session.GetString("OpenId")
+                });
+            }
+            else
+            {
+                Hub.Clients.Group(prize.ActivityId.ToString()).OnDelivered(new
+                {
+                    type = prize.Type,
+                    time = DateTime.Now,
+                    avatar = HttpContext.Session.GetString("AvatarUrl"),
+                    name = HttpContext.Session.GetString("Nickname"),
+                    id = HttpContext.Session.GetString("OpenId"),
+                    coupon = coupon.Title
+                });
+            }
+
+            // 添加logs
+            logs.Add(new DrawnLogViewModel
+            {
+                ActivityId = activityId.Value,
+                Time = DateTime.Now
+            });
+            logs = logs.Where(x => x.Time >= DateTime.Now.AddDays(-1)).ToList();
+            Cache.SetObjectAsync("REDPOCKET_LOGS_" + OpenId, logs);
+
+            try
+            {
+                // 检查剩余红包数
+                CheckActivityEnd(activityId.Value, Merchant, Cache, Hub);
+            }
+            catch { }
+
+            // 返回中奖信息
+            if (prize.Type == RedPocketType.Cash)
+                return Json(new { Type = prize.Type, Display = (prize.Price / 100.0).ToString("0.00") + "元" });
+            else if (prize.Type == RedPocketType.Coupon)
+            {
+                return Json(new { Type = prize.Type, Display = coupon.Title });
+            }
+            else
+            {
+                return Json(new { Type = prize.Type, Display = prize.Url });
+            }
+        }
+
 
         /// <summary>
         /// 展示中奖次数超出上限界面
