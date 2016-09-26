@@ -23,7 +23,7 @@
                     <tr>
                         <td class="row-title">活动类型</td>
                         <td>
-                            <select name="type">
+                            <select class="form-control" name="type" id="lstActivityTypes">
                                 <option value="Convention">经典</option>
                                 <option value="Command">口令</option>
                             </select>
@@ -86,16 +86,24 @@
                 {
                     @if (x.Type == TemplateType.Shake)
                     {
-                        <div class="pocket-template" data-id="@x.Id">
+                        <div class="pocket-template classic" data-id="@x.Id">
                             <div>
                                 <img class="top-part" src="/file/download/@x.TopPartId" />
                                 <img class="bottom-part" src="/file/download/@x.BottomPartId" />
                             </div>
                         </div>
                     }
+                    else if (x.Type == TemplateType.Shoop)
+                    {
+                        <div class="pocket-template classic" data-id="@x.Id">
+                            <div>
+                                <img class="full" src="/file/download/@x.BackgroundId" />
+                            </div>
+                        </div>
+                    }
                     else
                     {
-                        <div class="pocket-template" data-id="@x.Id">
+                        <div class="pocket-template command" data-id="@x.Id">
                             <div>
                                 <img class="full" src="/file/download/@x.BackgroundId" />
                             </div>
@@ -108,6 +116,20 @@
     </div>
 </form>
 <script>
+    $('#lstActivityTypes').change(function () {
+        if ($('#lstActivityTypes').val() == 'Command')
+        {
+            $('.command').show();
+            $('.classic').hide();
+        }
+        else
+        {
+            $('.command').hide();
+            $('.classic').show();
+        }
+    });
+    $('#lstActivityTypes').change();
+
     function removeRule(dom)
     {
         $(dom).parent('td').parent('tr').remove();

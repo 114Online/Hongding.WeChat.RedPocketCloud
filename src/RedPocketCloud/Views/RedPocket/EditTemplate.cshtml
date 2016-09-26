@@ -30,11 +30,11 @@
                         <p style="text-align: center">
                             <a href="javascript: demoShake();" class="btn btn-success">演示效果</a>
                             &nbsp;&nbsp;
-                            <a href="javascript: Submit(true);" class="btn btn-danger">保存修改</a>
+                            <a href="javascript: Submit(0);" class="btn btn-danger">保存修改</a>
                         </p>
                     </div>
                 }
-                else
+                else if (Model.Type == TemplateType.Shoop)
                 {
                     <div role="tabpanel" class="tab-pane" id="shoop">
                         <div class="template-edit">
@@ -55,7 +55,25 @@
                         <p style="text-align: center">
                             <a href="javascript: demoShoop();" class="btn btn-success">演示效果</a>
                             &nbsp;&nbsp;
-                            <a href="javascript: Submit(false);" class="btn btn-danger">保存修改</a>
+                            <a href="javascript: Submit(1);" class="btn btn-danger">保存修改</a>
+                        </p>
+                    </div>
+                }
+                else
+                {
+                    <div role="tabpanel" class="tab-pane" id="command">
+                        <div class="template-edit">
+                            <img class="command-bg" src="/file/download/@Model.BackgroundId" />
+                        </div>
+                        <hr />
+                        <div class="template-pop">
+                            <img class="command-drawn" src="/file/download/@Model.DrawnId" />
+                            <img class="command-undrawn" src="/file/download/@Model.UndrawnId" />
+                        </div>
+                        <hr />
+                        <p style="text-align: center; color: #888">将图片文件拖拽至背景以替换图片。</p>
+                        <p style="text-align: center">
+                            <a href="javascript: Submit(2);" class="btn btn-danger">保存修改</a>
                         </p>
                     </div>
                 }
@@ -159,9 +177,21 @@
         $('.shoop-pending').attr('src', '/file/download/' + result.Id);
         shoop.pending = result.Id;
     });
+    $('.command-bg').dragDropOrPaste(null, function (result) {
+        $('.command-bg').attr('src', '/file/download/' + result.Id);
+        command.bg = result.Id;
+    });
+    $('.command-drawn').dragDropOrPaste(null, function (result) {
+        $('.command-drawn').attr('src', '/file/download/' + result.Id);
+        command.drawn = result.Id;
+    });
+    $('.command-undrawn').dragDropOrPaste(null, function (result) {
+        $('.command-undrawn').attr('src', '/file/download/' + result.Id);
+        command.undrawn = result.Id;
+    });
 
-    function Submit(IsShake) {
-        if (IsShake) {
+    function Submit(type) {
+        if (type == 0) {
             $('#hidBg').val(shake.bg);
             $('#hidTop').val(shake.top);
             $('#hidBottom').val(shake.bottom);
@@ -170,13 +200,19 @@
             $('#hidPending').val(shake.pending);
             $('#hidType').val('Shake');
         }
-        else {
+        else if (type == 1) {
             $('#hidBg').val(shoop.bg);
             $('#hidTop').val(shoop.btn);
             $('#hidType').val('Shoop');
             $('#hidDrawn').val(shoop.drawn);
             $('#hidUndrawn').val(shoop.undrawn);
             $('#hidPending').val(shoop.pending);
+        }
+        else {
+            $('#hidBg').val(command.bg);
+            $('#hidType').val('Command');
+            $('#hidDrawn').val(command.drawn);
+            $('#hidUndrawn').val(command.undrawn);
         }
         $('#frmSubmit').submit();
     }

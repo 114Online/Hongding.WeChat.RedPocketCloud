@@ -3515,7 +3515,7 @@ body > .navbar-collapse[data-color="purple"]:after {
     transition: all 0.6s ease-in-out;
 }
 
-.shake-bg, .shoop-bg {
+.shake-bg, .shoop-bg, .command-bg {
     width: 480px!important;
     height: 800px!important;
 }

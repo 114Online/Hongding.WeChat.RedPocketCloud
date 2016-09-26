@@ -13,6 +13,7 @@
                 <ul class="nav nav-tabs" role="tablist">
                     <li role="presentation" class="active"><a href="#shake" aria-controls="shake" role="tab" data-toggle="tab">摇一摇</a></li>
                     <li role="presentation"><a href="#shoop" aria-controls="shoop" role="tab" data-toggle="tab">咻一咻</a></li>
+                    <li role="presentation"><a href="#command" aria-controls="command" role="tab" data-toggle="tab">口令红包</a></li>
                 </ul>
                 <div class="tab-content">
                     <div role="tabpanel" class="tab-pane active" id="shake">
@@ -59,12 +60,12 @@
                     </div>
                     <div role="tabpanel" class="tab-pane" id="command">
                         <div class="template-edit">
-                            <img class="shoop-bg" src="~/assets/img/command-bg.jpg" />
+                            <img class="command-bg" src="~/assets/img/command-bg.jpg" />
                         </div>
                         <hr />
                         <div class="template-pop">
-                            <img class="shoop-drawn" src="~/assets/img/drawn.png" />
-                            <img class="shoop-undrawn" src="~/assets/img/undrawn.png" />
+                            <img class="command-drawn" src="~/assets/img/drawn.png" />
+                            <img class="command-undrawn" src="~/assets/img/undrawn.png" />
                         </div>
                         <hr />
                         <p style="text-align: center; color: #888">将图片文件拖拽至背景以替换图片。</p>
@@ -177,16 +178,16 @@
         shoop.pending = result.Id;
     });
     $('.command-bg').dragDropOrPaste(null, function (result) {
-        $('.shoop-bg').attr('src', '/file/download/' + result.Id);
-        shoop.bg = result.Id;
+        $('.command-bg').attr('src', '/file/download/' + result.Id);
+        command.bg = result.Id;
     });
     $('.command-drawn').dragDropOrPaste(null, function (result) {
-        $('.shoop-drawn').attr('src', '/file/download/' + result.Id);
-        shoop.drawn = result.Id;
+        $('.command-drawn').attr('src', '/file/download/' + result.Id);
+        command.drawn = result.Id;
     });
     $('.command-undrawn').dragDropOrPaste(null, function (result) {
-        $('.shoop-undrawn').attr('src', '/file/download/' + result.Id);
-        shoop.undrawn = result.Id;
+        $('.command-undrawn').attr('src', '/file/download/' + result.Id);
+        command.undrawn = result.Id;
     });
 
     function Submit(type)
