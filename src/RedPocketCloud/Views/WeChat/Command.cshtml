@@ -14,9 +14,11 @@
 <body>
     <img class="background" src="/file/download/@Model.Background" />
     <input type="text" placeholder="点击输入口令" class="txtCommand" />
+    <a class="enter" href="javascript:KeyUp()">领取红包</a>
     <div class="alpha"></div>
     <img class="pending" src="/file/download/@Model.Pending" />
     <img class="drawn" src="/file/download/@Model.Drawn" />
+    <img class="undrawn" src="/file/download/@Model.Undrawn" />
     <a class="drawn-text"></a>
     <script>var Merchant = '@ViewContext.RouteData.Values["Merchant"].ToString()'; var limiting = @ViewBag.Limit;</script>
     <script src="~/assets/js/command.js"></script>

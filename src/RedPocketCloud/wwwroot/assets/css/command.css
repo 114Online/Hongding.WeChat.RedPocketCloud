@@ -102,3 +102,20 @@
     -webkit-transform: scale(1);
     visibility: visible;
 }
+
+.enter {
+    width: 60%;
+    display: block;
+    border: none;
+    background: #f9d857;
+    border-radius: 5px;
+    padding: 8px 5px;
+    margin: 20px auto;
+    color: #b84c26;
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+    outline: none;
+    position: fixed;
+    left: 50%;
+}

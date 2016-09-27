@@ -11,18 +11,26 @@ $('.drawn-text').css('font-size', font_size + "px");
 $('.drawn-text').css('line-height', font_size + "px");
 $('.drawn-text').css('margin-top', -(font_size / 2.0) + "px");
 
+$('.enter').css('margin-left', -$('.enter').outerWidth() / 2);
+$('.enter').css('font-size', font_size + "px");
+$('.enter').css('top', $('.txtCommand').offset().top + $('.txtCommand').outerHeight());
+
 $('.pending').click(function () { Close(); });
 $('.drawn').click(function () { Close(); });
 $('.undrawn').click(function () { Close(); });
 
 function KeyUp()
 {
+    if (lock)
+        return;
+    lock = true;
     $.post('/WeChat/DrawnCommand/' + Merchant, { Command: $('.txtCommand').val() }, function (data) {
         if (data == "AUTH")
             window.location.reload();
         else if (data == "NO") {
             ShowPending();
         } else if (data == "RETRY") {
+            ShowUndrawn();
         } else if (data == "EXCEEDED") {
             window.location = "/WeChat/Exceeded";
         } else {
@@ -37,7 +45,7 @@ function KeyUp()
     });
 }
 
-$('.txtCommand').keyup(function () {
+$('.enter').click(function () {
     KeyUp();
 });
 
@@ -64,4 +72,9 @@ function ShowDrawn(txt, url) {
         $('.drawn-text').attr('href', '#');
     else
         $('.drawn-text').attr('href', url);
+}
+
+function ShowUndrawn() {
+    $('.alpha').addClass('active');
+    $('.undrawn').addClass('showing');
 }

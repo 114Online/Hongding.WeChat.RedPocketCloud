@@ -68,6 +68,7 @@
                         <hr />
                         <div class="template-pop">
                             <img class="command-drawn" src="/file/download/@Model.DrawnId" />
+                            <img class="command-undrawn" src="/file/download/@Model.UndrawnId" />
                             <img class="command-pending" src="/file/download/@Model.PendingId" />
                         </div>
                         <hr />
@@ -188,6 +189,10 @@
         $('.command-drawn').attr('src', '/file/download/' + result.Id);
         command.drawn = result.Id;
     });
+    $('.command-undrawn').dragDropOrPaste(null, function (result) {
+        $('.command-undrawn').attr('src', '/file/download/' + result.Id);
+        command.undrawn = result.Id;
+    });
     $('.command-pending').dragDropOrPaste(null, function (result) {
         $('.command-pending').attr('src', '/file/download/' + result.Id);
         command.pending = result.Id;
@@ -215,6 +220,7 @@
             $('#hidBg').val(command.bg);
             $('#hidType').val('Command');
             $('#hidDrawn').val(command.drawn);
+            $('#hidUndrawn').val(command.undrawn);
             $('#hidPending').val(command.pending);
         }
         $('#frmSubmit').submit();

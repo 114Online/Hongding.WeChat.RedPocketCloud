@@ -551,7 +551,7 @@ namespace RedPocketCloud.Controllers
                 await Cache.SetObjectAsync("REDPOCKET_LOGS_" + OpenId, logs);
             }
             logs = logs.Where(x => x.Time >= DateTime.Now.AddDays(-1)).ToList();
-            if (logs.Count >= limit.Value || logs.Any(x => x.ActivityId == activityId))
+            if (logs.Count >= limit.Value || logs.Any(x => x.ActivityId == activityId.Value))
                 return Content("EXCEEDED");
 
             // 参与人数缓存
@@ -562,6 +562,11 @@ namespace RedPocketCloud.Controllers
 
             // 判断是否输入正确口令
             var cmd = await Cache.GetStringAsync("MERCHANT_COMMAND_ACTIVITY_PWD_" + activityId);
+            if (cmd == null)
+            {
+                await Cache.SetStringAsync("MERCHANT_COMMAND_ACTIVITY_PWD_" + activityId, cmd);
+                cmd = DB.Activities.Where(x => x.Id == activityId).Select(x => x.Command).Single();
+            }
             if (Command != cmd)
                 return Content("RETRY");
 
