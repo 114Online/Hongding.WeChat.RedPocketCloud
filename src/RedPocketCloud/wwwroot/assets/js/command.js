@@ -1,7 +1,7 @@
 ﻿var lock = false;
 var cooldown = null;
 
-$('.txtCommand').css('margin-left', -$('.txtCommand').width() / 2);
+$('.txtCommand').css('margin-left', -$('.txtCommand').outerWidth() / 2);
 $('.txtCommand').css('font-size', 40 / 800 * $(window).height());
 $('.txtCommand').css('line-height', 60 / 800 * $(window).height());
 $('.txtCommand').css('height', 60 / 800 * $(window).height());
