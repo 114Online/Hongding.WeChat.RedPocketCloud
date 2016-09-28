@@ -471,14 +471,17 @@ namespace RedPocketCloud.Controllers
                 })
                 .Single();
             if (act.Type == ActivityType.Convention)
+            {
                 Cache.SetObject("MERCHANT_CURRENT_ACTIVITY_" + User.Current.UserName, act.Id);
+                Cache.SetObject("MERCHANT_CURRENT_ACTIVITY_TEMPLATE_" + User.Current.UserName, template);
+            }
             else
             {
                 Cache.SetObject("MERCHANT_CURRENT_COMMAND_ACTIVITY_" + User.Current.UserName, act.Id);
                 Cache.SetString("MERCHANT_COMMAND_ACTIVITY_PWD_" + act.Id, act.Command);
+                Cache.SetObject("MERCHANT_CURRENT_COMMAND_ACTIVITY_TEMPLATE_" + User.Current.UserName, template);
             }
             Cache.SetObject("MERCHANT_CURRENT_ACTIVITY_LIMIT" + User.Current.UserName, act.Limit);
-            Cache.SetObject("MERCHANT_CURRENT_ACTIVITY_TEMPLATE_" + User.Current.UserName, template);
             Cache.SetObject("MERCHANT_CURRENT_ACTIVITY_RATIO_" + User.Current.UserName, act.Ratio);
 
             // 计算红包统计

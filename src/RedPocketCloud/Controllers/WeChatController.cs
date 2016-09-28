@@ -157,7 +157,10 @@ namespace RedPocketCloud.Controllers
                 if (tid == default(long))
                 {
                     cache = new TemplateViewModel();
-                    Cache.SetObject("MERCHANT_CURRENT_ACTIVITY_TEMPLATE_" + Merchant, cache);
+                    if (Type == ActivityType.Convention)
+                        Cache.SetObject("MERCHANT_CURRENT_ACTIVITY_TEMPLATE_" + Merchant, cache);
+                    else
+                        Cache.SetObject("MERCHANT_CURRENT_COMMAND_ACTIVITY_TEMPLATE_" + Merchant, cache);
                 }
                 else
                 {
@@ -174,7 +177,10 @@ namespace RedPocketCloud.Controllers
                             Undrawn = x.UndrawnId
                         })
                         .Single();
-                    Cache.SetObject("MERCHANT_CURRENT_ACTIVITY_TEMPLATE_" + Merchant, cache);
+                    if (Type == ActivityType.Convention)
+                        Cache.SetObject("MERCHANT_CURRENT_ACTIVITY_TEMPLATE_" + Merchant, cache);
+                    else
+                        Cache.SetObject("MERCHANT_CURRENT_COMMAND_ACTIVITY_TEMPLATE_" + Merchant, cache);
                 }
             }
             return cache;
@@ -326,7 +332,8 @@ namespace RedPocketCloud.Controllers
                 await Cache.SetObjectAsync("REDPOCKET_LOGS_" + OpenId, logs);
             }
 
-            logs = logs.Where(x => x.Time >= DateTime.Now.AddDays(-1)).ToList();
+            // 隔离商户上限
+            logs = logs.Where(x => x.Time >= DateTime.Now.AddDays(-1) && x.Merchant == Merchant).ToList();
             if (logs.Count >= limit.Value || logs.Where(x => x.ActivityId == activityId).Count() >= activity_limit.Value)
                 return Content("EXCEEDED");
 
@@ -482,7 +489,8 @@ namespace RedPocketCloud.Controllers
                 logs.Add(new DrawnLogViewModel
                 {
                     ActivityId = activityId.Value,
-                    Time = DateTime.Now
+                    Time = DateTime.Now,
+                    Merchant = Merchant
                 });
                 logs = logs.Where(x => x.Time >= DateTime.Now.AddDays(-1)).ToList();
                 Cache.SetObjectAsync("REDPOCKET_LOGS_" + OpenId, logs);
@@ -550,7 +558,7 @@ namespace RedPocketCloud.Controllers
                 logs = new List<DrawnLogViewModel>();
                 await Cache.SetObjectAsync("REDPOCKET_LOGS_" + OpenId, logs);
             }
-            logs = logs.Where(x => x.Time >= DateTime.Now.AddDays(-1)).ToList();
+            logs = logs.Where(x => x.Time >= DateTime.Now.AddDays(-1) && x.Merchant == Merchant).ToList();
             if (logs.Count >= limit.Value || logs.Any(x => x.ActivityId == activityId.Value))
                 return Content("EXCEEDED");
 
@@ -698,7 +706,8 @@ namespace RedPocketCloud.Controllers
             logs.Add(new DrawnLogViewModel
             {
                 ActivityId = activityId.Value,
-                Time = DateTime.Now
+                Time = DateTime.Now,
+                Merchant = Merchant
             });
             logs = logs.Where(x => x.Time >= DateTime.Now.AddDays(-1)).ToList();
             Cache.SetObjectAsync("REDPOCKET_LOGS_" + OpenId, logs);
