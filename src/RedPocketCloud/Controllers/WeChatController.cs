@@ -139,7 +139,11 @@ namespace RedPocketCloud.Controllers
         [NonAction]
         private TemplateViewModel GetTemplateCache(string Merchant, IDistributedCache Cache, ActivityType Type)
         {
-            var cache = Cache.GetObject<TemplateViewModel>("MERCHANT_CURRENT_ACTIVITY_TEMPLATE_" + Merchant);
+            TemplateViewModel cache;
+            if (Type == ActivityType.Convention)
+                cache = Cache.GetObject<TemplateViewModel>("MERCHANT_CURRENT_ACTIVITY_TEMPLATE_" + Merchant);
+            else
+                cache = Cache.GetObject<TemplateViewModel>("MERCHANT_CURRENT_COMMAND_ACTIVITY_TEMPLATE_" + Merchant);
             if (cache == null)
             {
                 var uid = DB.Users
@@ -150,8 +154,9 @@ namespace RedPocketCloud.Controllers
                     return null;
                 var tid = DB.Activities
                     .Where(x => x.MerchantId == uid && x.Type == Type)
+                    .OrderByDescending(x => x.Id)
                     .Select(x => x.TemplateId)
-                    .LastOrDefault();
+                    .FirstOrDefault();
 
                 // 如果没有找到活动
                 if (tid == default(long))

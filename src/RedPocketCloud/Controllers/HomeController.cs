@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Configuration;
 
 namespace RedPocketCloud.Controllers
 {
@@ -13,9 +14,10 @@ namespace RedPocketCloud.Controllers
         /// 展示仪表盘界面
         /// </summary>
         /// <returns></returns>
-        public IActionResult Index()
+        public IActionResult Index([FromServices] IConfiguration Config)
         {
             // General informations
+            ViewBag.CurrentIp = Config["Host:Ip"].ToString();
             var beg = DateTime.Now.AddDays(-30);
             var cnt = DB.Activities
                 .Count(x => x.MerchantId == User.Current.Id && x.Begin >= beg);

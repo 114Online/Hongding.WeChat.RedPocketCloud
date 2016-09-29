@@ -81,7 +81,7 @@ namespace RedPocketCloud
             app.UseDeveloperExceptionPage();
             app.UseMvcWithDefaultRoute();
 
-            await SampleData.InitDB(app.ApplicationServices);
+             await SampleData.InitDB(app.ApplicationServices);
         }
     }
 }

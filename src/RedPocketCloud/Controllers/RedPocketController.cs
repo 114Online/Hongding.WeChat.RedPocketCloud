@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Pomelo.Data.Excel;
 using RedPocketCloud.Models;
 using RedPocketCloud.ViewModels;
+using static RedPocketCloud.Common.Wxpay;
 
 namespace RedPocketCloud.Controllers
 {
@@ -470,7 +471,7 @@ namespace RedPocketCloud.Controllers
                     Undrawn = x.UndrawnId
                 })
                 .Single();
-            if (act.Type == ActivityType.Convention)
+            if (Type == ActivityType.Convention)
             {
                 Cache.SetObject("MERCHANT_CURRENT_ACTIVITY_" + User.Current.UserName, act.Id);
                 Cache.SetObject("MERCHANT_CURRENT_ACTIVITY_TEMPLATE_" + User.Current.UserName, template);
@@ -665,6 +666,59 @@ namespace RedPocketCloud.Controllers
             var ret = System.IO.File.ReadAllBytes(path);
             System.IO.File.Delete(path);
             return File(ret, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", activity.Title + ".xlsx");
+        }
+
+        /// <summary>
+        /// 展示补发红包界面
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        public IActionResult Compensate()
+        {
+            return View();
+        }
+
+        /// <summary>
+        /// 处理补发红包请求
+        /// </summary>
+        /// <param name="price"></param>
+        /// <returns></returns>
+        public async Task<IActionResult> Compensate(double price, string openid)
+        {
+            var p = Convert.ToInt32(price * 100);
+            if (User.Current.Balance >= price)
+            {
+                // 微信转账
+                if (!await TransferMoneyAsync(0, openid, p, Startup.Config["WeChat:RedPocket:TransferDescription"]))
+                {
+                    return Prompt(x =>
+                    {
+                        x.Title = "操作失败";
+                        x.Details = "在转账时发生错误，补发红包操作没有成功，请返回重试！";
+                    });
+                }
+
+                // 从账户中扣除
+                DB.Users
+                    .Where(x => x.UserName == User.Current.UserName)
+                    .SetField(x => x.Balance).Subtract(price)
+                    .UpdateAsync();
+
+                return Prompt(x =>
+                {
+                    x.Title = "补发成功";
+                    x.Details = "该用户已收到补发红包款项。";
+                });
+            }
+            else
+            {
+                return Prompt(x =>
+                {
+                    x.Title = "操作失败";
+                    x.Details = $"您的余额只剩￥{ User.Current.Balance.ToString("0.00") }，本次操作需要您的账号至少有￥{ price.ToString("0.00") }，请充值后再尝试";
+                    x.StatusCode = 400;
+                });
+            }
         }
     }
 }

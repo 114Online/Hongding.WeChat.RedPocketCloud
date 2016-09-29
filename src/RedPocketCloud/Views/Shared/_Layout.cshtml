@@ -77,6 +77,12 @@
                             <p>优惠券</p>
                         </a>
                     </li>
+                    <li>
+                        <a asp-action="Compensate" asp-controller="RedPocket">
+                            <i class="pe-7s-shield"></i>
+                            <p>补发红包</p>
+                        </a>
+                    </li>
                     @if (User.IsInRole("Root"))
                     {
                         <li>

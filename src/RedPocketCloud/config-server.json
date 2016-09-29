@@ -9,9 +9,9 @@
     }
   },
   "Host": {
-    "Ip": "139.129.210.149",
+    "Ip": "139.129.230.64",
     "Mode": "MyCat",
-    "ConnectionString": "Server=139.129.210.149;Port=8066;database=wechat;uid=root;pwd=Sun060810",
+    "ConnectionString": "Server=10.25.82.191;Port=8066;database=wechat;uid=root;pwd=Sun060810",
     "DataNodes": [
       {
         "Server": "10.25.82.191",

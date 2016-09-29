@@ -9,7 +9,6 @@
     }
   },
   "Host": {
-    "Limit": "500",
     "Ip": "139.129.210.149",
     "Mode": "MyCat",
     "ConnectionString": "Server=139.129.210.149;Port=8066;database=wechat;uid=root;pwd=Sun060810;charset=utf8mb4",
