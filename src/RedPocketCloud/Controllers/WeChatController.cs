@@ -241,7 +241,7 @@ namespace RedPocketCloud.Controllers
         /// <param name="Cache"></param>
         /// <returns></returns>
         [HttpGet]
-        [ResponseCache(Duration = 14400)]
+        [ResponseCache(Duration = 7200)]
         [Route("[controller]/RedPocket/{Merchant}")]
         public IActionResult RedPocket(string Merchant, [FromServices] IDistributedCache Cache)
         {
@@ -262,7 +262,7 @@ namespace RedPocketCloud.Controllers
         /// <param name="Cache"></param>
         /// <returns></returns>
         [HttpGet]
-        [ResponseCache(Duration = 14400)]
+        [ResponseCache(Duration = 7200)]
         [Route("[controller]/Command/{Merchant}")]
         public IActionResult Command(string Merchant, [FromServices] IDistributedCache Cache)
         {
