@@ -673,7 +673,6 @@ namespace RedPocketCloud.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [Authorize(Roles = "Root")]
         public IActionResult Compensate()
         {
             return View();
@@ -684,7 +683,6 @@ namespace RedPocketCloud.Controllers
         /// </summary>
         /// <param name="price"></param>
         /// <returns></returns>
-        [Authorize(Roles = "Root")]
         public async Task<IActionResult> Compensate(double price, string openid)
         {
             var p = Convert.ToInt32(price * 100);
