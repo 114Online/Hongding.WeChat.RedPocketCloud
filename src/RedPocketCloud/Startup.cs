@@ -19,12 +19,7 @@ namespace RedPocketCloud
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddConfiguration(out Config);
-
-            // Data Protection
-            var redis = ConnectionMultiplexer.Connect("localhost:6379");
-            services.AddDataProtection()
-                .PersistKeysToRedis(redis, "DATA_PROTECTION_");
-
+            
             services.AddMvc();
             services.AddRedis(x =>
             {

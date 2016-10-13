@@ -60,25 +60,32 @@ function Shake() {
                 return;
             }
             ShowLoading();
-            $.post('/WeChat/Drawn/' + Merchant, {}, function (data) {
-                HideLoading();
-                console.error(data);
-                if (data == "AUTH")
-                    window.location.reload();
-                else if (data == "NO") {
-                    ShowPending();
-                } else if (data == "RETRY") {
+            $.ajax({
+                url: '/WeChat/Drawn/' + Merchant, data: {}, timeout: 10000, dataType: 'text', type: 'POST',
+                success: function (data) {
+                    HideLoading();
+                    if (data == "AUTH")
+                        window.location.reload();
+                    else if (data == "NO") {
+                        ShowPending();
+                    } else if (data == "RETRY") {
+                        ShowUndrawn();
+                    } else if (data == "EXCEEDED") {
+                        window.location = "/WeChat/Exceeded";
+                    } else {
+                        var obj = JSON.parse(data);
+                        console.log(obj);
+                        if (obj.type == 0)
+                            cooldown = new Date();
+                        if (obj.type != 1)
+                            ShowDrawn(obj.display);
+                        else
+                            ShowDrawn("点击打开", obj.display);
+                    }
+                },
+                error: function () {
+                    HideLoading();
                     ShowUndrawn();
-                } else if (data == "EXCEEDED") {
-                    window.location = "/WeChat/Exceeded";
-                } else {
-                    var obj = data;
-                    if (obj.type == 0)
-                        cooldown = new Date();
-                    if (obj.type != 1)
-                        ShowDrawn(obj.display);
-                    else
-                        ShowDrawn("点击打开", obj.display);
                 }
             });
         }, 610);
