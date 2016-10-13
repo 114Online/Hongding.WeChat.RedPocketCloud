@@ -2,11 +2,13 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using RedPocketCloud.Models;
+using Pomelo.Redis;
 
 namespace RedPocketCloud
 {
@@ -17,6 +19,12 @@ namespace RedPocketCloud
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddConfiguration(out Config);
+
+            // Data Protection
+            var redis = ConnectionMultiplexer.Connect("localhost:6379");
+            services.AddDataProtection()
+                .PersistKeysToRedis(redis, "DATA_PROTECTION_");
+
             services.AddMvc();
             services.AddRedis(x =>
             {

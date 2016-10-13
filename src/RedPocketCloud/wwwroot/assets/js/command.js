@@ -24,7 +24,9 @@ function KeyUp()
     if (lock)
         return;
     lock = true;
+    ShowLoading();
     $.post('/WeChat/DrawnCommand/' + Merchant, { Command: $('.txtCommand').val() }, function (data) {
+        HideLoading();
         if (data == "AUTH")
             window.location.reload();
         else if (data == "NO") {
@@ -77,4 +79,12 @@ function ShowDrawn(txt, url) {
 function ShowUndrawn() {
     $('.alpha').addClass('active');
     $('.undrawn').addClass('showing');
+}
+
+function ShowLoading() {
+    $('.loading').show();
+}
+
+function HideLoading() {
+    $('.loading').hide();
 }

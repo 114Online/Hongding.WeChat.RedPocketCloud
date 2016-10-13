@@ -9,9 +9,14 @@
     <title>摇一摇抽红包</title>
     <link href="~/assets/css/shake.css" rel="stylesheet" />
     <script src="~/assets/js/jquery-1.10.2.js"></script>
+    <script src="~/assets/js/jquery.cookie.min.js"></script>
+    <script>
+        var Merchant = '@ViewContext.RouteData.Values["Merchant"].ToString()'; limiting = @ViewBag.Limit;
+    </script>
     <script src="~/assets/js/shake.js"></script>
 </head>
 <body>
+    <img class="loading" src="~/assets/img/loading.svg" />
     <img class="background" src="/file/download/@Model.Background" />
     <img class="top" src="/file/download/@Model.Top" />
     <img class="bottom" src="/file/download/@Model.Bottom" />
@@ -21,6 +26,5 @@
     <img class="undrawn" src="/file/download/@Model.Undrawn" />
     <a class="drawn-text"></a>
     <audio style="display:none;" id="shakeSound" preload="metadata" controls src="~/assets/sounds/shake_sound.mp3"></audio>
-    <script>var Merchant = '@ViewContext.RouteData.Values["Merchant"].ToString()'; limiting = @ViewBag.Limit;</script>
 </body>
 </html>

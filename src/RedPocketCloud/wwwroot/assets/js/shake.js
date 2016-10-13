@@ -59,7 +59,9 @@ function Shake() {
                 ShowUndrawn();
                 return;
             }
+            ShowLoading();
             $.post('/WeChat/Drawn/' + Merchant, {}, function (data) {
+                HideLoading();
                 console.error(data);
                 if (data == "AUTH")
                     window.location.reload();
@@ -111,4 +113,12 @@ function ShowDrawn(txt, url) {
         $('.drawn-text').attr('href', '#');
     else
         $('.drawn-text').attr('href', url);
+}
+
+function ShowLoading() {
+    $('.loading').show();
+}
+
+function HideLoading() {
+    $('.loading').hide();
 }

@@ -6,7 +6,7 @@ using RedPocketCloud.ViewModels;
 
 namespace RedPocketCloud.Controllers
 {
-    public class BaseController : BaseController<RpcContext, User, long>
+    public class BaseController : BaseController<RpcContext, Models.User, long>
     {
         public override void Prepare()
         {

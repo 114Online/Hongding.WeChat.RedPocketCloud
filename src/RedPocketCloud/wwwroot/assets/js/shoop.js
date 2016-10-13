@@ -29,6 +29,7 @@ function Shoop()
     if (lock)
         return;
     lock = true;
+
     $('#shoopSound')[0].play();
     $($('.circle')[0]).addClass('transition');
     $($('.circle')[0]).addClass('shooping');
@@ -53,7 +54,9 @@ function Shoop()
                     ShowUndrawn();
                     return;
                 }
+                ShowLoading();
                 $.post('/WeChat/Drawn/' + Merchant, {}, function (data) {
+                    HideLoading();
                     if (data == "AUTH")
                         window.location.reload();
                     else if (data == "NO") {
@@ -107,4 +110,12 @@ function ShowDrawn(txt, url) {
         $('.drawn-text').attr('href', '#');
     else
         $('.drawn-text').attr('href', url);
+}
+
+function ShowLoading() {
+    $('.loading').show();
+}
+
+function HideLoading() {
+    $('.loading').hide();
 }

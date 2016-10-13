@@ -12,10 +12,25 @@ namespace RedPocketCloud.Controllers
         /// <returns></returns>
         public IActionResult Test()
         {
-            HttpContext.Session.SetString("OpenId", "ol9Liw5EMh4q7zN9UMwCyEalgb2k");
-            HttpContext.Session.SetString("AvatarUrl", "http://wx.qlogo.cn/mmopen/bVy2VQVTWzbUP1CS3aEHicwEpYrAUkHNwVibwHdnVuEC6wPhTs9LNepMW32U98CoJHOZahGibQONB2gnuIdvlVc7A/0");
-            HttpContext.Session.SetString("Expire", DateTime.Now.AddDays(1).ToString());
-            HttpContext.Session.SetString("Nickname", "あまみや ゆうこ");
+            Response.Cookies.Append("x-OpenId", "ol9Liw5EMh4q7zN9UMwCyEalgb2k", new CookieOptions() { Expires = DateTime.Now.AddDays(7) });
+            Response.Cookies.Append("x-AvatarUrl", "http://wx.qlogo.cn/mmopen/bVy2VQVTWzbUP1CS3aEHicwEpYrAUkHNwVibwHdnVuEC6wPhTs9LNepMW32U98CoJHOZahGibQONB2gnuIdvlVc7A/0", new CookieOptions() { Expires = DateTime.Now.AddDays(7) });
+            Response.Cookies.Append("x-NickName", "あまみや ゆうこ", new CookieOptions() { Expires = DateTime.Now.AddDays(7) });
+            return Content("OK");
+        }
+
+        public IActionResult TestEmoji()
+        {
+            Response.Cookies.Append("x-OpenId", "ol9Liw5EMh4q7zN9UMwCyEalgb2k", new CookieOptions() { Expires = DateTime.Now.AddDays(7) });
+            Response.Cookies.Append("x-AvatarUrl", "http://wx.qlogo.cn/mmopen/bVy2VQVTWzbUP1CS3aEHicwEpYrAUkHNwVibwHdnVuEC6wPhTs9LNepMW32U98CoJHOZahGibQONB2gnuIdvlVc7A/0", new CookieOptions() { Expires = DateTime.Now.AddDays(7) });
+            Response.Cookies.Append("x-NickName", "あまみや💁👌🎍😍", new CookieOptions() { Expires = DateTime.Now.AddDays(7) });
+            return Content("OK");
+        }
+
+        public IActionResult Clear()
+        {
+            Response.Cookies.Delete("x-OpenId");
+            Response.Cookies.Delete("x-AvatarUrl");
+            Response.Cookies.Delete("x-NickName");
             return Content("OK");
         }
     }

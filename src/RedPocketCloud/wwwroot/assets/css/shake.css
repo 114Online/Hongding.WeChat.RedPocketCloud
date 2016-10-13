@@ -94,3 +94,13 @@
     -webkit-transform: scale(1);
     visibility: visible;
 }
+
+.loading {
+    position: fixed;
+    display: none;
+    width: 140px;
+    top: 40%;
+    left: 50%;
+    margin-left: -70px;
+    z-index: 9999;
+}

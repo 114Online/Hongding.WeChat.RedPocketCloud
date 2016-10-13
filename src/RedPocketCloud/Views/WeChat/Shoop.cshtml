@@ -9,9 +9,14 @@
     <title>咻一咻抽红包</title>
     <link href="~/assets/css/shoop.css" rel="stylesheet" />
     <script src="~/assets/js/jquery-1.10.2.js"></script>
+    <script src="~/assets/js/jquery.cookie.min.js"></script>
+    <script>
+        var Merchant = '@ViewContext.RouteData.Values["Merchant"].ToString()'; limiting = @ViewBag.Limit;
+    </script>
     <script src="~/assets/js/shoop.js"></script>
 </head>
 <body>
+    <img class="loading" src="~/assets/img/loading.svg" />
     <img class="background" src="/file/download/@Model.Background" />
     <div class="circle"></div>
     <div class="circle"></div>
@@ -22,6 +27,5 @@
     <img class="drawn" src="/file/download/@Model.Drawn" />
     <a class="drawn-text"></a>
     <audio style="display:none;" id="shoopSound" preload="metadata" controls src="~/assets/sounds/shoop_sound.wav"></audio>
-    <script>var Merchant = '@ViewContext.RouteData.Values["Merchant"].ToString()'; limiting = @ViewBag.Limit;</script>
 </body>
 </html>

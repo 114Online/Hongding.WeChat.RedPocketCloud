@@ -9,9 +9,10 @@
     <title>输口令，赢红包</title>
     <link href="~/assets/css/command.css" rel="stylesheet" />
     <script src="~/assets/js/jquery-1.10.2.js"></script>
-    <script src="~/assets/js/command.js"></script>
+    <script src="~/assets/js/jquery.cookie.min.js"></script>
 </head>
 <body>
+    <img class="loading" src="~/assets/img/loading.svg" />
     <img class="background" src="/file/download/@Model.Background" />
     <input type="text" placeholder="点击输入口令" class="txtCommand" />
     <a class="enter" href="javascript:KeyUp()">领取红包</a>
@@ -20,7 +21,9 @@
     <img class="drawn" src="/file/download/@Model.Drawn" />
     <img class="undrawn" src="/file/download/@Model.Undrawn" />
     <a class="drawn-text"></a>
-    <script>var Merchant = '@ViewContext.RouteData.Values["Merchant"].ToString()'; var limiting = @ViewBag.Limit;</script>
+    <script>
+        var Merchant = '@ViewContext.RouteData.Values["Merchant"].ToString()'; var limiting = @ViewBag.Limit;
+    </script>
     <script src="~/assets/js/command.js"></script>
 </body>
 </html>
