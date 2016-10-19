@@ -29,6 +29,7 @@ function Shoop()
     if (lock)
         return;
     lock = true;
+
     $('#shoopSound')[0].play();
     $($('.circle')[0]).addClass('transition');
     $($('.circle')[0]).addClass('shooping');
@@ -53,23 +54,32 @@ function Shoop()
                     ShowUndrawn();
                     return;
                 }
-                $.post('/WeChat/Drawn/' + Merchant, {}, function (data) {
-                    if (data == "AUTH")
-                        window.location.reload();
-                    else if (data == "NO") {
-                        ShowPending();
-                    } else if (data == "RETRY") {
+                ShowLoading();
+                $.ajax({
+                    url: '/WeChat/Drawn/' + Merchant, data: {}, timeout: 10000, dataType: 'text', type: 'POST',
+                    success: function (data) {
+                        HideLoading();
+                        if (data == "AUTH")
+                            window.location.reload();
+                        else if (data == "NO") {
+                            ShowPending();
+                        } else if (data == "RETRY") {
+                            ShowUndrawn();
+                        } else if (data == "EXCEEDED") {
+                            window.location = "/WeChat/Exceeded";
+                        } else {
+                            var obj = JSON.parse(data);
+                            if (obj.type == 0)
+                                cooldown = new Date();
+                            if (obj.type != 1)
+                                ShowDrawn(obj.display);
+                            else
+                                ShowDrawn("点击打开", obj.display);
+                        }
+                    },
+                    error: function () {
+                        HideLoading();
                         ShowUndrawn();
-                    } else if (data == "EXCEEDED") {
-                        window.location = "/WeChat/Exceeded";
-                    } else {
-                        var obj = data;
-                        if (obj.type == 0)
-                            cooldown = new Date();
-                        if (obj.type != 1)
-                            ShowDrawn(obj.display);
-                        else
-                            ShowDrawn("点击打开", obj.display);
                     }
                 });
             }, 600);
@@ -107,4 +117,12 @@ function ShowDrawn(txt, url) {
         $('.drawn-text').attr('href', '#');
     else
         $('.drawn-text').attr('href', url);
+}
+
+function ShowLoading() {
+    $('.loading').show();
+}
+
+function HideLoading() {
+    $('.loading').hide();
 }

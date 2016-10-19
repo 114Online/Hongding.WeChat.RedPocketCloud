@@ -31,6 +31,8 @@ namespace RedPocketCloud.Models
 
         public DbSet<VerificationLog> VerificationLogs { get; set; }
 
+        public DbSet<BlackList> BlackLists { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -79,6 +81,12 @@ namespace RedPocketCloud.Models
                 e.HasIndex(x => x.Time);
                 e.HasIndex(x => x.CouponId);
                 e.HasIndex(x => x.WalletId);
+            });
+
+            builder.Entity<BlackList>(e =>
+            {
+                e.HasIndex(x => x.OpenId).IsUnique();
+                e.HasIndex(x => x.Unlock);
             });
         }
     }

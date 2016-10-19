@@ -96,3 +96,13 @@
     transform: scale(1.4);
     -webkit-transform: scale(1.4);
 }
+
+.loading {
+    position: fixed;
+    display: none;
+    width: 140px;
+    top: 40%;
+    left: 50%;
+    margin-left: -70px;
+    z-index: 9999;
+}

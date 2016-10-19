@@ -119,3 +119,13 @@
     position: fixed;
     left: 50%;
 }
+
+.loading {
+    position: fixed;
+    display: none;
+    width: 140px;
+    top: 40%;
+    left: 50%;
+    margin-left: -70px;
+    z-index: 9999;
+}
