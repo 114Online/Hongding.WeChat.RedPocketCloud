@@ -30,7 +30,7 @@ namespace RedPocketCloud.Models
         public DbSet<Wallet> Wallets { get; set; }
 
         public DbSet<VerificationLog> VerificationLogs { get; set; }
-
+        
         public DbSet<BlackList> BlackLists { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -82,7 +82,7 @@ namespace RedPocketCloud.Models
                 e.HasIndex(x => x.CouponId);
                 e.HasIndex(x => x.WalletId);
             });
-
+            
             builder.Entity<BlackList>(e =>
             {
                 e.HasIndex(x => x.OpenId).IsUnique();

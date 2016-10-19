@@ -9,7 +9,7 @@ namespace RedPocketCloud.Models
     {
         public long Id { get; set; }
 
-        [MaxLength(64)]
+        [MaxLength(64)] 
         public string OpenId { get; set; }
 
         public DateTime? Unlock { get; set; }
