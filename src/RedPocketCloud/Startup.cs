@@ -2,13 +2,11 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using RedPocketCloud.Models;
-using Pomelo.Redis;
 
 namespace RedPocketCloud
 {
@@ -84,7 +82,8 @@ namespace RedPocketCloud
             app.UseDeveloperExceptionPage();
             app.UseMvcWithDefaultRoute();
 
-             await SampleData.InitDB(app.ApplicationServices);
+            await SampleData.InitDB(app.ApplicationServices);
+            Common.BlackList.InitBlackList(app.ApplicationServices);
         }
     }
 }

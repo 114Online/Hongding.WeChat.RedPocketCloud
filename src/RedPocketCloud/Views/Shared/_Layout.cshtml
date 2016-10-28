@@ -80,12 +80,17 @@
                     @if (User.IsInRole("Root"))
                     {
                         <li>
+                            <a asp-action="BlackList" asp-controller="RedPocket">
+                                <i class="pe-7s-albums"></i>
+                                <p>黑名单</p>
+                            </a>
+                        </li>
+                        <li>
                             <a asp-action="Compensate" asp-controller="RedPocket">
                                 <i class="pe-7s-shield"></i>
                                 <p>补发红包</p>
                             </a>
-                        </li>
-                        <li>
+                        </li>                        <li>
                             <a asp-action="Index" asp-controller="Account">
                                 <i class="pe-7s-users"></i>
                                 <p>商户管理</p>

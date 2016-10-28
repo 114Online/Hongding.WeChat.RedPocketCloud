@@ -8,6 +8,9 @@ namespace RedPocketCloud.Controllers
 {
     public class BaseController : BaseController<RpcContext, Models.User, long>
     {
+        /// <summary>
+        /// 初始化
+        /// </summary>
         public override void Prepare()
         {
             base.Prepare();

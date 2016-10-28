@@ -18,6 +18,7 @@ namespace RedPocketCloud.Controllers
     [Authorize]
     public class RedPocketController : BaseController
     {
+        #region 红包活动
         /// <summary>
         /// 展示红包活动列表界面
         /// </summary>
@@ -81,6 +82,69 @@ namespace RedPocketCloud.Controllers
         [HttpGet]
         public IActionResult Deliver() => View(DB.Templates.Where(x => x.MerchantId == User.Current.Id).ToList());
 
+        /// <summary>
+        /// 导出红包中奖纪录
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public IActionResult Export(long id)
+        {
+            Activity activity;
+            if (User.IsInRole("Root"))
+                activity = DB.Activities.Single(x => x.Id == id);
+            else
+                activity = DB.Activities.Single(x => x.Id == id && x.MerchantId == User.Current.Id);
+
+            var src = DB.RedPockets
+                .Where(x => x.ActivityId == id && x.ReceivedTime.HasValue)
+                .OrderBy(x => x.ReceivedTime)
+                .Take(10000)
+                .ToList();
+
+            var nonawarded = activity.BriberiesCount - activity.ReceivedCount;
+
+            var tmp = Guid.NewGuid().ToString();
+            var path = Path.Combine(Directory.GetCurrentDirectory(), tmp + ".xlsx");
+            using (var excel = ExcelStream.Create(path))
+            using (var sheet1 = excel.LoadSheet(1))
+            {
+                // Headers
+                sheet1.Add(new Pomelo.Data.Excel.Infrastructure.Row { "Open Id", "昵称", "类型", "红包", "领取时间" });
+                var ids = activity.Rules.Object.Where(x => x.Type == RedPocketType.Coupon).Select(x => x.Coupon).ToList();
+                var coupon = DB.Coupons.Where(x => ids.Contains(x.Id)).ToDictionary(x => x.Id, x => x.Title);
+                foreach (var x in src)
+                {
+                    string rp;
+                    switch (x.Type)
+                    {
+                        case RedPocketType.Cash:
+                            rp = (x.Price / 100.0).ToString("0.00");
+                            break;
+                        case RedPocketType.Coupon:
+                            rp = coupon[x.CouponId.Value];
+                            break;
+                        case RedPocketType.Url:
+                            rp = x.Url;
+                            break;
+                        default:
+                            rp = "";
+                            break;
+                    }
+                    sheet1.Add(new Pomelo.Data.Excel.Infrastructure.Row { x.OpenId ?? "", x.NickName ?? "", x.Type.ToString(), rp, x.ReceivedTime.Value.ToString("yyyy-MM-dd HH:mm:ss") });
+                }
+                sheet1.Add(new Pomelo.Data.Excel.Infrastructure.Row());
+                sheet1.Add(new Pomelo.Data.Excel.Infrastructure.Row { "未领取金额（元）", "未领取红包（个）", "总参与人数" });
+                sheet1.Add(new Pomelo.Data.Excel.Infrastructure.Row { ((activity.Price - src.Sum(x => x.Price)) / 100.0).ToString("0.00"), nonawarded.ToString(), activity.Attend.ToString() });
+                sheet1.SaveChanges();
+            }
+
+            var ret = System.IO.File.ReadAllBytes(path);
+            System.IO.File.Delete(path);
+            return File(ret, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", activity.Title + ".xlsx");
+        }
+        #endregion
+
+        #region 红包页面模板
         /// <summary>
         /// 展示红包活动页面模板列表界面
         /// </summary>
@@ -392,6 +456,13 @@ namespace RedPocketCloud.Controllers
                     x.Details = $"您的余额不足以支付本轮活动的￥{ total.ToString("0.00") }";
                     x.StatusCode = 400;
                 });
+            if (rules.Object.Sum(x => x.Count) > 100000)
+                return Prompt(x => 
+                {
+                    x.Title = "操作失败";
+                    x.Details = "每场活动最多发放十万个红包！";
+                    x.StatusCode = 400;
+                });
 
             var money = 0L;
 
@@ -485,6 +556,9 @@ namespace RedPocketCloud.Controllers
             Cache.SetObject("MERCHANT_CURRENT_ACTIVITY_LIMIT" + User.Current.UserName, act.Limit);
             Cache.SetObject("MERCHANT_CURRENT_ACTIVITY_RATIO_" + User.Current.UserName, act.Ratio);
 
+            // 生成红包抽取情况Redis缓存
+            Common.Drawning.GetRedPocketCaching(DB, Cache, act.Id);
+
             // 计算红包统计
             await DB.Activities
                 .Where(x => x.Id == act.Id)
@@ -496,6 +570,11 @@ namespace RedPocketCloud.Controllers
             return RedirectToAction("Activity", "RedPocket", new { id = act.Id });
         }
 
+        /// <summary>
+        /// 展示红包活动界面
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public IActionResult Activity(long id)
         {
             var act = DB.Activities.Single(x => x.Id == id);
@@ -584,6 +663,12 @@ namespace RedPocketCloud.Controllers
             return DB.Activities.Single(x => x.Id == id).Attend.ToString();
         }
 
+        /// <summary>
+        /// 处理移除红包模板请求
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="Cache"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult RemoveTemplate(long id, [FromServices] IDistributedCache Cache)
@@ -606,68 +691,9 @@ namespace RedPocketCloud.Controllers
                 x.Details = "红包页面模板已经成功删除";
             });
         }
+        #endregion
 
-        /// <summary>
-        /// 导出红包中奖纪录
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        public IActionResult Export(long id)
-        {
-            Activity activity;
-            if (User.IsInRole("Root"))
-                activity = DB.Activities.Single(x => x.Id == id);
-            else
-                activity = DB.Activities.Single(x => x.Id == id && x.MerchantId == User.Current.Id);
-
-            var src = DB.RedPockets
-                .Where(x => x.ActivityId == id && x.ReceivedTime.HasValue)
-                .OrderBy(x => x.ReceivedTime)
-                .Take(10000)
-                .ToList();
-
-            var nonawarded = activity.BriberiesCount - activity.ReceivedCount;
-
-            var tmp = Guid.NewGuid().ToString();
-            var path = Path.Combine(Directory.GetCurrentDirectory(), tmp + ".xlsx");
-            using (var excel = ExcelStream.Create(path))
-            using (var sheet1 = excel.LoadSheet(1))
-            {
-                // Headers
-                sheet1.Add(new Pomelo.Data.Excel.Infrastructure.Row { "Open Id", "昵称", "类型", "红包", "领取时间" });
-                var ids = activity.Rules.Object.Where(x => x.Type == RedPocketType.Coupon).Select(x => x.Coupon).ToList();
-                var coupon = DB.Coupons.Where(x => ids.Contains(x.Id)).ToDictionary(x => x.Id, x => x.Title);
-                foreach (var x in src)
-                {
-                    string rp;
-                    switch (x.Type)
-                    {
-                        case RedPocketType.Cash:
-                            rp = (x.Price / 100.0).ToString("0.00");
-                            break;
-                        case RedPocketType.Coupon:
-                            rp = coupon[x.CouponId.Value];
-                            break;
-                        case RedPocketType.Url:
-                            rp = x.Url;
-                            break;
-                        default:
-                            rp = "";
-                            break;
-                    }
-                    sheet1.Add(new Pomelo.Data.Excel.Infrastructure.Row { x.OpenId ?? "", x.NickName ?? "", x.Type.ToString(), rp, x.ReceivedTime.Value.ToString("yyyy-MM-dd HH:mm:ss") });
-                }
-                sheet1.Add(new Pomelo.Data.Excel.Infrastructure.Row());
-                sheet1.Add(new Pomelo.Data.Excel.Infrastructure.Row { "未领取金额（元）", "未领取红包（个）", "总参与人数" });
-                sheet1.Add(new Pomelo.Data.Excel.Infrastructure.Row { ((activity.Price - src.Sum(x => x.Price)) / 100.0).ToString("0.00"), nonawarded.ToString(), activity.Attend.ToString() });
-                sheet1.SaveChanges();
-            }
-
-            var ret = System.IO.File.ReadAllBytes(path);
-            System.IO.File.Delete(path);
-            return File(ret, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", activity.Title + ".xlsx");
-        }
-
+        #region 红包补发
         /// <summary>
         /// 展示补发红包界面
         /// </summary>
@@ -723,5 +749,86 @@ namespace RedPocketCloud.Controllers
                 });
             }
         }
+        #endregion
+
+        #region 黑名单
+        /// <summary>
+        /// 展示黑名单列表页面
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Authorize(Roles = "Root")]
+        public IActionResult BlackList(string OpenId)
+        {
+            if (string.IsNullOrWhiteSpace(OpenId))
+                return PagedView(DB.BlackLists.OrderByDescending(x => x.Id).Take(100000));
+            else
+                return PagedView(DB.BlackLists.Where(x => x.OpenId.Contains(OpenId)).OrderByDescending(x => x.Id).Take(100000));
+        }
+
+        /// <summary>
+        /// 展示添加黑名单页面
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Authorize(Roles = "Root")]
+        public IActionResult AddBlackList() => View();
+
+        /// <summary>
+        /// 处理将指定Open ID添加至黑名单中请求
+        /// </summary>
+        /// <param name="openid"></param>
+        /// <param name="unlock"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Authorize(Roles = "Root")]
+        [ValidateAntiForgeryToken]
+        public IActionResult AddBlackList(string openid, DateTime? unlock)
+        {
+            if (DB.BlackLists.FirstOrDefault(x => x.OpenId == openid) != null)
+                return Prompt(x =>
+                {
+                    x.Title = "添加失败";
+                    x.Details = $"Open ID为{ openid }的用户已经在黑名单中了，请勿重复添加！";
+                    x.RedirectText = "返回黑名单列表";
+                    x.RedirectUrl = Url.Action("BlackList", "RedPocket");
+                });
+            DB.BlackLists.Add(new BlackList
+            {
+                OpenId = openid,
+                Unlock = unlock
+            });
+            DB.SaveChanges();
+            return Prompt(x => 
+            {
+                x.Title = "操作成功";
+                x.Details = $"Open ID为{ openid }的用户成功添加至黑名单中，新的黑名单规则将在次日2:00生效。";
+                x.RedirectText = "返回黑名单列表";
+                x.RedirectUrl = Url.Action("BlackList", "RedPocket");
+            });
+        }
+
+        /// <summary>
+        /// 处理从黑名单中移除请求
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Authorize(Roles = "Root")]
+        [ValidateAntiForgeryToken]
+        public IActionResult RemoveBlackList(long id)
+        {
+            DB.BlackLists
+                .Where(x => x.Id == id)
+                .Delete();
+            return Prompt(x =>
+            {
+                x.Title = "操作成功";
+                x.Details = "已将其从黑名单中移除！";
+                x.RedirectText = "返回黑名单列表";
+                x.RedirectUrl = Url.Action("BlackList", "RedPocket");
+            });
+        }
+        #endregion
     }
 }
