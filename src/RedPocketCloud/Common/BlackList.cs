@@ -15,7 +15,7 @@ namespace RedPocketCloud.Common
         public static void BuildBlackListCache(RpcContext DB)
         {
             BlackListCache = DB.BlackLists
-                .Take(100000)
+                .OrderBy(x => x.Id)
                 .Select(x => x.OpenId)
                 .ToList();
         }

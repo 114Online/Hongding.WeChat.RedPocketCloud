@@ -28,7 +28,6 @@ namespace RedPocketCloud.Common
                     .AsNoTracking()
                     .Where(x => x.ActivityId == ActivityId && string.IsNullOrEmpty(x.OpenId))
                     .Select(x => x.Id)
-                    .Take(100000)
                     .ToListAsync()) // Store the result to memory
                     .OrderBy(x => Guid.NewGuid()) // Random order
                     .ToList();

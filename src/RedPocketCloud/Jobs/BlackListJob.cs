@@ -43,14 +43,12 @@ namespace RedPocketCloud.Jobs
             var begin = DateTime.Now.Date.AddDays(-1).AddHours(1);
             var activities = DB.Activities
                 .Where(x => x.Begin >= begin)
-                .Take(100000)
                 .ToList();
             foreach(var act in activities)
             {
                 var redpockets = DB.RedPockets
                     .Where(x => x.ActivityId == act.Id)
                     .OrderBy(x => x.ReceivedTime)
-                    .Take(100000)
                     .GroupBy(x => x.OpenId)
                     .Select(x => new
                     {

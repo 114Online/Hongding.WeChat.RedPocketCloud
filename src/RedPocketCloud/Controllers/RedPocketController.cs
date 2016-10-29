@@ -98,7 +98,6 @@ namespace RedPocketCloud.Controllers
             var src = DB.RedPockets
                 .Where(x => x.ActivityId == id && x.ReceivedTime.HasValue)
                 .OrderBy(x => x.ReceivedTime)
-                .Take(10000)
                 .ToList();
 
             var nonawarded = activity.BriberiesCount - activity.ReceivedCount;
@@ -597,7 +596,6 @@ namespace RedPocketCloud.Controllers
             ViewBag.Briberies = DB.RedPockets
                 .Where(x => x.ActivityId == id && x.ReceivedTime.HasValue)
                 .OrderByDescending(x => x.ReceivedTime)
-                .Take(10000)
                 .ToList();
             return View(act);
         }
@@ -761,9 +759,9 @@ namespace RedPocketCloud.Controllers
         public IActionResult BlackList(string OpenId)
         {
             if (string.IsNullOrWhiteSpace(OpenId))
-                return PagedView(DB.BlackLists.OrderByDescending(x => x.Id).Take(100000));
+                return PagedView(DB.BlackLists.OrderByDescending(x => x.Id));
             else
-                return PagedView(DB.BlackLists.Where(x => x.OpenId.Contains(OpenId)).OrderByDescending(x => x.Id).Take(100000));
+                return PagedView(DB.BlackLists.Where(x => x.OpenId.Contains(OpenId)).OrderByDescending(x => x.Id));
         }
 
         /// <summary>

@@ -22,6 +22,7 @@
             <thead>
                 <tr>
                     <th>Open ID</th>
+                    <th>当前状态</th>
                     <th>解锁时间</th>
                     <th>操作</th>
                 </tr>
@@ -31,6 +32,16 @@
                 {
                     <tr>
                         <td>@x.OpenId</td>
+                        <td>
+                            @if (RedPocketCloud.Common.BlackList.BlackListCache.Any(y => y == x.OpenId))
+                            {
+                                <span class="label label-success">已生效</span>
+                            }
+                            else
+                            {
+                                <span class="label label-danger">未生效</span>
+                            }
+                        </td>
                         <td>@(x.Unlock.HasValue ? x.Unlock.Value.ToString() : "永久封禁")</td>
                         <td><a href="javascript:Delete(@x.Id);">解除封禁</a></td>
                     </tr>
