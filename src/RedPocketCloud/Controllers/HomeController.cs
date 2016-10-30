@@ -34,6 +34,7 @@ namespace RedPocketCloud.Controllers
                 var pl = DB.PayLogs
                     .Where(x => x.MerchantId == User.Current.Id)
                     .Where(x => x.Time <= i)
+                    .OrderBy(x => x.Time)
                     .LastOrDefault();
                 if (pl == null)
                     money.Add(User.Current.Balance - DB.PayLogs.Where(x => x.MerchantId == User.Current.Id).Sum(x => x.Price));
