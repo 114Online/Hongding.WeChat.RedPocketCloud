@@ -64,6 +64,6 @@
       }
     ],
     "Domain": "http://m5.114-online.com",
-    "Redis": "139.129.210.149,password=Sun060810,connectTimeout=100000,139.129.210.116,password=Sun060810,connectTimeout=100000,139.129.210.136,password=Sun060810,connectTimeout=100000,139.129.204.211,password=Sun060810,connectTimeout=100000"
+    "Redis": "139.129.210.149,password=Sun060810,connectTimeout=1000,139.129.210.116,password=Sun060810,connectTimeout=1000,139.129.210.136,password=Sun060810,connectTimeout=1000,139.129.204.211,password=Sun060810,connectTimeout=1000"
   }
 }

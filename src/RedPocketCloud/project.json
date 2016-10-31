@@ -23,7 +23,8 @@
     "Pomelo.Extensions.Caching.Redis": "1.0.0",
     "Pomelo.EntityFrameworkCore.MySql": "1.0.0",
     "Pomelo.EntityFrameworkCore.MyCat": "1.0.0-prerelease-20160822",
-    "Pomelo.EntityFrameworkCore.Lolita.MySql": "1.0.1-prerelease-10000"
+    "Pomelo.EntityFrameworkCore.Lolita.MySql": "1.0.1-prerelease-10000",
+    "Pomelo.Threading.Tasks": "1.0.0"
   },
 
   "tools": {
