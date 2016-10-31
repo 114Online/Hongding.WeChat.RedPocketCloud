@@ -89,7 +89,7 @@ namespace RedPocketCloud.Controllers
         /// <param name="Hub"></param>
         /// <returns></returns>
         [NonAction]
-        private async Task CheckActivityEnd(long activity_id, string Merchant, IDistributedCache Cache, IHubContext<RedPocketHub> Hub)
+        private async Task CheckActivityEndAsync(long activity_id, string Merchant, IDistributedCache Cache, IHubContext<RedPocketHub> Hub)
         {
             var affected = await DB.Activities
                 .Where(x => x.Id == activity_id && x.IsBegin && x.BriberiesCount <= x.ReceivedCount && x.BriberiesCount != 0)
@@ -286,8 +286,18 @@ namespace RedPocketCloud.Controllers
             if (NeedAuthorize)
                 return Content("AUTH");
             
+            // 获取活动ID
+            var activityId = await Cache.GetObjectAsync<long?>("MERCHANT_CURRENT_ACTIVITY_" + Merchant);
+            if (activityId == null)
+                return Content("NO");
+            
+            // 参与人数缓存
+            DB.Activities
+                .Where(x => x.Id == activityId.Value)
+                .SetField(x => x.Attend).Plus(1)
+                .UpdateAsync();
+
             var OpenId = Request.Cookies["x-OpenId"];
-            long? activityId = null;
             int? limit = null, activity_limit = null;
             List<DrawnLogViewModel> logs = new List<DrawnLogViewModel>();
 
@@ -303,24 +313,6 @@ namespace RedPocketCloud.Controllers
                     else
                         return null;
                 }), 
-                Task.Run(async ()=>
-                {
-                    // 获取活动ID
-                    activityId = await Cache.GetObjectAsync<long?>("MERCHANT_CURRENT_ACTIVITY_" + Merchant);
-                    if (activityId == null)
-                    {
-                        return "NO";
-                    }
-                    else
-                    {
-                        // 参与人数缓存
-                        DB.Activities
-                            .Where(x => x.Id == activityId.Value)
-                            .SetField(x => x.Attend).Plus(1)
-                            .UpdateAsync();
-                        return null;
-                    }
-                }),
                 Task.Run(async ()=>
                 {
                     // 判断是否在黑名单中
@@ -527,7 +519,7 @@ namespace RedPocketCloud.Controllers
             Cache.SetObjectAsync("REDPOCKET_LOGS_" + OpenId, logs);
 
             // 检查剩余红包数
-            CheckActivityEnd(activityId.Value, Merchant, Cache, Hub);
+            CheckActivityEndAsync(activityId.Value, Merchant, Cache, Hub);
 
             // 返回中奖信息
             if (prize.Type == RedPocketType.Cash)
@@ -554,8 +546,18 @@ namespace RedPocketCloud.Controllers
             if (NeedAuthorize)
                 return Content("AUTH");
 
+            // 获取活动ID
+            var activityId = await Cache.GetObjectAsync<long?>("MERCHANT_CURRENT_ACTIVITY_" + Merchant);
+            if (activityId == null)
+                return Content("NO");
+
+            // 参与人数缓存
+            DB.Activities
+                .Where(x => x.Id == activityId.Value)
+                .SetField(x => x.Attend).Plus(1)
+                .UpdateAsync();
+
             var OpenId = Request.Cookies["x-OpenId"];
-            long? activityId = null;
             int? limit = null, activity_limit = null;
             List<DrawnLogViewModel> logs = new List<DrawnLogViewModel>();
 
@@ -570,24 +572,6 @@ namespace RedPocketCloud.Controllers
                         return "RETRY";
                     else
                         return null;
-                }),
-                Task.Run(async () =>
-                {
-                    // 获取活动ID
-                    activityId = await Cache.GetObjectAsync<long?>("MERCHANT_CURRENT_COMMAND_ACTIVITY_" + Merchant);
-                    if (activityId == null)
-                    {
-                        return "NO";
-                    }
-                    else
-                    {
-                        // 参与人数缓存
-                        DB.Activities
-                            .Where(x => x.Id == activityId.Value)
-                            .SetField(x => x.Attend).Plus(1)
-                            .UpdateAsync();
-                        return null;
-                    }
                 }),
                 Task.Run(async () =>
                 {
@@ -794,7 +778,7 @@ namespace RedPocketCloud.Controllers
             Cache.SetObjectAsync("REDPOCKET_LOGS_" + OpenId, logs);
 
             // 检查剩余红包数
-            CheckActivityEnd(activityId.Value, Merchant, Cache, Hub);
+            CheckActivityEndAsync(activityId.Value, Merchant, Cache, Hub);
 
             // 返回中奖信息
             if (prize.Type == RedPocketType.Cash)
