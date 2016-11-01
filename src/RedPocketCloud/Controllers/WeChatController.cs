@@ -397,7 +397,10 @@ namespace RedPocketCloud.Controllers
             #region 尝试写入中奖数据
             var prize = await GetRedPocket(DB, Cache, activityId.Value);
             if (prize == null)
-                return Content("RETRY");
+            {
+                CheckActivityEndAsync(activityId.Value, Merchant, Cache, Hub);
+                return Content("NO");
+            }
 
             // 中奖发放红包
             var effected = DB.RedPockets
@@ -661,7 +664,10 @@ namespace RedPocketCloud.Controllers
             #region 尝试写入中奖数据
             var prize = await GetRedPocket(DB, Cache, activityId.Value);
             if (prize == null)
+            {
+                CheckActivityEndAsync(activityId.Value, Merchant, Cache, Hub);
                 return Content("NO");
+            }
 
             lock (this)
             {
