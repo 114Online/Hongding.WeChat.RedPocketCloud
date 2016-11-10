@@ -360,7 +360,7 @@ namespace RedPocketCloud.Controllers
                     }
 
                     // 隔离商户上限
-                    logs = logs.Where(x => x.Time >= DateTime.Now.AddDays(-1) && x.Merchant == Merchant).ToList();
+                    logs = logs.Where(x => x.Time >= DateTime.Now.Date && x.Merchant == Merchant).ToList();
                     if (logs.Count >= limit.Value || logs.Where(x => x.ActivityId == activityId).Count() >= activity_limit.Value)
                         return "EXCEEDED";
                     return null;
@@ -518,7 +518,7 @@ namespace RedPocketCloud.Controllers
                 Time = DateTime.Now,
                 Merchant = Merchant
             });
-            logs = logs.Where(x => x.Time >= DateTime.Now.AddDays(-1)).ToList();
+            logs = logs.Where(x => x.Time >= DateTime.Now.Date).ToList();
             Cache.SetObjectAsync("REDPOCKET_LOGS_" + OpenId, logs);
 
             // 检查剩余红包数
@@ -637,7 +637,7 @@ namespace RedPocketCloud.Controllers
                     }
 
                     // 隔离商户上限
-                    logs = logs.Where(x => x.Time >= DateTime.Now.AddDays(-1) && x.Merchant == Merchant).ToList();
+                    logs = logs.Where(x => x.Time >= DateTime.Now.Date && x.Merchant == Merchant).ToList();
                     if (logs.Count >= limit.Value || logs.Where(x => x.ActivityId == activityId).Count() >= activity_limit.Value)
                         return "EXCEEDED";
                     return null;
@@ -780,7 +780,7 @@ namespace RedPocketCloud.Controllers
                 Time = DateTime.Now,
                 Merchant = Merchant
             });
-            logs = logs.Where(x => x.Time >= DateTime.Now.AddDays(-1)).ToList();
+            logs = logs.Where(x => x.Time >= DateTime.Now.Date).ToList();
             Cache.SetObjectAsync("REDPOCKET_LOGS_" + OpenId, logs);
 
             // 检查剩余红包数
