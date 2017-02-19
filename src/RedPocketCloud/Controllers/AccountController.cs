@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using RedPocketCloud.Models;
+using Hongding.WeChat.UserCenter.SDK;
 
 namespace RedPocketCloud.Controllers
 {
@@ -28,13 +30,35 @@ namespace RedPocketCloud.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(string username, string password)
+        public async Task<IActionResult> Login([FromServices] HongdingUC UC, [FromServices] SignInManager<User> SM, string username, string password)
         {
-            var result = await SignInManager.PasswordSignInAsync(username, password, false, false);
-            if (result.Succeeded)
-                return RedirectToAction("Index", "Home");
+            var result = await UC.CheckTenantAccountAsync(username, password);
+            if (result == null)
+            {
+                return View();
+            }
+
+            var user = await User.Manager.FindByNameAsync(username);
+            if (user == null)
+            {
+                user = new User
+                {
+                    UserName = username,
+                    Merchant = result.Name
+                };
+                await User.Manager.CreateAsync(user, password);
+                await User.Manager.AddToRoleAsync(user, result.Role);
+            }
             else
-                return RedirectToAction("Login", "Account");
+            {
+                user.Merchant = result.Name;
+                foreach (var x in user.Roles)
+                    DB.UserRoles.Remove(x);
+                DB.SaveChanges();
+                await User.Manager.AddToRoleAsync(user, result.Role);
+            }
+            await SM.SignInAsync(user, true);
+            return RedirectToAction("Index", "Home");
         }
 
         /// <summary>
@@ -65,27 +89,30 @@ namespace RedPocketCloud.Controllers
         /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Password(string old, string @new, string confirm)
+        public async Task<IActionResult> Password([FromServices]HongdingUC UC, string old, string @new, string confirm)
         {
             if (@new != confirm)
+            {
                 return Prompt(x =>
                 {
-                    x.Title = "修改失败";
-                    x.Details = "两次密码不一致";
+                    x.Title = "操作失败";
+                    x.Details = "两次密码输入不一致，请返回重试！";
                 });
-            var result = await User.Manager.ChangePasswordAsync(User.Current, old, @new);
-            if (result.Succeeded)
+            }
+            var result = await UC.ChangeTenantPasswordAsync(User.Current.UserName, old, @new);
+            if (!result)
+            {
                 return Prompt(x =>
                 {
-                    x.Title = "修改成功";
-                    x.Details = "新密码已经生效！";
+                    x.Title = "操作失败";
+                    x.Details = "上游授权中心服务器拒绝了您的操作！";
                 });
-            else
-                return Prompt(x =>
-                {
-                    x.Title = "修改失败";
-                    x.Details = result.Errors.First().Description;
-                });
+            }
+            return Prompt(x =>
+            {
+                x.Title = "操作成功";
+                x.Details = "您的新密码已经生效！";
+            });
         }
 
         /// <summary>
@@ -94,47 +121,11 @@ namespace RedPocketCloud.Controllers
         /// <returns></returns>
         [HttpGet]
         [Authorize(Roles = "Root")]
-        public IActionResult Create() => View();
-
-        /// <summary>
-        /// 处理创建商户请求
-        /// </summary>
-        /// <param name="balance"></param>
-        /// <param name="username"></param>
-        /// <param name="password"></param>
-        /// <param name="role"></param>
-        /// <returns></returns>
-        [HttpPost]
-        [Authorize(Roles = "Root")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(double balance, string username, string password, string role, string merchant)
+        public IActionResult Create() => Prompt(x => 
         {
-            var user = new User { UserName = username, Balance = balance, Merchant = merchant };
-            var result = await UserManager.CreateAsync(user, password);
-            if (!result.Succeeded)
-                return Prompt(x => 
-                {
-                    x.Title = "创建商户失败";
-                    x.Details = result.Errors.First().Description;
-                });
-            await UserManager.AddToRoleAsync(user, role);
-            if (balance > 0)
-            {
-                DB.PayLogs.Add(new PayLog
-                {
-                    Balance = balance,
-                    Price = balance,
-                    Time = DateTime.Now,
-                    MerchantId = user.Id
-                });
-                DB.SaveChanges();
-            }
-            return Prompt(x =>
-            {
-                x.Title = "创建成功";
-                x.Details = $"用户{ user.UserName }已经成功创建";
-            });
-        }
+            x.Title = "操作失败";
+            x.Details = "请在User Center中创建租户！";
+        });
 
         /// <summary>
         /// 展示商户列表
@@ -193,33 +184,17 @@ namespace RedPocketCloud.Controllers
         /// <returns></returns>
         [HttpGet]
         [Authorize(Roles = "Root")]
-        public async Task<IActionResult> ResetPwd(string id)
+        public async Task<IActionResult> ResetPwd( string id)
         {
-            var user = await UserManager.FindByIdAsync(id);
-            return View(user);
-        }
-
-        /// <summary>
-        /// 处理强制修改密码请求
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="pwd"></param>
-        /// <returns></returns>
-        [HttpPost]
-        [Authorize(Roles = "Root")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ResetPwd(string id, string pwd)
-        {
-            var user = await UserManager.FindByIdAsync(id);
-            var token = await UserManager.GeneratePasswordResetTokenAsync(user);
-            await UserManager.ResetPasswordAsync(user, token, pwd);
-            return Prompt(x =>
+            return Prompt(x => 
             {
-                x.Title = "修改成功";
-                x.Details = $"{ user.UserName }的密码已经被重置成为了{ pwd }";
+                x.Title = "操作失败";
+                x.Details = "请进入User Center强制更改租户密码！";
+                x.RedirectText = "访问User Center";
+                x.RedirectUrl = string.IsNullOrEmpty(Startup.Config["UserCenter:Url"]) ? "http://uc.114-online.com" : Startup.Config["UserCenter:Url"];
             });
         }
-
+        
         /// <summary>
         /// 处理设置红包每日上限请求
         /// </summary>

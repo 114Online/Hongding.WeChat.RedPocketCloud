@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -17,7 +18,6 @@ namespace RedPocketCloud
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddConfiguration(out Config);
-            
             services.AddMvc();
             services.AddRedis(x =>
             {
@@ -43,20 +43,13 @@ namespace RedPocketCloud
                 x.IdleTimeout = new TimeSpan(1, 0, 0);
             });
             services.AddLogging();
-            if (Config["Host:Mode"] == "MySQL")
-                services.AddDbContext<RpcContext>(x => 
-                {
-                    x.UseMySql(Config["Host:ConnectionString"]);
-                    x.UseMySqlLolita();
-                });
-            else
-                services.AddDbContext<RpcContext>(x => 
-                {
-                    x.UseMyCat(Config["Host:ConnectionString"]);
-                    foreach (var dn in Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(System.IO.File.ReadAllText(System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "config.json"))).Host.DataNodes)
-                        x.UseDataNode((string)dn.Server, (string)dn.Database, (string)dn.Username, (string)dn.Password);
-                    x.UseMySqlLolita();
-                });
+            services.AddDbContext<RpcContext>(x => 
+            {
+                x.UseMyCat(Config["Host:ConnectionString"]);
+                foreach (var dn in Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(System.IO.File.ReadAllText(System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "config.json"))).Host.DataNodes)
+                    x.UseDataNode((string)dn.Server, (string)dn.Database, (string)dn.Username, (string)dn.Password);
+                x.UseMySqlLolita();
+            });
             services.AddIdentity<User, IdentityRole<long>>(x =>
             {
                 x.Password.RequireDigit = false;
@@ -68,13 +61,14 @@ namespace RedPocketCloud
             })
                 .AddDefaultTokenProviders()
                 .AddEntityFrameworkStores<RpcContext, long>();
+            services.AddHongdingUserCenter(Config["UserCenter:AppId"], Config["UserCenter:Secret"], new Uri(Config["UserCenter:Url"]));
+            services.AddAesCrypto(Config["Host:Aes:PrivateKey"], Config["Host:Aes:IV"]);
         }
 
         public async void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             loggerFactory.AddConsole(LogLevel.Error);
             app.UseSession();
-            app.UseWebSockets();
             app.UseSignalR();
             app.UseIdentity();
             app.UseBlobStorage<Blob, long>("/assets/js/jquery.pomelo.fileupload.js");

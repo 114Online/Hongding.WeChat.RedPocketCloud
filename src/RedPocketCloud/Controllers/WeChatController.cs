@@ -36,6 +36,9 @@ namespace RedPocketCloud.Controllers
         public static double Limiting = 1;
         public static Random rand = new Random();
 
+        [Inject]
+        public AesCrypto Aes { get; set; }
+
         /// <summary>
         /// 计算回调路径
         /// </summary>
@@ -64,7 +67,7 @@ namespace RedPocketCloud.Controllers
         /// <summary>
         /// 判断是否需要微信授权
         /// </summary>
-        private bool NeedAuthorize => !Request.Cookies.ContainsKey("x-OpenId") || string.IsNullOrWhiteSpace(Request.Cookies["x-OpenId"]);
+        private bool NeedAuthorize => !Request.Cookies.ContainsKey("a-OpenId") || string.IsNullOrWhiteSpace(Request.Cookies["a-OpenId"]);
         /// <summary>
         /// 跳转至入口点
         /// </summary>
@@ -221,7 +224,7 @@ namespace RedPocketCloud.Controllers
             try
             {
                 var oid = await AuthorizeAsync(code);
-                HttpContext.Response.Cookies.Append("x-OpenId", oid.Id, new CookieOptions { Expires = DateTime.Now.AddDays(7) });
+                HttpContext.Response.Cookies.Append("a-OpenId", Aes.Encrypt(oid.Id), new CookieOptions { Expires = DateTime.Now.AddDays(7) });
                 HttpContext.Response.Cookies.Append("x-AvatarUrl", oid.AvatarUrl, new CookieOptions { Expires = DateTime.Now.AddDays(7) });
                 HttpContext.Response.Cookies.Append("x-NickName", oid.NickName, new CookieOptions { Expires = DateTime.Now.AddDays(7) });
                 return Redirect(next);
@@ -297,7 +300,7 @@ namespace RedPocketCloud.Controllers
                 .SetField(x => x.Attend).Plus(1)
                 .UpdateAsync();
 
-            var OpenId = Request.Cookies["x-OpenId"];
+            var OpenId = Aes.Decrypt(Request.Cookies["a-OpenId"]);
             int? limit = null, activity_limit = null;
             List<DrawnLogViewModel> logs = new List<DrawnLogViewModel>();
 
@@ -406,7 +409,7 @@ namespace RedPocketCloud.Controllers
             var effected = DB.RedPockets
                 .Where(x => x.Id == prize.Id)
                 .Where(x => string.IsNullOrEmpty(x.OpenId))
-                .SetField(x => x.OpenId).WithValue(Request.Cookies["x-OpenId"])
+                .SetField(x => x.OpenId).WithValue(Aes.Decrypt(Request.Cookies["a-OpenId"]))
                 .SetField(x => x.NickName).WithValue(Request.Cookies["x-NickName"])
                 .SetField(x => x.AvatarUrl).WithValue(Request.Cookies["x-AvatarUrl"])
                 .SetField(x => x.ReceivedTime).WithValue(DateTime.Now)
@@ -433,7 +436,7 @@ namespace RedPocketCloud.Controllers
             if (prize.Type == RedPocketType.Cash)
             {
                 // 微信转账
-                TransferMoneyAsync(prize.Id, Request.Cookies["x-OpenId"], prize.Price, Startup.Config["WeChat:RedPocket:TransferDescription"]);
+                TransferMoneyAsync(prize.Id, Aes.Decrypt(Request.Cookies["a-OpenId"]), prize.Price, Startup.Config["WeChat:RedPocket:TransferDescription"]);
 
                 // 从账户中扣除
                 DB.Users
@@ -457,7 +460,7 @@ namespace RedPocketCloud.Controllers
                 {
                     CouponId = prize.CouponId.Value,
                     Expire = DateTime.Now.AddDays(coupon.Time),
-                    OpenId = Request.Cookies["x-OpenId"],
+                    OpenId = Aes.Decrypt(Request.Cookies["a-OpenId"]),
                     Time = DateTime.Now,
                     MerchantId = coupon.MerchantId
                 });
@@ -480,7 +483,7 @@ namespace RedPocketCloud.Controllers
                     avatar = Request.Cookies["x-AvatarUrl"],
                     name = Request.Cookies["x-NickName"],
                     price = prize.Price,
-                    id = Request.Cookies["x-OpenId"]
+                    id = Aes.Decrypt(Request.Cookies["a-OpenId"])
                 });
             }
             else if (prize.Type == RedPocketType.Url)
@@ -491,7 +494,7 @@ namespace RedPocketCloud.Controllers
                     time = DateTime.Now,
                     avatar = Request.Cookies["x-AvatarUrl"],
                     name = Request.Cookies["x-NickName"],
-                    id = Request.Cookies["x-OpenId"]
+                    id = Aes.Decrypt(Request.Cookies["a-OpenId"])
                 });
             }
             else
@@ -502,7 +505,7 @@ namespace RedPocketCloud.Controllers
                     time = DateTime.Now,
                     avatar = Request.Cookies["x-AvatarUrl"],
                     name = Request.Cookies["x-NickName"],
-                    id = Request.Cookies["x-OpenId"],
+                    id = Aes.Decrypt(Request.Cookies["a-OpenId"]),
                     coupon = coupon.Title
                 });
             }
@@ -560,7 +563,7 @@ namespace RedPocketCloud.Controllers
                 .SetField(x => x.Attend).Plus(1)
                 .UpdateAsync();
 
-            var OpenId = Request.Cookies["x-OpenId"];
+            var OpenId = Aes.Decrypt(Request.Cookies["a-OpenId"]);
             int? limit = null, activity_limit = null;
             List<DrawnLogViewModel> logs = new List<DrawnLogViewModel>();
 
@@ -675,7 +678,7 @@ namespace RedPocketCloud.Controllers
                 var effected = DB.RedPockets
                     .Where(x => x.Id == prize.Id)
                     .Where(x => string.IsNullOrEmpty(x.OpenId))
-                    .SetField(x => x.OpenId).WithValue(Request.Cookies["x-OpenId"])
+                    .SetField(x => x.OpenId).WithValue(Aes.Decrypt(Request.Cookies["a-OpenId"]))
                     .SetField(x => x.NickName).WithValue(Request.Cookies["x-NickName"])
                     .SetField(x => x.AvatarUrl).WithValue(Request.Cookies["x-AvatarUrl"])
                     .SetField(x => x.ReceivedTime).WithValue(DateTime.Now)
@@ -699,7 +702,7 @@ namespace RedPocketCloud.Controllers
             if (prize.Type == RedPocketType.Cash)
             {
                 // 微信转账
-                TransferMoneyAsync(prize.Id, Request.Cookies["x-OpenId"], prize.Price, Startup.Config["WeChat:RedPocket:TransferDescription"]);
+                TransferMoneyAsync(prize.Id, Aes.Decrypt(Request.Cookies["a-OpenId"]), prize.Price, Startup.Config["WeChat:RedPocket:TransferDescription"]);
 
                 // 从账户中扣除
                 DB.Users
@@ -723,7 +726,7 @@ namespace RedPocketCloud.Controllers
                 {
                     CouponId = prize.CouponId.Value,
                     Expire = DateTime.Now.AddDays(coupon.Time),
-                    OpenId = Request.Cookies["x-OpenId"],
+                    OpenId = Aes.Decrypt(Request.Cookies["a-OpenId"]),
                     Time = DateTime.Now,
                     MerchantId = coupon.MerchantId
                 });
@@ -746,7 +749,7 @@ namespace RedPocketCloud.Controllers
                     avatar = Request.Cookies["x-AvatarUrl"],
                     name = Request.Cookies["x-NickName"],
                     price = prize.Price,
-                    id = Request.Cookies["x-OpenId"]
+                    id = Aes.Decrypt(Request.Cookies["a-OpenId"])
                 });
             }
             else if (prize.Type == RedPocketType.Url)
@@ -757,7 +760,7 @@ namespace RedPocketCloud.Controllers
                     time = DateTime.Now,
                     avatar = Request.Cookies["x-AvatarUrl"],
                     name = Request.Cookies["x-NickName"],
-                    id = Request.Cookies["x-OpenId"]
+                    id = Aes.Decrypt(Request.Cookies["a-OpenId"])
                 });
             }
             else
@@ -768,7 +771,7 @@ namespace RedPocketCloud.Controllers
                     time = DateTime.Now,
                     avatar = Request.Cookies["x-AvatarUrl"],
                     name = Request.Cookies["x-NickName"],
-                    id = Request.Cookies["x-OpenId"],
+                    id = Aes.Decrypt(Request.Cookies["a-OpenId"]),
                     coupon = coupon.Title
                 });
             }
@@ -818,7 +821,7 @@ namespace RedPocketCloud.Controllers
                 return RedirectToEntry(Operation.RedPocket);
             var coupons = DB.Coupons.ToList();
             var ret = DB.Wallets
-                .Where(x => x.OpenId == Request.Cookies["x-OpenId"])
+                .Where(x => x.OpenId == Aes.Decrypt(Request.Cookies["a-OpenId"]))
                 .Join(coupons, x => x.CouponId, x => x.Id, (x, y) => new WalletViewModel
                 {
                     Id = x.Id,
@@ -840,7 +843,7 @@ namespace RedPocketCloud.Controllers
                 return RedirectToEntry(Operation.RedPocket);
             var coupons = DB.Coupons.ToList();
             var ret = DB.Wallets
-                .Where(x => x.Id == id && x.OpenId == Request.Cookies["x-OpenId"])
+                .Where(x => x.Id == id && x.OpenId == Aes.Decrypt(Request.Cookies["a-OpenId"]))
                 .Join(coupons, x => x.CouponId, x => x.Id, (x, y) => new WalletViewModel
                 {
                     Id = x.Id,
